@@ -66,7 +66,7 @@ CREATE TABLE cache.events (
 );
 
 -- The attributes table records event attributes.
-CREATE TABLE cache.attributes_tbl (
+CREATE TABLE cache.attributes (
    event_id      BIGINT NOT NULL,
    key           VARCHAR NOT NULL, -- bare key
    composite_key VARCHAR NOT NULL, -- composed type.key
@@ -74,7 +74,7 @@ CREATE TABLE cache.attributes_tbl (
    UNIQUE (event_id, key)
 );
 
-CREATE OR REPLACE VIEW cache.attributes AS SELECT * FROM cache.attributes_tbl;
+--CREATE OR REPLACE VIEW cache.attributes AS SELECT * FROM cache.attributes_tbl;
 
 CREATE TABLE cache.queue (
 	channel CHARACTER VARYING, 
