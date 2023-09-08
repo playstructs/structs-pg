@@ -88,8 +88,8 @@ $BODY$
 BEGIN
 	IF NEW.composite_key = 'structs.structs.EventCacheInvalidation.object_type' THEN
 		INSERT INTO cache.queue (channel, id) values (
-                new.value,
-	            (SELECT attributes.value FROM cache.attributes WHERE attributes.composite_key = 'structs.structs.EventCacheInvalidation.object_id' and attributes.event_id = NEW.event_id)
+                trim ('"' from new.value),
+	            trim ('"' from (SELECT attributes.value FROM cache.attributes WHERE attributes.composite_key = 'structs.structs.EventCacheInvalidation.object_id' and attributes.event_id = NEW.event_id))
 	    ) ON CONFLICT ON CONSTRAINT queue_unique DO NOTHING;
 	END IF;
 	RETURN NEW; 
