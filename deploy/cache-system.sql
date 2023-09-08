@@ -98,4 +98,10 @@ $BODY$
 CREATE TRIGGER ADD_QUEUE INSTEAD OF INSERT ON cache.attributes
   FOR EACH ROW EXECUTE PROCEDURE cache.ADD_QUEUE();
 
+GRANT INSERT, SELECT on cache.events to structs-indexer;
+GRANT INSERT, SELECT on cache.blocks to structs-indexer;
+GRANT INSERT, SELECT on cache.tx_results to structs-indexer;
+GRANT INSERT, SELECT on cache.attributes to structs-indexer;
+
 COMMIT;
+
