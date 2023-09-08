@@ -30,7 +30,7 @@ CREATE INDEX idx_blocks_height_chain ON cache.blocks(height, chain_id);
 
 -- The tx_results table records metadata about transaction results.  Note that
 -- the events from a transaction are stored separately.
-CREATE TABLE cache.tx_results_tbl (
+CREATE TABLE cache.tx_results (
   rowid BIGSERIAL PRIMARY KEY,
 
   -- The block to which this transaction belongs.
@@ -47,8 +47,8 @@ CREATE TABLE cache.tx_results_tbl (
   UNIQUE (block_id, index)
 );
 
-CREATE OR REPLACE VIEW cache.tx_results AS SELECT * FROM cache.tx_results_tbl;
-CREATE OR REPLACE RULE block_tx_results AS ON INSERT to cache.tx_results DO INSTEAD NOTHING;
+--CREATE OR REPLACE VIEW cache.tx_results AS SELECT * FROM cache.tx_results_tbl;
+--CREATE OR REPLACE RULE block_tx_results AS ON INSERT to cache.tx_results DO INSTEAD NOTHING;
 
 
 -- The events table records events. All events (both block and transaction) are
