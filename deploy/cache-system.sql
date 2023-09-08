@@ -86,8 +86,11 @@ CREATE OR REPLACE FUNCTION cache.ADD_QUEUE()
   RETURNS trigger AS
 $BODY$
 BEGIN
-	IF NEW.key like 'Cache-%' THEN
-		INSERT INTO cache.queue (channel, id) values (substring(NEW.key, 7), NEW.value) ON CONFLICT ON CONSTRAINT queue_unique DO NOTHING;
+	IF NEW.type = 'structs.structs.EventCacheInvalidation' THEN
+		INSERT INTO cache.queue (channel, id) values (
+	            (SELECT attributes.value FROM cache.attributes WHERE attributes.composite_key = 'structs.structs.EventCacheInvalidation.object_type' and attributes.event_id = NEW.rowid),
+	            (SELECT attributes.value FROM cache.attributes WHERE attributes.composite_key = 'structs.structs.EventCacheInvalidation.object_id' and attributes.event_id = NEW.rowid)
+	    ) ON CONFLICT ON CONSTRAINT queue_unique DO NOTHING;
 	END IF;
 	RETURN NEW; 
 END
@@ -95,7 +98,7 @@ $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER
   COST 100;
 
-CREATE TRIGGER ADD_QUEUE AFTER INSERT ON cache.attributes
+CREATE TRIGGER ADD_QUEUE AFTER INSERT ON cache.events
   EXECUTE PROCEDURE cache.ADD_QUEUE();
 
 --CREATE TRIGGER ADD_QUEUE INSTEAD OF INSERT ON cache.attributes
