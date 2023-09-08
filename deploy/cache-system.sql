@@ -78,7 +78,7 @@ CREATE OR REPLACE VIEW cache.attributes AS SELECT * FROM cache.attributes_tbl;
 
 CREATE TABLE cache.queue (
 	channel CHARACTER VARYING, 
-	id INTEGER,
+	id CHARACTER VARYING,
 	CONSTRAINT queue_unique UNIQUE (channel, id)
 ); 
 
