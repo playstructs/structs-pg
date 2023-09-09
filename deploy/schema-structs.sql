@@ -4,4 +4,6 @@ BEGIN;
 
 CREATE SCHEMA structs;
 
+
+
 COMMIT;
