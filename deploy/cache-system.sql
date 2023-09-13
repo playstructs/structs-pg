@@ -125,13 +125,13 @@ BEGIN;
                 VALUES (
                     (body->>'id')::INTEGER,
                     body->>'endpoint',
-                    '',     -- public_key
-                    '',     -- name
-                    '',     -- logo
-                    '',     -- socials
-                    '',     -- website
-                    false,  -- this_infrastructure
-                    '',     -- status
+                    '',             -- public_key
+                    '',             -- name
+                    '',             -- logo
+                    '{}'::JSONB,    -- socials
+                    '',             -- website
+                    false,          -- this_infrastructure
+                    '',             -- status
                     (body->>'guildJoinType')::INTEGER,
                     (body->>'infusionJoinMinimum')::INTEGER,
                     (body->>'primaryReactorId')::INTEGER,
