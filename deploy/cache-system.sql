@@ -90,7 +90,7 @@ BEGIN;
     BEGIN
         IF NEW.composite_key = 'structs.EventAllocation.allocation' THEN
 
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.allocation
                 VALUES (
@@ -224,31 +224,172 @@ BEGIN;
                 WHERE planet.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
+            body := (NEW.value)::jsonb
+
+            INSERT INTO structs.player
+                VALUES (
+                    body->>'id',
+                    '', -- username
+                    '', -- pfp
+                    body->>'guildId',
+                    body->>'substationId',
+                    body->>'planetId',
+                    body->>'load',
+                    body->>'storage',
+                    body->>'status',
+                    NOW(),
+                    NOW()
+                ) ON CONFLICT (id) DO UPDATE
+                    SET
+                        guild_id = EXCLUDED.guild_id,
+                        substation_id = EXCLUDED.substation_id,
+                        planet_id = EXCLUDED.planet_id,
+                        storage = EXCLUDED.storage,
+                        status = EXCLUDED.status,
+                        updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventPlayerLoad.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.player
+            SET
+                load = body.value
+            WHERE player.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactor.reactor' THEN
+            body := (NEW.value)::jsonb
+
+            INSERT INTO structs.player
+                VALUES (
+                    body->>'id',
+                    body->>'validator',
+                    body->>'fuel',
+                    body->>'energy',
+                    body->>'load',
+                    body->>'guildId'
+                    body->>'automatedAllocations'
+                    body->>'allowManualAllocations',
+                    body->>'allowExternalAllocations',
+                    body->>'allowUncappedAllocations',
+                    body->>'delegateMinimumBeforeAllowedAllocations',
+                    body->>'delegateTaxOnAllocation',
+                    body->>'serviceSubstationId',
+                    NOW(),
+                    NOW()
+                ) ON CONFLICT (id) DO UPDATE
+                    SET
+                        guild_id = EXCLUDED.guild_id,
+                        automated_allocations = EXCLUDED.automated_allocations,
+                        allow_manual_allocations = EXCLUDED.allow_manual_allocations,
+                        allow_external_allocations = EXCLUDED.allow_external_allocations,
+                        allow_uncapped_allocations = EXCLUDED.allow_uncapped_allocations,
+                        delegate_minimum_before_allowed_allocartions = EXCLUDED.delegate_minimum_before_allowed_allocartions,
+                        delegate_tax_on_allocation = EXCLUDED.delegate_tax_on_allocation,
+                        service_substation_id = EXCLUDED.service_substation_id,
+                        updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventReactorEnergy.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.reactor
+            SET
+                energy = body.value
+            WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactorFuel.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.reactor
+            SET
+                fuel = body.value
+            WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactorLoad.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.reactor
+            SET
+                load = body.value
+            WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStruct.struct' THEN
+            body := (NEW.value)::jsonb
+
+            INSERT INTO structs.player
+                VALUES (
+                    body->>'id',
+                    body->>'type',
+                    body->>'owner',
+                    body->>'energy',
+                    body->>'fuel',
+                    body->>'load',
+                    body,
+                    body->>'creator',
+                    NOW(),
+                    NOW()
+                ) ON CONFLICT (id) DO UPDATE
+                    SET
+                        state = EXCLUDED.state,
+                        updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventStructEnergy.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.struct
+            SET
+                energy = body.value
+            WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStructFuel.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.struct
+            SET
+                fuel = body.value
+            WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStructLoad.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.struct
+            SET
+                load = body.value
+            WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventSubstation.substation' THEN
+            body := (NEW.value)::jsonb
 
+            INSERT INTO structs.player
+                VALUES (
+                    body->>'id',
+                    body->>'playerConnectionAllocation',
+                    body->>'owner',
+                    body->>'creator',
+                    body->>'load',
+                    body->>'energy',
+                    body->>'connectedPlayerCount',
+                    NOW(),
+                    NOW()
+                ) ON CONFLICT (id) DO UPDATE
+                    SET
+                        player_connection_allocation = EXCLUDED.player_connection_allocation,
+                        owner = EXCLUDED.owner,
+                        updated_at = NOW();
         ELSIF NEW.composite_key = 'structs.EventSubstationEnergy.body' THEN
+            body := (NEW.value)::jsonb
+
+            UPDATE structs.substation
+            SET
+                energy = body.value
+            WHERE substation.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventSubstationLoad.body' THEN
+            body := (NEW.value)::jsonb
 
+            UPDATE structs.substation
+            SET
+                load = body.value
+            WHERE substation.id = body.key;
 
         END IF;
         RETURN NEW;
