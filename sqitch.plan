@@ -12,5 +12,6 @@ table-struct 2023-07-17T18:18:33Z Abstrct <josh@slow.ninja> # The Struct table
 table-planet 2023-07-17T18:18:49Z Abstrct <josh@slow.ninja> # The Planet table
 table-player 2023-07-17T18:19:00Z Abstrct <josh@slow.ninja> # The Player table
 table-struct-type 2023-07-17T18:19:20Z Abstrct <josh@slow.ninja> # The Struct Type table
-role-structs-indexer 2023-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Consensus Indexer User
-role-structs-webapp 2023-07-17T18:21:20Z Abstrct <josh@slow.ninja> # The Web Application User
+table-infusion 2023-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Infusions
+role-structs-indexer 2023-07-17T18:25:20Z Abstrct <josh@slow.ninja> # The Consensus Indexer User
+role-structs-webapp 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Web Application User
