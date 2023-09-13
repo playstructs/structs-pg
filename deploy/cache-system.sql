@@ -273,8 +273,8 @@ BEGIN;
                         allow_manual_allocations = EXCLUDED.allow_manual_allocations,
                         allow_external_allocations = EXCLUDED.allow_external_allocations,
                         allow_uncapped_allocations = EXCLUDED.allow_uncapped_allocations,
-                        delegate_minimum_before_allowed_allocartions = EXCLUDED.delegate_minimum_before_allowed_allocations,
-                        delegate_tax_on_allocation = EXCLUDED.delegate_tax_on_allocation,
+                        delegate_minimum_before_allowed_allocations = EXCLUDED.delegate_minimum_before_allowed_allocations,
+                        delegate_tax_on_allocations = EXCLUDED.delegate_tax_on_allocations,
                         service_substation_id = EXCLUDED.service_substation_id,
                         updated_at = NOW();
 
