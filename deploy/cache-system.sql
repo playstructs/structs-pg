@@ -142,7 +142,7 @@ BEGIN;
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         api = EXCLUDED.api,
-                        this_infrastructure = EXCLUDED.this_infastructure,
+                        this_infrastructure = EXCLUDED.this_infrastructure,
                         guild_join_type = EXCLUDED.guild_join_type,
                         infusion_join_minimum = EXCLUDED.infusion_join_minimum,
                         primary_reactor_id = EXCLUDED.primary_reactor_id,
