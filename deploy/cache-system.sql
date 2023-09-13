@@ -101,7 +101,7 @@ BEGIN;
                     body->>'sourceStructId',
                     body->>'sourceSubstationId',
                     body->>'destinationId',
-                    body->>'creator'
+                    body->>'creator',
                     body->>'controller',
                     body->>'locked',
                     body->>'hasLinkedInfusion',
