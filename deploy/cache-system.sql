@@ -186,24 +186,14 @@ BEGIN;
                     (body->>'oreStored')::INTEGER,
                     body->>'creator',
                     (body->>'owner')::INTEGER,
-                    (body->>'space')::INTEGER[],
-                    (body->>'sky')::INTEGER[],
-                    (body->>'land')::INTEGER[],
-                    (body->>'water')::INTEGER[],
-                    (body->>'space_slots')::INTEGER,
-                    (body->>'sky_slots')::INTEGER,
-                    (body->>'land_slots')::INTEGER,
-                    (body->>'water_slots')::INTEGER,
+                    body,
                     body->>'status',
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         owner = EXCLUDED.owner,
-                        space = EXCLUDED.space,
-                        sky = EXCLUDED.sky,
-                        land = EXCLUDED.land,
-                        water = EXCLUDED.water,
+                        state = EXCLUDED.state,
                         status = EXCLUDED.status,
                         updated_at = NOW();
 
