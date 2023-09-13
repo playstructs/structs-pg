@@ -302,7 +302,7 @@ BEGIN;
                 load = (body->>'value')::INTEGER
             WHERE reactor.id = (body->>'key')::INTEGER;
 
-        ELSIF NEW.composite_key = 'structs.EventStruct.struct' THEN
+        ELSIF NEW.composite_key = 'structs.EventStruct.structure' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.struct
