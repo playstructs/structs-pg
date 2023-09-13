@@ -94,18 +94,18 @@ BEGIN;
 
             INSERT INTO structs.allocation
                 VALUES (
-                    body->>'id',
-                    body->>'power',
+                    (body->>'id')::INTEGER,
+                    (body->>'power')::INTEGER,
                     body->>'sourceType',
-                    body->>'sourceReactorId',
-                    body->>'sourceStructId',
-                    body->>'sourceSubstationId',
-                    body->>'destinationId',
+                    (body->>'sourceReactorId')::INTEGER,
+                    (body->>'sourceStructId')::INTEGER,
+                    (body->>'sourceSubstationId')::INTEGER,
+                    (body->>'destinationId')::INTEGER,
                     body->>'creator',
-                    body->>'controller',
-                    body->>'locked',
-                    body->>'hasLinkedInfusion',
-                    body->>'linkedInfusion',
+                    (body->>'controller')::INTEGER,
+                    (body->>'locked')::BOOLEAN,
+                    (body->>'hasLinkedInfusion')::BOOLEAN,
+                    (body->>'linkedInfusion')::INTEGER,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
@@ -123,7 +123,7 @@ BEGIN;
 
             INSERT INTO structs.guild
                 VALUES (
-                    body->>'id',
+                    (body->>'id')::INTEGER,
                     body->>'endpoint',
                     '',     -- public_key
                     '',     -- name
@@ -132,10 +132,10 @@ BEGIN;
                     '',     -- website
                     false,  -- this_infrastructure
                     '',     -- status
-                    body->>'guildJoinType',
-                    body->>'infusionJoinMinimum',
-                    body->>'primaryReactorId',
-                    body->>'entrySubstationId',
+                    (body->>'guildJoinType')::INTEGER,
+                    (body->>'infusionJoinMinimum')::INTEGER,
+                    (body->>'primaryReactorId')::INTEGER,
+                    (body->>'entrySubstationId')::INTEGER,
                     body->>'creator',
                     NOW(),
                     NOW()
@@ -155,15 +155,15 @@ BEGIN;
             INSERT INTO structs.infusion
                 VALUES (
                     body->>'destinationType',
-                    body->>'destinationReactorId',
-                    body->>'destinationStructId',
+                    (body->>'destinationReactorId')::INTEGER,
+                    (body->>'destinationStructId')::INTEGER,
                     body->>'address',
 
-                    body->>'fuel',
-                    body->>'energy',
+                    (body->>'fuel')::INTEGER,
+                    (body->>'energy')::INTEGER,
 
-                    body->>'linkedSourceAllocationId',
-                    body->>'linkedPlayerAllocationId',
+                    (body->>'linkedSourceAllocationId')::INTEGER,
+                    (body->>'linkedPlayerAllocationId')::INTEGER,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (destination_type, destination_reactor_id, destination_struct_id, address) DO UPDATE
@@ -179,21 +179,21 @@ BEGIN;
 
             INSERT INTO structs.planet
                 VALUES (
-                    body->>'id',
+                    (body->>'id')::INTEGER,
                     '', -- name
-                    body->>'maxOre',
-                    body->>'oreRemaining',
-                    body->>'oreStored',
+                    (body->>'maxOre')::INTEGER,
+                    (body->>'oreRemaining')::INTEGER,
+                    (body->>'oreStored')::INTEGER,
                     body->>'creator',
-                    body->>'owner',
-                    body->>'space',
-                    body->>'sky',
-                    body->>'land',
-                    body->>'water',
-                    body->>'space_slots',
-                    body->>'sky_slots',
-                    body->>'land_slots',
-                    body->>'water_slots',
+                    (body->>'owner')::INTEGER,
+                    (body->>'space')::INTEGER[],
+                    (body->>'sky')::INTEGER[],
+                    (body->>'land')::INTEGER[],
+                    (body->>'water')::INTEGER[],
+                    (body->>'space_slots')::INTEGER,
+                    (body->>'sky_slots')::INTEGER,
+                    (body->>'land_slots')::INTEGER,
+                    (body->>'water_slots')::INTEGER,
                     body->>'status',
                     NOW(),
                     NOW()
@@ -212,7 +212,7 @@ BEGIN;
 
             UPDATE structs.planet
                 SET
-                    ore_remaining = body.value
+                    ore_remaining = (body.value)::INTEGER
                 WHERE planet.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventPlanetOreCount.body' THEN
@@ -220,7 +220,7 @@ BEGIN;
 
             UPDATE structs.planet
                 SET
-                    ore_stored = body.value
+                    ore_stored = (body.value)::INTEGER
                 WHERE planet.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
@@ -228,14 +228,14 @@ BEGIN;
 
             INSERT INTO structs.player
                 VALUES (
-                    body->>'id',
+                    (body->>'id')::INTEGER,
                     '', -- username
                     '', -- pfp
-                    body->>'guildId',
-                    body->>'substationId',
-                    body->>'planetId',
-                    body->>'load',
-                    body->>'storage',
+                    (body->>'guildId')::INTEGER,
+                    (body->>'substationId')::INTEGER,
+                    (body->>'planetId')::INTEGER,
+                    (body->>'load')::INTEGER,
+                    (body->>'storage')::JSONB,
                     body->>'status',
                     NOW(),
                     NOW()
@@ -253,27 +253,27 @@ BEGIN;
 
             UPDATE structs.player
             SET
-                load = body.value
+                load = (body.value)::INTEGER
             WHERE player.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactor.reactor' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.player
+            INSERT INTO structs.reactor
                 VALUES (
-                    body->>'id',
+                    (body->>'id')::INTEGER,
                     body->>'validator',
-                    body->>'fuel',
-                    body->>'energy',
-                    body->>'load',
-                    body->>'guildId',
-                    body->>'automatedAllocations',
-                    body->>'allowManualAllocations',
-                    body->>'allowExternalAllocations',
-                    body->>'allowUncappedAllocations',
-                    body->>'delegateMinimumBeforeAllowedAllocations',
-                    body->>'delegateTaxOnAllocation',
-                    body->>'serviceSubstationId',
+                    (body->>'fuel')::INTEGER,
+                    (body->>'energy')::INTEGER,
+                    (body->>'load')::INTEGER,
+                    (body->>'guildId')::INTEGER,
+                    (body->>'automatedAllocations')::BOOLEAN,
+                    (body->>'allowManualAllocations')::BOOLEAN,
+                    (body->>'allowExternalAllocations')::BOOLEAN,
+                    (body->>'allowUncappedAllocations')::BOOLEAN,
+                    (body->>'delegateMinimumBeforeAllowedAllocations')::NUMERIC,
+                    (body->>'delegateTaxOnAllocation')::NUMERIC,
+                    (body->>'serviceSubstationId')::INTEGER,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
@@ -293,7 +293,7 @@ BEGIN;
 
             UPDATE structs.reactor
             SET
-                energy = body.value
+                energy = (body.value)::INTEGER
             WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactorFuel.body' THEN
@@ -301,7 +301,7 @@ BEGIN;
 
             UPDATE structs.reactor
             SET
-                fuel = body.value
+                fuel = (body.value)::INTEGER
             WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactorLoad.body' THEN
@@ -309,21 +309,21 @@ BEGIN;
 
             UPDATE structs.reactor
             SET
-                load = body.value
+                load = (body.value)::INTEGER
             WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStruct.struct' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.player
+            INSERT INTO structs.struct
                 VALUES (
-                    body->>'id',
+                    (body->>'id')::INTEGER,
                     body->>'type',
-                    body->>'owner',
-                    body->>'energy',
-                    body->>'fuel',
-                    body->>'load',
-                    body,
+                    (body->>'owner')::INTEGER,
+                    (body->>'energy')::INTEGER,
+                    (body->>'fuel')::INTEGER,
+                    (body->>'load')::INTEGER,
+                    (body)::JSONB,
                     body->>'creator',
                     NOW(),
                     NOW()
@@ -337,7 +337,7 @@ BEGIN;
 
             UPDATE structs.struct
             SET
-                energy = body.value
+                energy = (body.value)::INTEGER
             WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStructFuel.body' THEN
@@ -345,7 +345,7 @@ BEGIN;
 
             UPDATE structs.struct
             SET
-                fuel = body.value
+                fuel = (body.value)::INTEGER
             WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStructLoad.body' THEN
@@ -353,21 +353,21 @@ BEGIN;
 
             UPDATE structs.struct
             SET
-                load = body.value
+                load = (body.value)::INTEGER
             WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventSubstation.substation' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.player
+            INSERT INTO structs.substation
                 VALUES (
-                    body->>'id',
-                    body->>'playerConnectionAllocation',
-                    body->>'owner',
+                    (body->>'id')::INTEGER,
+                    (body->>'playerConnectionAllocation')::INTEGER,
+                    (body->>'owner')::INTEGER,
                     body->>'creator',
-                    body->>'load',
-                    body->>'energy',
-                    body->>'connectedPlayerCount',
+                    (body->>'load')::INTEGER,
+                    (body->>'energy')::INTEGER,
+                    (body->>'connectedPlayerCount')::INTEGER,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
@@ -380,7 +380,7 @@ BEGIN;
 
             UPDATE structs.substation
             SET
-                energy = body.value
+                energy = (body.value)::INTEGER
             WHERE substation.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventSubstationLoad.body' THEN
@@ -388,7 +388,7 @@ BEGIN;
 
             UPDATE structs.substation
             SET
-                load = body.value
+                load = (body.value)::INTEGER
             WHERE substation.id = body.key;
 
         END IF;

@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE TABLE structs.allocation (
 	id INTEGER PRIMARY KEY, 
-	power NUMERIC, 
+	power INTEGER,
 	source_type CHARACTER VARYING,
 	source_reactor_id INTEGER,
 	source_struct_id INTEGER,
