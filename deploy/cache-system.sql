@@ -266,8 +266,8 @@ BEGIN;
                     body->>'fuel',
                     body->>'energy',
                     body->>'load',
-                    body->>'guildId'
-                    body->>'automatedAllocations'
+                    body->>'guildId',
+                    body->>'automatedAllocations',
                     body->>'allowManualAllocations',
                     body->>'allowExternalAllocations',
                     body->>'allowUncappedAllocations',
