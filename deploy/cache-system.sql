@@ -212,16 +212,16 @@ BEGIN;
 
             UPDATE structs.planet
                 SET
-                    ore_remaining = (body.value)::INTEGER
-                WHERE planet.id = body.key;
+                    ore_remaining = (body->>'value')::INTEGER
+                WHERE planet.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventPlanetOreCount.body' THEN
             body := (NEW.value)::jsonb;
 
             UPDATE structs.planet
                 SET
-                    ore_stored = (body.value)::INTEGER
-                WHERE planet.id = body.key;
+                    ore_stored = (body->>'value')::INTEGER
+                WHERE planet.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
             body := (NEW.value)::jsonb;
@@ -253,8 +253,8 @@ BEGIN;
 
             UPDATE structs.player
             SET
-                load = (body.value)::INTEGER
-            WHERE player.id = body.key;
+                load = (body->>'value')::INTEGER
+            WHERE player.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventReactor.reactor' THEN
             body := (NEW.value)::jsonb;
@@ -293,24 +293,24 @@ BEGIN;
 
             UPDATE structs.reactor
             SET
-                energy = (body.value)::INTEGER
-            WHERE reactor.id = body.key;
+                energy = (body->>'value')::INTEGER
+            WHERE reactor.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventReactorFuel.body' THEN
             body := (NEW.value)::jsonb;
 
             UPDATE structs.reactor
             SET
-                fuel = (body.value)::INTEGER
-            WHERE reactor.id = body.key;
+                fuel = (body->>'value')::INTEGER
+            WHERE reactor.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventReactorLoad.body' THEN
             body := (NEW.value)::jsonb;
 
             UPDATE structs.reactor
             SET
-                load = (body.value)::INTEGER
-            WHERE reactor.id = body.key;
+                load = (body->>'value')::INTEGER
+            WHERE reactor.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventStruct.struct' THEN
             body := (NEW.value)::jsonb;
@@ -337,24 +337,24 @@ BEGIN;
 
             UPDATE structs.struct
             SET
-                energy = (body.value)::INTEGER
-            WHERE struct.id = body.key;
+                energy = (body->>'value')::INTEGER
+            WHERE struct.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventStructFuel.body' THEN
             body := (NEW.value)::jsonb;
 
             UPDATE structs.struct
             SET
-                fuel = (body.value)::INTEGER
-            WHERE struct.id = body.key;
+                fuel = (body->>'value')::INTEGER
+            WHERE struct.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventStructLoad.body' THEN
             body := (NEW.value)::jsonb;
 
             UPDATE structs.struct
             SET
-                load = (body.value)::INTEGER
-            WHERE struct.id = body.key;
+                load = (body->>'value')::INTEGER
+            WHERE struct.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventSubstation.substation' THEN
             body := (NEW.value)::jsonb;
@@ -380,16 +380,16 @@ BEGIN;
 
             UPDATE structs.substation
             SET
-                energy = (body.value)::INTEGER
-            WHERE substation.id = body.key;
+                energy = (body->>'value')::INTEGER
+            WHERE substation.id = (body->>'key')::INTEGER
 
         ELSIF NEW.composite_key = 'structs.EventSubstationLoad.body' THEN
             body := (NEW.value)::jsonb;
 
             UPDATE structs.substation
             SET
-                load = (body.value)::INTEGER
-            WHERE substation.id = body.key;
+                load = (body->>'value')::INTEGER
+            WHERE substation.id = (body->>'key')::INTEGER
 
         END IF;
         RETURN NEW;
