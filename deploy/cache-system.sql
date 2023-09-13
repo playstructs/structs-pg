@@ -119,7 +119,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventGuild.guild' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.guild
                 VALUES (
@@ -150,7 +150,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventInfusion.infusion' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.infusion
                 VALUES (
@@ -175,7 +175,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventPlanet.planet' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.planet
                 VALUES (
@@ -208,7 +208,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventPlanetRefinementCount.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.planet
                 SET
@@ -216,7 +216,7 @@ BEGIN;
                 WHERE planet.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventPlanetOreCount.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.planet
                 SET
@@ -224,7 +224,7 @@ BEGIN;
                 WHERE planet.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.player
                 VALUES (
@@ -249,7 +249,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventPlayerLoad.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.player
             SET
@@ -257,7 +257,7 @@ BEGIN;
             WHERE player.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactor.reactor' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.player
                 VALUES (
@@ -289,7 +289,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventReactorEnergy.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.reactor
             SET
@@ -297,7 +297,7 @@ BEGIN;
             WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactorFuel.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.reactor
             SET
@@ -305,7 +305,7 @@ BEGIN;
             WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventReactorLoad.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.reactor
             SET
@@ -313,7 +313,7 @@ BEGIN;
             WHERE reactor.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStruct.struct' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.player
                 VALUES (
@@ -333,7 +333,7 @@ BEGIN;
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventStructEnergy.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.struct
             SET
@@ -341,7 +341,7 @@ BEGIN;
             WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStructFuel.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.struct
             SET
@@ -349,7 +349,7 @@ BEGIN;
             WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventStructLoad.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.struct
             SET
@@ -357,7 +357,7 @@ BEGIN;
             WHERE struct.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventSubstation.substation' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             INSERT INTO structs.player
                 VALUES (
@@ -376,7 +376,7 @@ BEGIN;
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
         ELSIF NEW.composite_key = 'structs.EventSubstationEnergy.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.substation
             SET
@@ -384,7 +384,7 @@ BEGIN;
             WHERE substation.id = body.key;
 
         ELSIF NEW.composite_key = 'structs.EventSubstationLoad.body' THEN
-            body := (NEW.value)::jsonb
+            body := (NEW.value)::jsonb;
 
             UPDATE structs.substation
             SET
