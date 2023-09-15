@@ -11,11 +11,11 @@ CREATE TABLE structs.allocation (
 	source_substation_id INTEGER,
 	destination_id INTEGER,
     creator CHARACTER VARYING,
-    controller INTEGER,
+    controller CHARACTER VARYING,
     locked boolean,
     has_linked_infusion boolean,
     linked_infusion CHARACTER VARYING,
-	created_at TIMESTAMPTZ NOT NULL, 
+	created_at TIMESTAMPTZ NOT NULL,
 	updated_at	TIMESTAMPTZ NOT NULL  
 ); 
 

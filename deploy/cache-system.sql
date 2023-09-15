@@ -107,7 +107,7 @@ BEGIN;
                     (body->>'sourceSubstationId')::INTEGER,
                     (CASE WHEN (body->>'destinationId') = '' THEN 0 ELSE  (body->>'destinationId')::INTEGER END),
                     body->>'creator',
-                    (CASE WHEN (body->>'controller') = '' THEN 0 ELSE  (body->>'controller')::INTEGER END),
+                    body->>'controller',
                     (body->>'locked')::BOOLEAN,
                     (body->>'hasLinkedInfusion')::BOOLEAN,
                     body->>'linkedInfusion',
