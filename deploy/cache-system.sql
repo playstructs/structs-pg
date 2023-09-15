@@ -74,6 +74,11 @@ BEGIN;
        UNIQUE (event_id, key)
     );
 
+    CREATE TABLE cache.attributes_tmp (
+      composite_key VARCHAR NOT NULL, -- composed type.key
+      value         VARCHAR NULL
+    );
+
     --CREATE OR REPLACE VIEW cache.attributes AS SELECT * FROM cache.attributes_tbl;
 
     CREATE TABLE cache.queue (
@@ -100,9 +105,9 @@ BEGIN;
                     (body->>'sourceReactorId')::INTEGER,
                     (body->>'sourceStructId')::INTEGER,
                     (body->>'sourceSubstationId')::INTEGER,
-                    (body->>'destinationId')::INTEGER,
+                    (CASE WHEN (body->>'destinationId') = '' THEN 0 ELSE  (body->>'destinationId')::INTEGER END),
                     body->>'creator',
-                    (body->>'controller')::INTEGER,
+                    (CASE WHEN (body->>'controller') = '' THEN 0 ELSE  (body->>'controller')::INTEGER END),
                     (body->>'locked')::BOOLEAN,
                     (body->>'hasLinkedInfusion')::BOOLEAN,
                     (body->>'linkedInfusion')::INTEGER,
@@ -149,14 +154,18 @@ BEGIN;
                         entry_substation_id = EXCLUDED.entry_substation_id,
                         updated_at = NOW();
 
+        ELSIF NEW.composite_key = 'structs.EventGuildPermission.body' THEN
+
         ELSIF NEW.composite_key = 'structs.EventInfusion.infusion' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.infusion
                 VALUES (
                     body->>'destinationType',
-                    (body->>'destinationReactorId')::INTEGER,
-                    (body->>'destinationStructId')::INTEGER,
+                    (CASE
+                        WHEN (body->>'destinationType') = 'reactor' THEN (body->>'destinationReactorId')::INTEGER
+                        WHEN (body->>'destinationType') = 'struct' THEN (body->>'destinationStructId')::INTEGER
+                    END),
                     body->>'address',
 
                     (body->>'fuel')::INTEGER,
@@ -166,7 +175,7 @@ BEGIN;
                     (body->>'linkedPlayerAllocationId')::INTEGER,
                     NOW(),
                     NOW()
-                ) ON CONFLICT (destination_type, destination_reactor_id, destination_struct_id, address) DO UPDATE
+                ) ON CONFLICT (destination_type, destination_id, address) DO UPDATE
                     SET
                         fuel = EXCLUDED.fuel,
                         energy = EXCLUDED.energy,
@@ -238,6 +247,8 @@ BEGIN;
                         status = EXCLUDED.status,
                         updated_at = NOW();
 
+        ELSIF NEW.composite_key = 'structs.EventPlayerPermission.body' THEN
+
         ELSIF NEW.composite_key = 'structs.EventPlayerLoad.body' THEN
             body := (NEW.value)::jsonb;
 
@@ -277,6 +288,8 @@ BEGIN;
                         delegate_tax_on_allocations = EXCLUDED.delegate_tax_on_allocations,
                         service_substation_id = EXCLUDED.service_substation_id,
                         updated_at = NOW();
+
+        ELSIF NEW.composite_key = 'structs.EventReactorPermission.body' THEN
 
         ELSIF NEW.composite_key = 'structs.EventReactorEnergy.body' THEN
             body := (NEW.value)::jsonb;
@@ -365,6 +378,9 @@ BEGIN;
                         player_connection_allocation = EXCLUDED.player_connection_allocation,
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
+
+        ELSIF NEW.composite_key = 'structs.EventSubstationPermission.body' THEN
+
         ELSIF NEW.composite_key = 'structs.EventSubstationEnergy.body' THEN
             body := (NEW.value)::jsonb;
 
@@ -391,9 +407,13 @@ BEGIN;
     CREATE TRIGGER ADD_QUEUE AFTER INSERT ON cache.attributes
      FOR EACH ROW EXECUTE PROCEDURE cache.ADD_QUEUE();
 
+    CREATE TRIGGER ADD_QUEUE AFTER INSERT ON cache.attributes_tmp
+    FOR EACH ROW EXECUTE PROCEDURE cache.ADD_QUEUE();
     --CREATE TRIGGER ADD_QUEUE INSTEAD OF INSERT ON cache.attributes
     --    FOR EACH ROW EXECUTE PROCEDURE cache.ADD_QUEUE();
 
+    -- Used by the manual update script
+    create table cache.tmp_json (data jsonb);
 
 COMMIT;
 

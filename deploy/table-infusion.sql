@@ -4,8 +4,7 @@ BEGIN;
 
 CREATE TABLE structs.infusion (
     destination_type CHARACTER VARYING,
-    destination_reactor_id INTEGER,
-    destination_struct_id INTEGER,
+    destination_id INTEGER,
     address CHARACTER VARYING,
 
 	fuel INTEGER,
@@ -16,7 +15,7 @@ CREATE TABLE structs.infusion (
 
     created_at TIMESTAMPTZ NOT NULL,
 	updated_at	TIMESTAMPTZ NOT NULL,
-	PRIMARY KEY (destination_type, destination_reactor_id, destination_struct_id, address)
+	PRIMARY KEY (destination_type, destination_id, address)
 ); 
 
 COMMIT;

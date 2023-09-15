@@ -14,7 +14,7 @@ CREATE TABLE structs.allocation (
     controller INTEGER,
     locked boolean,
     has_linked_infusion boolean,
-    linked_infusion integer,
+    linked_infusion CHARACTER VARYING,
 	created_at TIMESTAMPTZ NOT NULL, 
 	updated_at	TIMESTAMPTZ NOT NULL  
 ); 
