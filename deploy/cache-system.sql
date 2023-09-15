@@ -110,7 +110,7 @@ BEGIN;
                     (CASE WHEN (body->>'controller') = '' THEN 0 ELSE  (body->>'controller')::INTEGER END),
                     (body->>'locked')::BOOLEAN,
                     (body->>'hasLinkedInfusion')::BOOLEAN,
-                    (body->>'linkedInfusion')::INTEGER,
+                    body->>'linkedInfusion',
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
@@ -162,10 +162,7 @@ BEGIN;
             INSERT INTO structs.infusion
                 VALUES (
                     body->>'destinationType',
-                    (CASE
-                        WHEN (body->>'destinationType') = 'reactor' THEN (body->>'destinationReactorId')::INTEGER
-                        WHEN (body->>'destinationType') = 'struct' THEN (body->>'destinationStructId')::INTEGER
-                    END),
+                    (body->>'destinationId')::INTEGER,
                     body->>'address',
 
                     (body->>'fuel')::INTEGER,
