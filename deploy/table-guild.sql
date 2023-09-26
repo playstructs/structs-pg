@@ -7,6 +7,7 @@ CREATE TABLE structs.guild (
 	api CHARACTER VARYING,
 	public_key CHARACTER VARYING,
 	name CHARACTER VARYING,
+    tag CHARACTER VARYING,
 	logo CHARACTER VARYING,
 	socials jsonb,
 	website CHARACTER VARYING,

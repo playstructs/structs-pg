@@ -132,6 +132,7 @@ BEGIN;
                     body->>'endpoint',
                     '',             -- public_key
                     '',             -- name
+                    '',              -- tag
                     '',             -- logo
                     '{}'::JSONB,    -- socials
                     '',             -- website
