@@ -3,19 +3,19 @@
 BEGIN;
 
 CREATE TABLE structs.allocation (
-	id INTEGER PRIMARY KEY, 
-	power INTEGER,
-	source_type CHARACTER VARYING,
-	source_reactor_id INTEGER,
-	source_struct_id INTEGER,
-	source_substation_id INTEGER,
-	destination_id INTEGER,
+	id CHARACTER VARYING PRIMARY KEY,
+
+    allocationType INTEGER,
+
+	source_id CHARACTER VARYING,
+    index INTEGER,
+	destination_id CHARACTER VARYING,
+
     creator CHARACTER VARYING,
     controller CHARACTER VARYING,
     locked boolean,
-    has_linked_infusion boolean,
-    linked_infusion CHARACTER VARYING,
-	created_at TIMESTAMPTZ NOT NULL,
+
+    created_at TIMESTAMPTZ NOT NULL,
 	updated_at	TIMESTAMPTZ NOT NULL  
 ); 
 

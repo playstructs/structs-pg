@@ -3,15 +3,13 @@
 BEGIN;
 
 CREATE TABLE structs.planet (
-	id INTEGER PRIMARY KEY,
+	id CHARACTER VARYING PRIMARY KEY,
 	name CHARACTER VARYING,
 
 	max_ore INTEGER,
-	ore_remaining INTEGER,
-	ore_stored INTEGER,
 
 	creator CHARACTER VARYING,
-	owner INTEGER,
+	owner CHARACTER VARYING,
 
     state JSONB,
 

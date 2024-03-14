@@ -4,20 +4,28 @@ BEGIN;
 
 CREATE TABLE structs.guild (
 	id INTEGER PRIMARY KEY,
+    index INTEGER,
+
 	api CHARACTER VARYING,
 	public_key CHARACTER VARYING,
-	name CHARACTER VARYING,
+
+    name CHARACTER VARYING,
     tag CHARACTER VARYING,
 	logo CHARACTER VARYING,
 	socials jsonb,
 	website CHARACTER VARYING,
 	this_infrastructure bool,
-	status CHARACTER VARYING,
-	guild_join_type INTEGER,
-	infusion_join_minimum INTEGER,
-	primary_reactor_id INTEGER,
-	entry_substation_id INTEGER,
+    status CHARACTER VARYING,
+
+	join_infusion_minimum INTEGER,
+	join_infusion_minimum_bypass_by_request INTEGER,
+    join_infusion_minimum_bypass_by_invite INTEGER,
+
+    primary_reactor_id CHARACTER VARYING,
+	entry_substation_id CHARACTER VARYING,
+
 	creator CHARACTER VARYING,
+    owner CHARACTER VARYING,
 	created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );

@@ -3,24 +3,12 @@
 BEGIN;
 
 CREATE TABLE structs.reactor (
-	id INTEGER PRIMARY KEY,
+	id CHARACTER VARYING PRIMARY KEY,
 	validator CHARACTER VARYING,
 
-	fuel INTEGER,
-	energy INTEGER,
-	load INTEGER,
+	guild_id CHARACTER VARYING,
 
-	guild_id INTEGER,
-
-	automated_allocations BOOLEAN,
-	allow_manual_allocations BOOLEAN,
-	allow_external_allocations BOOLEAN,
-	allow_uncapped_allocations BOOLEAN,
-
-	delegate_minimum_before_allowed_allocations NUMERIC,
-	delegate_tax_on_allocations NUMERIC,
-
-    service_substation_id INTEGER,
+    default_commission NUMERIC,
 
 	created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL

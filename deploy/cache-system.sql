@@ -99,28 +99,23 @@ BEGIN;
 
             INSERT INTO structs.allocation
                 VALUES (
-                    (body->>'id')::INTEGER,
-                    (body->>'power')::INTEGER,
-                    body->>'sourceType',
-                    (body->>'sourceReactorId')::INTEGER,
-                    (body->>'sourceStructId')::INTEGER,
-                    (body->>'sourceSubstationId')::INTEGER,
-                    (CASE WHEN (body->>'destinationId') = '' THEN 0 ELSE  (body->>'destinationId')::INTEGER END),
+                    body->>'id',
+                    (body->>'allocationType')::INTEGER,
+
+                    body->>'sourceObjectId',
+                    (body->>'index')::INTEGER,
+                    body->>'destinationId',
+
                     body->>'creator',
                     body->>'controller',
                     (body->>'locked')::BOOLEAN,
-                    (body->>'hasLinkedInfusion')::BOOLEAN,
-                    body->>'linkedInfusion',
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
-                        power = EXCLUDED.power,
                         destination_id = EXCLUDED.destination_id,
                         controller = EXCLUDED.controller,
                         locked = EXCLUDED.locked,
-                        has_linked_infusion = EXCLUDED.has_linked_infusion,
-                        linked_infusion = EXCLUDED.linked_infusion,
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventGuild.guild' THEN
@@ -129,6 +124,8 @@ BEGIN;
             INSERT INTO structs.guild
                 VALUES (
                     (body->>'id')::INTEGER,
+                    (body->>'index')::INTEGER,
+
                     body->>'endpoint',
                     '',             -- public_key
                     '',             -- name
@@ -138,10 +135,13 @@ BEGIN;
                     '',             -- website
                     false,          -- this_infrastructure
                     '',             -- status
-                    (body->>'guildJoinType')::INTEGER,
-                    (body->>'infusionJoinMinimum')::INTEGER,
-                    (body->>'primaryReactorId')::INTEGER,
-                    (body->>'entrySubstationId')::INTEGER,
+                    (body->>'joinInfusionMinimum')::INTEGER,
+                    (body->>'joinInfusionMinimumBypassByRequest')::INTEGER,
+                    (body->>'joinInfusionMinimumBypassByInvite')::INTEGER,
+
+                    body->>'primaryReactorId',
+                    body->>'entrySubstationId',
+
                     body->>'creator',
                     NOW(),
                     NOW()
@@ -149,36 +149,37 @@ BEGIN;
                     SET
                         api = EXCLUDED.api,
                         this_infrastructure = EXCLUDED.this_infrastructure,
-                        guild_join_type = EXCLUDED.guild_join_type,
-                        infusion_join_minimum = EXCLUDED.infusion_join_minimum,
+                        join_infusion_minimum = EXCLUDED.join_infusion_minimum,
+                        join_infusion_minimum_by_request = EXCLUDED.join_infusion_minimum_by_request,
+                        join_infusion_minimum_by_invite = EXCLUDED.join_infusion_minimum_by_invite,
                         primary_reactor_id = EXCLUDED.primary_reactor_id,
                         entry_substation_id = EXCLUDED.entry_substation_id,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventGuildPermission.body' THEN
 
         ELSIF NEW.composite_key = 'structs.EventInfusion.infusion' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.infusion
                 VALUES (
-                    body->>'destinationType',
-                    (body->>'destinationId')::INTEGER,
+                    (body->>'destinationType')::INTEGER,
+                    body->>'destinationId',
+
+                    body->>'playerId',
                     body->>'address',
 
                     (body->>'fuel')::INTEGER,
-                    (body->>'energy')::INTEGER,
+                    (body->>'power')::INTEGER,
 
-                    (body->>'linkedSourceAllocationId')::INTEGER,
-                    (body->>'linkedPlayerAllocationId')::INTEGER,
+                    (body->>'commission')::NUMERIC,
+
                     NOW(),
                     NOW()
-                ) ON CONFLICT (destination_type, destination_id, address) DO UPDATE
+                ) ON CONFLICT (destination_id, address) DO UPDATE
                     SET
                         fuel = EXCLUDED.fuel,
-                        energy = EXCLUDED.energy,
-                        linked_source_allocation_id = EXCLUDED.linked_source_allocation_id,
-                        linked_player_allocation_id = EXCLUDED.linked_player_allocation_id,
+                        power = EXCLUDED.power,
+                        commission = EXCLUDED.commission,
                         updated_at = NOW();
 
         ELSIF NEW.composite_key = 'structs.EventPlanet.planet' THEN
@@ -186,13 +187,11 @@ BEGIN;
 
             INSERT INTO structs.planet
                 VALUES (
-                    (body->>'id')::INTEGER,
+                    body->>'id',
                     '', -- name
                     (body->>'maxOre')::INTEGER,
-                    (body->>'oreRemaining')::INTEGER,
-                    (body->>'oreStored')::INTEGER,
                     body->>'creator',
-                    (body->>'owner')::INTEGER,
+                    body->>'owner',
                     body,
                     body->>'status',
                     NOW(),
@@ -204,34 +203,22 @@ BEGIN;
                         status = EXCLUDED.status,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventPlanetRefinementCount.body' THEN
-            body := (NEW.value)::jsonb;
 
-            UPDATE structs.planet
-                SET
-                    ore_remaining = (body->>'value')::INTEGER
-                WHERE planet.id = (body->>'key')::INTEGER;
 
-        ELSIF NEW.composite_key = 'structs.EventPlanetOreCount.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.planet
-                SET
-                    ore_stored = (body->>'value')::INTEGER
-                WHERE planet.id = (body->>'key')::INTEGER;
 
         ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.player
                 VALUES (
-                    (body->>'id')::INTEGER,
+                    body->>'id',
+                    (body->>'index')::INTEGER,
                     '', -- username
                     '', -- pfp
-                    (body->>'guildId')::INTEGER,
-                    (body->>'substationId')::INTEGER,
-                    (body->>'planetId')::INTEGER,
-                    (body->>'load')::INTEGER,
+                    body->>'guildId',
+                    body->>'substationId',
+                    body->>'planetId',
+
                     (body->>'storage')::JSONB,
                     body->>'status',
                     NOW(),
@@ -245,155 +232,74 @@ BEGIN;
                         status = EXCLUDED.status,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventPlayerPermission.body' THEN
-
-        ELSIF NEW.composite_key = 'structs.EventPlayerLoad.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.player
-            SET
-                load = (body->>'value')::INTEGER
-            WHERE player.id = (body->>'key')::INTEGER;
 
         ELSIF NEW.composite_key = 'structs.EventReactor.reactor' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.reactor
                 VALUES (
-                    (body->>'id')::INTEGER,
+                    body->>'id',
                     body->>'validator',
-                    (body->>'fuel')::INTEGER,
-                    (body->>'energy')::INTEGER,
-                    (body->>'load')::INTEGER,
-                    (body->>'guildId')::INTEGER,
-                    (body->>'automatedAllocations')::BOOLEAN,
-                    (body->>'allowManualAllocations')::BOOLEAN,
-                    (body->>'allowExternalAllocations')::BOOLEAN,
-                    (body->>'allowUncappedAllocations')::BOOLEAN,
-                    (body->>'delegateMinimumBeforeAllowedAllocations')::NUMERIC,
-                    (body->>'delegateTaxOnAllocation')::NUMERIC,
-                    (body->>'serviceSubstationId')::INTEGER,
+                    body->>'guildId',
+                    (body->>'default_commission')::NUMERIC,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         guild_id = EXCLUDED.guild_id,
-                        automated_allocations = EXCLUDED.automated_allocations,
-                        allow_manual_allocations = EXCLUDED.allow_manual_allocations,
-                        allow_external_allocations = EXCLUDED.allow_external_allocations,
-                        allow_uncapped_allocations = EXCLUDED.allow_uncapped_allocations,
-                        delegate_minimum_before_allowed_allocations = EXCLUDED.delegate_minimum_before_allowed_allocations,
-                        delegate_tax_on_allocations = EXCLUDED.delegate_tax_on_allocations,
-                        service_substation_id = EXCLUDED.service_substation_id,
+                        default_commission = EXCLUDED.default_commission,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventReactorPermission.body' THEN
-
-        ELSIF NEW.composite_key = 'structs.EventReactorEnergy.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.reactor
-            SET
-                energy = (body->>'value')::INTEGER
-            WHERE reactor.id = (body->>'key')::INTEGER;
-
-        ELSIF NEW.composite_key = 'structs.EventReactorFuel.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.reactor
-            SET
-                fuel = (body->>'value')::INTEGER
-            WHERE reactor.id = (body->>'key')::INTEGER;
-
-        ELSIF NEW.composite_key = 'structs.EventReactorLoad.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.reactor
-            SET
-                load = (body->>'value')::INTEGER
-            WHERE reactor.id = (body->>'key')::INTEGER;
 
         ELSIF NEW.composite_key = 'structs.EventStruct.structure' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.struct
                 VALUES (
-                    (body->>'id')::INTEGER,
+                    body->>'id',
                     body->>'type',
-                    (body->>'owner')::INTEGER,
-                    (body->>'energy')::INTEGER,
-                    (body->>'fuel')::INTEGER,
-                    (body->>'load')::INTEGER,
+                    body->>'owner',
                     (body)::JSONB,
                     body->>'creator',
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
+                        owner = EXCLUDED.owner,
                         state = EXCLUDED.state,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventStructEnergy.body' THEN
-            body := (NEW.value)::jsonb;
 
-            UPDATE structs.struct
-            SET
-                energy = (body->>'value')::INTEGER
-            WHERE struct.id = (body->>'key')::INTEGER;
-
-        ELSIF NEW.composite_key = 'structs.EventStructFuel.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.struct
-            SET
-                fuel = (body->>'value')::INTEGER
-            WHERE struct.id = (body->>'key')::INTEGER;
-
-        ELSIF NEW.composite_key = 'structs.EventStructLoad.body' THEN
-            body := (NEW.value)::jsonb;
-
-            UPDATE structs.struct
-            SET
-                load = (body->>'value')::INTEGER
-            WHERE struct.id = (body->>'key')::INTEGER;
 
         ELSIF NEW.composite_key = 'structs.EventSubstation.substation' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.substation
                 VALUES (
-                    (body->>'id')::INTEGER,
-                    (body->>'playerConnectionAllocation')::INTEGER,
-                    (body->>'owner')::INTEGER,
+                    body->>'id',
+                    body->>'owner',
                     body->>'creator',
-                    (body->>'load')::INTEGER,
-                    (body->>'energy')::INTEGER,
-                    (body->>'connectedPlayerCount')::INTEGER,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
-                        player_connection_allocation = EXCLUDED.player_connection_allocation,
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventSubstationPermission.body' THEN
 
-        ELSIF NEW.composite_key = 'structs.EventSubstationEnergy.body' THEN
-            body := (NEW.value)::jsonb;
 
-            UPDATE structs.substation
-            SET
-                energy = (body->>'value')::INTEGER
-            WHERE substation.id = (body->>'key')::INTEGER;
+        -- Make generic permission stuff happen
+        ELSIF NEW.composite_key = 'structs.EventPermission.body' THEN
 
-        ELSIF NEW.composite_key = 'structs.EventSubstationLoad.body' THEN
-            body := (NEW.value)::jsonb;
 
-            UPDATE structs.substation
-            SET
-                load = (body->>'value')::INTEGER
-            WHERE substation.id = (body->>'key')::INTEGER;
+        -- make generic grid stuff happen
+        ELSIF NEW.composite_key = 'structs.EventGrid.body' THEN
+                    body := (NEW.value)::jsonb;
+
+        UPDATE structs.grid
+        SET
+            -- ore_remaining = (body->>'value')::INTEGER
+        WHERE planet.id = (body->>'key')::INTEGER;
 
         END IF;
         RETURN NEW;

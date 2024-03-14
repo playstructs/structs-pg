@@ -3,19 +3,20 @@
 BEGIN;
 
 CREATE TABLE structs.infusion (
-    destination_type CHARACTER VARYING,
-    destination_id INTEGER,
+    destination_type INTEGER,
+    destination_id CHARACTER VARYING,
+
+    player_id CHARACTER VARYING,
     address CHARACTER VARYING,
 
 	fuel INTEGER,
-	energy INTEGER,
+	power INTEGER,
 
-    linked_source_allocation_id INTEGER,
-    linked_player_allocation_id INTEGER,
+    commission NUMERIC,
 
     created_at TIMESTAMPTZ NOT NULL,
 	updated_at	TIMESTAMPTZ NOT NULL,
-	PRIMARY KEY (destination_type, destination_id, address)
+	PRIMARY KEY (destination_id, address)
 ); 
 
 COMMIT;
