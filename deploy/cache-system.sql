@@ -283,8 +283,6 @@ BEGIN;
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
 
-
-
         -- Make generic permission stuff happen
         ELSIF NEW.composite_key = 'structs.EventPermission.body' THEN
             body := (NEW.value)::jsonb;

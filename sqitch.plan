@@ -8,9 +8,9 @@ table-allocation 2023-07-17T18:17:39Z Abstrct <josh@slow.ninja> # The Allocation
 table-substation 2023-07-17T18:17:53Z Abstrct <josh@slow.ninja> # The Substation table
 table-reactor 2023-07-17T18:18:07Z Abstrct <josh@slow.ninja> # The Reactor table
 table-guild 2023-07-17T18:18:20Z Abstrct <josh@slow.ninja> # The Guild table
-table-grid 2024-03-13T18:18:33Z Abstrct <josh@slow.ninja # The Unified Grid Table
+table-grid 2024-03-13T18:18:33Z Abstrct <josh@slow.ninja> # The Unified Grid Table
 table-struct 2023-07-17T18:18:33Z Abstrct <josh@slow.ninja> # The Struct table
-table-permission 2024-03-13T18:18:33Z Abstrct <josh@slow.ninja # The Unified Permission Table
+table-permission 2024-03-13T18:18:33Z Abstrct <josh@slow.ninja> # The Unified Permission Table
 table-planet 2023-07-17T18:18:49Z Abstrct <josh@slow.ninja> # The Planet table
 table-player 2023-07-17T18:19:00Z Abstrct <josh@slow.ninja> # The Player table
 table-struct-type 2023-07-17T18:19:20Z Abstrct <josh@slow.ninja> # The Struct Type table
