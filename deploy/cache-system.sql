@@ -94,7 +94,6 @@ BEGIN;
         body jsonb;
     BEGIN
         IF NEW.composite_key = 'structs.EventAllocation.allocation' THEN
-
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.allocation
@@ -204,8 +203,6 @@ BEGIN;
                         updated_at = NOW();
 
 
-
-
         ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
             body := (NEW.value)::jsonb;
 
@@ -290,16 +287,31 @@ BEGIN;
 
         -- Make generic permission stuff happen
         ELSIF NEW.composite_key = 'structs.EventPermission.body' THEN
+            body := (NEW.value)::jsonb;
 
+            INSERT INTO structs.permission
+            VALUES (
+                body->>'permissionId',
+                (body->>'value')::INTEGER,
+                NOW()
+            ) ON CONFLICT (id) DO UPDATE
+            SET
+                val = EXCLUDED.value,
+                updated_at = EXCLUDED.updated_at;
 
         -- make generic grid stuff happen
         ELSIF NEW.composite_key = 'structs.EventGrid.body' THEN
-                    body := (NEW.value)::jsonb;
+            body := (NEW.value)::jsonb;
 
-        UPDATE structs.grid
-        SET
-            -- ore_remaining = (body->>'value')::INTEGER
-        WHERE planet.id = (body->>'key')::INTEGER;
+            INSERT INTO structs.grid
+            VALUES (
+                body->>'attributeId',
+                (body->>'value')::INTEGER,
+                NOW()
+            ) ON CONFLICT (id) DO UPDATE
+            SET
+                val = EXCLUDED.value,
+                updated_at = EXCLUDED.updated_at;
 
         END IF;
         RETURN NEW;
