@@ -204,7 +204,7 @@ BEGIN;
                 VALUES (
                     body->>'id',
                     (body->>'index')::INTEGER,
-
+                    body->>'primaryAddress',
                     body->>'guildId',
                     body->>'substationId',
                     body->>'planetId',
@@ -214,6 +214,7 @@ BEGIN;
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
+                        primary_address = EXCLUDED.primary_address,
                         guild_id = EXCLUDED.guild_id,
                         substation_id = EXCLUDED.substation_id,
                         planet_id = EXCLUDED.planet_id,

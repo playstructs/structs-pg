@@ -6,8 +6,7 @@ CREATE TABLE structs.player (
 	id CHARACTER VARYING PRIMARY KEY,
     index INTEGER,
 
-	username CHARACTER VARYING,
-	pfp CHARACTER VARYING,
+    primary_address CHARACTER VARYING,
 
     guild_id CHARACTER VARYING,
 	substation_id CHARACTER VARYING,
