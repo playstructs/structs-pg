@@ -3,11 +3,12 @@
 BEGIN;
 
 CREATE TABLE structs.infusion (
-    destination_type INTEGER,
     destination_id CHARACTER VARYING,
-
-    player_id CHARACTER VARYING,
     address CHARACTER VARYING,
+
+    destination_type INTEGER,
+    player_id CHARACTER VARYING,
+
 
 	fuel INTEGER,
 	power INTEGER,

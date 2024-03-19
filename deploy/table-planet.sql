@@ -4,7 +4,6 @@ BEGIN;
 
 CREATE TABLE structs.planet (
 	id CHARACTER VARYING PRIMARY KEY,
-	name CHARACTER VARYING,
 
 	max_ore INTEGER,
 
@@ -15,6 +14,14 @@ CREATE TABLE structs.planet (
 
 	status CHARACTER VARYING,
 	created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE structs.planet_meta (
+    id CHARACTER VARYING PRIMARY KEY,
+    name CHARACTER VARYING,
+
+    created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );
 

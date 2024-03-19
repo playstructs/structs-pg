@@ -6,16 +6,7 @@ CREATE TABLE structs.guild (
 	id INTEGER PRIMARY KEY,
     index INTEGER,
 
-	api CHARACTER VARYING,
-	public_key CHARACTER VARYING,
-
-    name CHARACTER VARYING,
-    tag CHARACTER VARYING,
-	logo CHARACTER VARYING,
-	socials jsonb,
-	website CHARACTER VARYING,
-	this_infrastructure bool,
-    status CHARACTER VARYING,
+	endpoint CHARACTER VARYING,
 
 	join_infusion_minimum INTEGER,
 	join_infusion_minimum_bypass_by_request INTEGER,
@@ -27,6 +18,21 @@ CREATE TABLE structs.guild (
 	creator CHARACTER VARYING,
     owner CHARACTER VARYING,
 	created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE structs.guild_meta (
+    id INTEGER PRIMARY KEY,
+
+    name CHARACTER VARYING,
+    tag CHARACTER VARYING,
+    logo CHARACTER VARYING,
+    socials jsonb,
+    website CHARACTER VARYING,
+    this_infrastructure bool,
+    status CHARACTER VARYING,
+
+    created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );
 

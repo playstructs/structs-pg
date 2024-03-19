@@ -122,18 +122,11 @@ BEGIN;
 
             INSERT INTO structs.guild
                 VALUES (
-                    (body->>'id')::INTEGER,
+                    body->>'id',
                     (body->>'index')::INTEGER,
 
                     body->>'endpoint',
-                    '',             -- public_key
-                    '',             -- name
-                    '',              -- tag
-                    '',             -- logo
-                    '{}'::JSONB,    -- socials
-                    '',             -- website
-                    false,          -- this_infrastructure
-                    '',             -- status
+
                     (body->>'joinInfusionMinimum')::INTEGER,
                     (body->>'joinInfusionMinimumBypassByRequest')::INTEGER,
                     (body->>'joinInfusionMinimumBypassByInvite')::INTEGER,
@@ -142,17 +135,19 @@ BEGIN;
                     body->>'entrySubstationId',
 
                     body->>'creator',
+                    body->>'owner',
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
-                        api = EXCLUDED.api,
+                        endpoint = EXCLUDED.endpoint,
                         this_infrastructure = EXCLUDED.this_infrastructure,
                         join_infusion_minimum = EXCLUDED.join_infusion_minimum,
                         join_infusion_minimum_by_request = EXCLUDED.join_infusion_minimum_by_request,
                         join_infusion_minimum_by_invite = EXCLUDED.join_infusion_minimum_by_invite,
                         primary_reactor_id = EXCLUDED.primary_reactor_id,
                         entry_substation_id = EXCLUDED.entry_substation_id,
+                        owner = EXCLUDED.owner,
                         updated_at = NOW();
 
 
@@ -161,11 +156,11 @@ BEGIN;
 
             INSERT INTO structs.infusion
                 VALUES (
-                    (body->>'destinationType')::INTEGER,
                     body->>'destinationId',
-
-                    body->>'playerId',
                     body->>'address',
+
+                    (body->>'destinationType')::INTEGER,
+                    body->>'playerId',
 
                     (body->>'fuel')::INTEGER,
                     (body->>'power')::INTEGER,
@@ -187,7 +182,6 @@ BEGIN;
             INSERT INTO structs.planet
                 VALUES (
                     body->>'id',
-                    '', -- name
                     (body->>'maxOre')::INTEGER,
                     body->>'creator',
                     body->>'owner',
@@ -210,14 +204,12 @@ BEGIN;
                 VALUES (
                     body->>'id',
                     (body->>'index')::INTEGER,
-                    '', -- username
-                    '', -- pfp
+
                     body->>'guildId',
                     body->>'substationId',
                     body->>'planetId',
 
                     (body->>'storage')::JSONB,
-                    body->>'status',
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
@@ -226,7 +218,6 @@ BEGIN;
                         substation_id = EXCLUDED.substation_id,
                         planet_id = EXCLUDED.planet_id,
                         storage = EXCLUDED.storage,
-                        status = EXCLUDED.status,
                         updated_at = NOW();
 
 

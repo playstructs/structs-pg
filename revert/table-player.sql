@@ -4,4 +4,6 @@ BEGIN;
 
 DROP TABLE structs.player;
 
+DROP TABLE structs.player_meta;
+
 COMMIT;
