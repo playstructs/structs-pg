@@ -14,8 +14,6 @@ CREATE TABLE structs.player (
 
 	storage jsonb,
 
-	status CHARACTER VARYING,
-
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL
 );
