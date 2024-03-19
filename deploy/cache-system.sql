@@ -159,7 +159,7 @@ BEGIN;
                     body->>'destinationId',
                     body->>'address',
 
-                    (body->>'destinationType')::INTEGER,
+                    body->>'destinationType',
                     body->>'playerId',
 
                     (body->>'fuel')::INTEGER,
