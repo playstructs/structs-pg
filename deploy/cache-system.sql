@@ -286,7 +286,7 @@ BEGIN;
                 NOW()
             ) ON CONFLICT (id) DO UPDATE
             SET
-                val = EXCLUDED.value,
+                val = EXCLUDED.val,
                 updated_at = EXCLUDED.updated_at;
 
         -- make generic grid stuff happen
@@ -300,7 +300,7 @@ BEGIN;
                 NOW()
             ) ON CONFLICT (id) DO UPDATE
             SET
-                val = EXCLUDED.value,
+                val = EXCLUDED.val,
                 updated_at = EXCLUDED.updated_at;
 
         END IF;
