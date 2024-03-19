@@ -6,9 +6,8 @@ CREATE TABLE structs.infusion (
     destination_id CHARACTER VARYING,
     address CHARACTER VARYING,
 
-    destination_type INTEGER,
+    destination_type CHARACTER VARYING,
     player_id CHARACTER VARYING,
-
 
 	fuel INTEGER,
 	power INTEGER,
