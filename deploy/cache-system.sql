@@ -93,7 +93,7 @@ BEGIN;
     DECLARE
         body jsonb;
     BEGIN
-        IF NEW.composite_key = 'structs.EventAllocation.allocation' THEN
+        IF NEW.composite_key = 'structs.structs.EventAllocation.allocation' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.allocation
@@ -117,7 +117,7 @@ BEGIN;
                         locked = EXCLUDED.locked,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventGuild.guild' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventGuild.guild' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.guild
@@ -151,7 +151,7 @@ BEGIN;
                         updated_at = NOW();
 
 
-        ELSIF NEW.composite_key = 'structs.EventInfusion.infusion' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventInfusion.infusion' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.infusion
@@ -176,7 +176,7 @@ BEGIN;
                         commission = EXCLUDED.commission,
                         updated_at = NOW();
 
-        ELSIF NEW.composite_key = 'structs.EventPlanet.planet' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventPlanet.planet' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.planet
@@ -197,7 +197,7 @@ BEGIN;
                         updated_at = NOW();
 
 
-        ELSIF NEW.composite_key = 'structs.EventPlayer.player' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventPlayer.player' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.player
@@ -222,7 +222,7 @@ BEGIN;
                         updated_at = NOW();
 
 
-        ELSIF NEW.composite_key = 'structs.EventReactor.reactor' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventReactor.reactor' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.reactor
@@ -240,7 +240,7 @@ BEGIN;
                         updated_at = NOW();
 
 
-        ELSIF NEW.composite_key = 'structs.EventStruct.structure' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventStruct.structure' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.struct
@@ -260,7 +260,7 @@ BEGIN;
 
 
 
-        ELSIF NEW.composite_key = 'structs.EventSubstation.substation' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventSubstation.substation' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.substation
@@ -276,7 +276,7 @@ BEGIN;
                         updated_at = NOW();
 
         -- Make generic permission stuff happen
-        ELSIF NEW.composite_key = 'structs.EventPermission.PermissionRecord' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventPermission.permissionRecord' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.permission
@@ -290,7 +290,7 @@ BEGIN;
                 updated_at = EXCLUDED.updated_at;
 
         -- make generic grid stuff happen
-        ELSIF NEW.composite_key = 'structs.EventGrid.GridRecord' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventGrid.gridRecord' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.grid
