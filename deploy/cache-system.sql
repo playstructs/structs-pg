@@ -276,7 +276,7 @@ BEGIN;
                         updated_at = NOW();
 
         -- Make generic permission stuff happen
-        ELSIF NEW.composite_key = 'structs.EventPermission' THEN
+        ELSIF NEW.composite_key = 'structs.EventPermission.PermissionRecord' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.permission
@@ -290,7 +290,7 @@ BEGIN;
                 updated_at = EXCLUDED.updated_at;
 
         -- make generic grid stuff happen
-        ELSIF NEW.composite_key = 'structs.EventGrid' THEN
+        ELSIF NEW.composite_key = 'structs.EventGrid.GridRecord' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.grid
