@@ -30,4 +30,12 @@ CREATE TABLE structs.player_meta (
     updated_at TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE structs.player_pending (
+    primary_address CHARACTER VARYING PRIMARY KEY,
+    username CHARACTER VARYING,
+    pfp CHARACTER VARYING,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
 COMMIT;

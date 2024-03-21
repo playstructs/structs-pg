@@ -6,4 +6,6 @@ DROP TABLE structs.player;
 
 DROP TABLE structs.player_meta;
 
+DROP TABLE structs.player_pending;
+
 COMMIT;
