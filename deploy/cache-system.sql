@@ -286,9 +286,10 @@ BEGIN;
                        body->>'registrationStatus',
                        NOW(),
                        NOW()
-               ) ON CONFLICT (id) DO UPDATE
+               ) ON CONFLICT (address) DO UPDATE
         SET
             status = EXCLUDED.status,
+            player_id = EXCLUDED.player_id,
             updated_at = EXCLUDED.updated_at;
 
         -- Make generic permission stuff happen
