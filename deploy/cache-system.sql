@@ -275,7 +275,7 @@ BEGIN;
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
 
-        -- Make generic permission stuff happen
+        -- Make generic address association stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventAddressAssociation.addressAssociation' THEN
                     body := (NEW.value)::jsonb;
 
