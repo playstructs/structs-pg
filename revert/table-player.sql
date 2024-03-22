@@ -8,4 +8,6 @@ DROP TABLE structs.player_meta;
 
 DROP TABLE structs.player_pending;
 
+DROP TABLE structs.player_address;
+
 COMMIT;
