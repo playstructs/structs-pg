@@ -284,7 +284,6 @@ BEGIN;
                        body->>'address',
                        '1-' || (body->>'playerIndex')::CHARACTER VARYING, -- cast the index into the proper player account ID
                        body->>'registrationStatus',
-                       (body->>'value')::INTEGER,
                        NOW(),
                        NOW()
                ) ON CONFLICT (id) DO UPDATE
