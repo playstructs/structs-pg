@@ -41,7 +41,9 @@ CREATE TABLE structs.player_pending (
 CREATE TABLE structs.player_address (
     address CHARACTER VARYING PRIMARY KEY,
     player_id CHARACTER VARYING,
+    status CHARACTER VARYING,
     created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 COMMIT;

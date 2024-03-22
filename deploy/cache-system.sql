@@ -276,6 +276,23 @@ BEGIN;
                         updated_at = NOW();
 
         -- Make generic permission stuff happen
+        ELSIF NEW.composite_key = 'structs.structs.EventAddressAssociation.addressAssociation' THEN
+                    body := (NEW.value)::jsonb;
+
+        INSERT INTO structs.player_address
+        VALUES (
+                       body->>'address',
+                       '1-' || (body->>'playerIndex')::CHARACTER VARYING, -- cast the index into the proper player account ID
+                       body->>'registrationStatus',
+                       (body->>'value')::INTEGER,
+                       NOW(),
+                       NOW()
+               ) ON CONFLICT (id) DO UPDATE
+        SET
+            status = EXCLUDED.status,
+            updated_at = EXCLUDED.updated_at;
+
+        -- Make generic permission stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventPermission.permissionRecord' THEN
             body := (NEW.value)::jsonb;
 
