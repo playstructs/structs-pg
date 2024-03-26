@@ -275,6 +275,27 @@ BEGIN;
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
 
+            ELSIF NEW.composite_key = 'structs.structs.EventGuildMembershipApplication.guildMembershipApplication' THEN
+                        body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.guild_membership_application
+            VALUES (
+                        body->>'guildId',
+                        body->>'playerId',
+                        body->>'joinType',
+                        body->>'registrationStatus',
+                        body->>'proposer',
+                        body->>'substationId',
+                        NOW(),
+                        NOW()
+                   ) ON CONFLICT (guild_id, player_id) DO UPDATE
+            SET
+                join_type = EXCLUDED.join_type,
+                status = EXCLUDED.status,
+                proposer = EXCLUDED.proposer,
+                substation_id = EXCLUDED.substation_id,
+                updated_at = NOW();
+
         -- Make generic address association stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventAddressAssociation.addressAssociation' THEN
                     body := (NEW.value)::jsonb;

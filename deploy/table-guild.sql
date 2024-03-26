@@ -36,4 +36,18 @@ CREATE TABLE structs.guild_meta (
     updated_at TIMESTAMPTZ NOT NULL
 );
 
+
+
+CREATE TABLE structs.guild_membership_application (
+    guild_id CHARACTER VARYING,
+    player_id CHARACTER VARYING,
+    join_type CHARACTER VARYING,
+    status CHARACTER VARYING,
+    proposer CHARACTER VARYING,
+    substation_id CHARACTER VARYING,
+
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (guild_id, player_id)
+);
 COMMIT;
