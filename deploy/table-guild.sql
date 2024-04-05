@@ -25,6 +25,7 @@ CREATE TABLE structs.guild_meta (
     id INTEGER PRIMARY KEY,
 
     name CHARACTER VARYING,
+    description TEXT,
     tag CHARACTER VARYING,
     logo CHARACTER VARYING,
     socials jsonb,
