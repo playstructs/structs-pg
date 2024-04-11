@@ -32,6 +32,7 @@ CREATE TABLE structs.player_meta (
 
 CREATE TABLE structs.player_pending (
     primary_address CHARACTER VARYING PRIMARY KEY,
+    signature bytea,
     username CHARACTER VARYING,
     pfp CHARACTER VARYING,
     created_at TIMESTAMPTZ NOT NULL,
@@ -42,6 +43,25 @@ CREATE TABLE structs.player_address (
     address CHARACTER VARYING PRIMARY KEY,
     player_id CHARACTER VARYING,
     status CHARACTER VARYING,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE structs.player_address_activity (
+    address CHARACTER VARYING PRIMARY KEY,
+    active_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE structs.player_address_meta (
+    address CHARACTER VARYING PRIMARY KEY,
+    ip INET,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE structs.player_address_pending (
+    address CHARACTER VARYING PRIMARY KEY,
+    signature bytea,
+    code CHARACTER VARYING,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );
