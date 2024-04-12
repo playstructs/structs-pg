@@ -304,7 +304,7 @@ BEGIN;
         VALUES (
                        body->>'address',
                        (body->>'blockHeight')::INTEGER,
-                       body->>'blockTime'
+                       (body->>'blockTime')::TIMESTAMPTZ
                ) ON CONFLICT (address) DO UPDATE
         SET
             block_height = EXCLUDED.block_height,

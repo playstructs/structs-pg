@@ -50,7 +50,7 @@ CREATE UNLOGGED TABLE structs.player_address (
 CREATE UNLOGGED TABLE structs.player_address_activity (
     address CHARACTER VARYING PRIMARY KEY,
     block_height INTEGER,
-    block_time CHARACTER VARYING
+    block_time TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE structs.player_address_meta (
