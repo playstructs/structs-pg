@@ -297,6 +297,20 @@ BEGIN;
                 updated_at = NOW();
 
         -- Make generic address association stuff happen
+        ELSIF NEW.composite_key = 'structs.structs.EventAddressActivity.addressActivity' THEN
+                            body := (NEW.value)::jsonb;
+
+        INSERT INTO structs.player_address_activity
+        VALUES (
+                       body->>'address',
+                       (body->>'blockHeight')::INTEGER,
+                       body->>'blockTime'
+               ) ON CONFLICT (address) DO UPDATE
+        SET
+            block_height = EXCLUDED.block_height,
+            block_time = EXCLUDED.block_time;
+
+        -- Make generic address association stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventAddressAssociation.addressAssociation' THEN
                     body := (NEW.value)::jsonb;
 

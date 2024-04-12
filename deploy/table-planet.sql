@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.planet (
+CREATE UNLOGGED TABLE structs.planet (
 	id CHARACTER VARYING PRIMARY KEY,
 
 	max_ore INTEGER,

@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.allocation (
+CREATE UNLOGGED TABLE structs.allocation (
 	id CHARACTER VARYING PRIMARY KEY,
 
     allocationType INTEGER,

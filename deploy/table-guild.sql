@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.guild (
+CREATE UNLOGGED TABLE structs.guild (
 	id INTEGER PRIMARY KEY,
     index INTEGER,
 
