@@ -11,6 +11,7 @@ CREATE UNLOGGED TABLE structs.infusion (
 
 	fuel INTEGER,
 	power INTEGER,
+    ratio INTEGER,
 
     commission NUMERIC,
 

@@ -164,6 +164,7 @@ BEGIN;
 
                     (body->>'fuel')::INTEGER,
                     (body->>'power')::INTEGER,
+                    (body->>'ratio')::INTEGER,
 
                     (body->>'commission')::NUMERIC,
 
@@ -173,6 +174,7 @@ BEGIN;
                     SET
                         fuel = EXCLUDED.fuel,
                         power = EXCLUDED.power,
+                        ratio = EXCLUDED.ratio,
                         commission = EXCLUDED.commission,
                         updated_at = NOW();
 
