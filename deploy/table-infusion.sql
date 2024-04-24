@@ -10,6 +10,7 @@ CREATE UNLOGGED TABLE structs.infusion (
     player_id CHARACTER VARYING,
 
 	fuel INTEGER,
+    defusing INTEGER,
 	power INTEGER,
     ratio INTEGER,
 

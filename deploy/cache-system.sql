@@ -163,6 +163,7 @@ BEGIN;
                     body->>'playerId',
 
                     (body->>'fuel')::INTEGER,
+                    (body->>'defusing')::INTEGER,
                     (body->>'power')::INTEGER,
                     (body->>'ratio')::INTEGER,
 
@@ -173,6 +174,7 @@ BEGIN;
                 ) ON CONFLICT (destination_id, address) DO UPDATE
                     SET
                         fuel = EXCLUDED.fuel,
+                        defusing = EXCLUDED.defusing,
                         power = EXCLUDED.power,
                         ratio = EXCLUDED.ratio,
                         commission = EXCLUDED.commission,
