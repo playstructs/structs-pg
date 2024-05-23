@@ -19,7 +19,8 @@ CREATE UNLOGGED TABLE structs.player (
 );
 
 CREATE TABLE structs.player_meta (
-    id CHARACTER VARYING PRIMARY KEY,
+    id CHARACTER VARYING,
+    guild_id CHARACTER VARYING,
 
     username CHARACTER VARYING,
     pfp CHARACTER VARYING,
@@ -27,7 +28,8 @@ CREATE TABLE structs.player_meta (
     status CHARACTER VARYING,
 
     created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
+    updated_at TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (id, guild_id)
 );
 
 CREATE TABLE structs.player_pending (
