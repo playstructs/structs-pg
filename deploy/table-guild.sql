@@ -3,7 +3,7 @@
 BEGIN;
 
 CREATE UNLOGGED TABLE structs.guild (
-	id INTEGER PRIMARY KEY,
+	id CHARACTER VARYING PRIMARY KEY,
     index INTEGER,
 
 	endpoint CHARACTER VARYING,
@@ -22,7 +22,7 @@ CREATE UNLOGGED TABLE structs.guild (
 );
 
 CREATE TABLE structs.guild_meta (
-    id INTEGER PRIMARY KEY,
+    id CHARACTER VARYING PRIMARY KEY,
 
     name CHARACTER VARYING,
     description TEXT,
