@@ -141,7 +141,6 @@ BEGIN;
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         endpoint = EXCLUDED.endpoint,
-                        this_infrastructure = EXCLUDED.this_infrastructure,
                         join_infusion_minimum = EXCLUDED.join_infusion_minimum,
                         join_infusion_minimum_by_request = EXCLUDED.join_infusion_minimum_by_request,
                         join_infusion_minimum_by_invite = EXCLUDED.join_infusion_minimum_by_invite,
