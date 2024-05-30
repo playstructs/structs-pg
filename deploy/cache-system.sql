@@ -142,8 +142,8 @@ BEGIN;
                     SET
                         endpoint = EXCLUDED.endpoint,
                         join_infusion_minimum = EXCLUDED.join_infusion_minimum,
-                        join_infusion_minimum_by_request = EXCLUDED.join_infusion_minimum_by_request,
-                        join_infusion_minimum_by_invite = EXCLUDED.join_infusion_minimum_by_invite,
+                        join_infusion_minimum_bypass_by_request = EXCLUDED.join_infusion_minimum_bypass_by_request,
+                        join_infusion_minimum_bypass_by_invite = EXCLUDED.join_infusion_minimum_bypass_by_invite,
                         primary_reactor_id = EXCLUDED.primary_reactor_id,
                         entry_substation_id = EXCLUDED.entry_substation_id,
                         owner = EXCLUDED.owner,
