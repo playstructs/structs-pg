@@ -9,8 +9,8 @@ CREATE UNLOGGED TABLE structs.guild (
 	endpoint CHARACTER VARYING,
 
 	join_infusion_minimum INTEGER,
-	join_infusion_minimum_bypass_by_request INTEGER,
-    join_infusion_minimum_bypass_by_invite INTEGER,
+	join_infusion_minimum_bypass_by_request CHARACTER VARYING,
+    join_infusion_minimum_bypass_by_invite CHARACTER VARYING,
 
     primary_reactor_id CHARACTER VARYING,
 	entry_substation_id CHARACTER VARYING,

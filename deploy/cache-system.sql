@@ -128,8 +128,8 @@ BEGIN;
                     body->>'endpoint',
 
                     (body->>'joinInfusionMinimum')::INTEGER,
-                    (body->>'joinInfusionMinimumBypassByRequest')::INTEGER,
-                    (body->>'joinInfusionMinimumBypassByInvite')::INTEGER,
+                    body->>'joinInfusionMinimumBypassByRequest',
+                    body->>'joinInfusionMinimumBypassByInvite',
 
                     body->>'primaryReactorId',
                     body->>'entrySubstationId',
