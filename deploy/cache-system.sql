@@ -380,23 +380,22 @@ BEGIN;
 
 
     -- Pruning try
-    CREATE OR REPLACE FUNCTION cache.CLEAN_QUEUE()
-    RETURNS trigger AS
+    CREATE OR REPLACE PROCEDURE cache.CLEAN_QUEUE()
+    AS
     $BODY$
     BEGIN
-        IF (NEW.height % 5000) = 0 THEN
-            -- The 5,000 number here was pulled roughly out of an ass
-            -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
-            DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks WHERE blocks.height < (NEW.height - 2500) ORDER BY rowid ASC FOR UPDATE SKIP LOCKED);
-        END IF;
-        RETURN NEW;
+
+        -- The 5,000 number here was pulled roughly out of an ass
+        -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
+        DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks order by height desc offset 2000 FOR UPDATE SKIP LOCKED);
+
     END
     $BODY$
-    LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-          COST 1000;
+    LANGUAGE plpgsql SECURITY DEFINER;
 
-    CREATE TRIGGER CLEAN_QUEUE AFTER INSERT ON cache.blocks
-        FOR EACH ROW EXECUTE PROCEDURE cache.CLEAN_QUEUE();
+    CREATE EXTENSION pg_cron;
+
+    SELECT cron.schedule('clean', '5 seconds', 'CALL cache.CLEAN_QUEUE()');
 
 COMMIT;
 
