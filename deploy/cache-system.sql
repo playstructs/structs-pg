@@ -385,7 +385,7 @@ BEGIN;
     $BODY$
     BEGIN
 
-        -- The 5,000 number here was pulled roughly out of an ass
+        -- The 2,000 number here was pulled roughly out of an ass
         -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
         DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks order by height desc offset 2000 FOR UPDATE SKIP LOCKED);
 
@@ -395,7 +395,7 @@ BEGIN;
 
     CREATE EXTENSION pg_cron;
 
-    SELECT cron.schedule('clean', '5 seconds', 'CALL cache.CLEAN_QUEUE()');
+    SELECT cron.schedule('clean', '60 seconds', 'CALL cache.CLEAN_QUEUE()');
 
 COMMIT;
 
