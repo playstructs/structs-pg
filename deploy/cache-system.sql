@@ -12,7 +12,7 @@ BEGIN;
 
     -- The blocks table records metadata about each block.
     -- The block record does not include its events or transactions (see tx_results).
-    CREATE TABLE cache.blocks (
+    CREATE UNLOGGED TABLE cache.blocks (
       rowid      BIGSERIAL PRIMARY KEY,
 
       height     BIGINT NOT NULL,
@@ -31,7 +31,7 @@ BEGIN;
 
     -- The tx_results table records metadata about transaction results.  Note that
     -- the events from a transaction are stored separately.
-    CREATE TABLE cache.tx_results (
+    CREATE UNLOGGED TABLE cache.tx_results (
       rowid BIGSERIAL PRIMARY KEY,
 
       -- The block to which this transaction belongs.
@@ -54,7 +54,7 @@ BEGIN;
 
     -- The events table records events. All events (both block and transaction) are
     -- associated with a block ID; transaction events also have a transaction ID.
-    CREATE TABLE cache.events (
+    CREATE UNLOGGED TABLE cache.events (
       rowid BIGSERIAL PRIMARY KEY,
 
       -- The block and transaction this event belongs to.
@@ -67,7 +67,7 @@ BEGIN;
     );
 
     -- The attributes table records event attributes.
-    CREATE TABLE cache.attributes (
+    CREATE UNLOGGED TABLE cache.attributes (
        event_id      BIGINT NOT NULL REFERENCES cache.events(rowid) ON DELETE CASCADE,
        key           VARCHAR NOT NULL, -- bare key
        composite_key VARCHAR NOT NULL, -- composed type.key
