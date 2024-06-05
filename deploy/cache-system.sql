@@ -382,15 +382,17 @@ BEGIN;
     RETURNS trigger AS
     $BODY$
     BEGIN
-        DELETE FROM cache.blocks WHERE blocks.height < NEW.height - 1000;
+        -- The 10,000 number here was pulled roughly out of an ass
+        -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
+        DELETE FROM cache.blocks WHERE blocks.height < (NEW.height - 10000);
         RETURN NEW;
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-          COST 100;
+          COST 1000;
 
     CREATE TRIGGER CLEAN_QUEUE AFTER INSERT ON cache.blocks
-        FOR EACH ROW EXECUTE PROCEDURE cache.CLEAN_QUEUE();
+        FOR STATEMENT EXECUTE PROCEDURE cache.CLEAN_QUEUE();
 
 COMMIT;
 
