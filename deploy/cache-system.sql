@@ -34,7 +34,7 @@ BEGIN;
       rowid BIGSERIAL PRIMARY KEY,
 
       -- The block to which this transaction belongs.
-      block_id BIGINT NOT NULL,
+      block_id BIGINT NOT NULL REFERENCES cache.blocks(rowid) ON DELETE CASCADE,
       -- The sequential index of the transaction within the block.
       index INTEGER NOT NULL,
       -- When this result record was logged into the sink, in UTC.
@@ -45,7 +45,7 @@ BEGIN;
       tx_result BYTEA NOT NULL,
 
       UNIQUE (block_id, index)
-    );
+    ) PARTITION BY RANGE (block_id);
 
     --CREATE OR REPLACE VIEW cache.tx_results AS SELECT * FROM cache.tx_results_tbl;
     --CREATE OR REPLACE RULE block_tx_results AS ON INSERT to cache.tx_results DO INSTEAD NOTHING;
@@ -58,7 +58,7 @@ BEGIN;
 
       -- The block and transaction this event belongs to.
       -- If tx_id is NULL, this is a block event.
-      block_id BIGINT NOT NULL,
+      block_id BIGINT NOT NULL REFERENCES cache.blocks(rowid) ON DELETE CASCADE,
       tx_id    BIGINT NULL,
 
       -- The application-defined type label for the event.
@@ -67,7 +67,7 @@ BEGIN;
 
     -- The attributes table records event attributes.
     CREATE TABLE cache.attributes (
-       event_id      BIGINT NOT NULL,
+       event_id      BIGINT NOT NULL REFERENCES cache.events(rowid) ON DELETE CASCADE,
        key           VARCHAR NOT NULL, -- bare key
        composite_key VARCHAR NOT NULL, -- composed type.key
        value         VARCHAR NULL,
@@ -375,6 +375,22 @@ BEGIN;
 
     -- Used by the manual update script
     create table cache.tmp_json (data jsonb);
+
+
+    -- Pruning try
+    CREATE OR REPLACE FUNCTION cache.CLEAN_QUEUE()
+    RETURNS trigger AS
+    $BODY$
+    BEGIN
+        DELETE FROM cache.blocks WHERE blocks.height < NEW.height - 1000;
+        RETURN NEW;
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+          COST 100;
+
+    CREATE TRIGGER CLEAN_QUEUE AFTER INSERT ON cache.blocks
+        FOR EACH ROW EXECUTE PROCEDURE cache.CLEAN_QUEUE();
 
 COMMIT;
 
