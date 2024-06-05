@@ -45,7 +45,7 @@ BEGIN;
       tx_result BYTEA NOT NULL,
 
       UNIQUE (block_id, index)
-    ) PARTITION BY RANGE (block_id);
+    ) ;
 
     --CREATE OR REPLACE VIEW cache.tx_results AS SELECT * FROM cache.tx_results_tbl;
     --CREATE OR REPLACE RULE block_tx_results AS ON INSERT to cache.tx_results DO INSTEAD NOTHING;
