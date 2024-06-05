@@ -385,7 +385,7 @@ BEGIN;
     BEGIN
         -- The 5,000 number here was pulled roughly out of an ass
         -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
-        DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks WHERE blocks.height < (NEW.height - 5000) FOR UPDATE NOWAIT);
+        DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks WHERE blocks.height < (NEW.height - 5000) FOR UPDATE SKIP LOCKED);
         RETURN NEW;
     END
     $BODY$
