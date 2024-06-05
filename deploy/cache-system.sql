@@ -27,6 +27,7 @@ BEGIN;
     -- Index blocks by height and chain, since we need to resolve block IDs when
     -- indexing transaction records and transaction events.
     CREATE INDEX idx_blocks_height_chain ON cache.blocks(height, chain_id);
+    CREATE INDEX idx_blocks_height ON cache.blocks(height);
 
     -- The tx_results table records metadata about transaction results.  Note that
     -- the events from a transaction are stored separately.
@@ -382,9 +383,9 @@ BEGIN;
     RETURNS trigger AS
     $BODY$
     BEGIN
-        -- The 10,000 number here was pulled roughly out of an ass
+        -- The 5,000 number here was pulled roughly out of an ass
         -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
-        DELETE FROM cache.blocks WHERE blocks.height < (NEW.height - 10000);
+        DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks WHERE blocks.height < (NEW.height - 5000) FOR UPDATE NOWAIT);
         RETURN NEW;
     END
     $BODY$
