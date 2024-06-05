@@ -28,6 +28,7 @@ BEGIN;
     -- indexing transaction records and transaction events.
     CREATE INDEX idx_blocks_height_chain ON cache.blocks(height, chain_id);
     CREATE INDEX idx_blocks_height ON cache.blocks(height);
+    CREATE INDEX idx_blocks_rowid ON cache.blocks(rowid);
 
     -- The tx_results table records metadata about transaction results.  Note that
     -- the events from a transaction are stored separately.
@@ -383,9 +384,11 @@ BEGIN;
     RETURNS trigger AS
     $BODY$
     BEGIN
-        -- The 5,000 number here was pulled roughly out of an ass
-        -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
-        DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks WHERE blocks.height < (NEW.height - 5000) FOR UPDATE SKIP LOCKED);
+        IF (NEW.height % 5000) = 0 THEN
+            -- The 5,000 number here was pulled roughly out of an ass
+            -- Previous attempt was 1,000 and it appeared to result in orphaned attributes
+            DELETE FROM cache.blocks where rowid in (select rowid FROM cache.blocks WHERE blocks.height < (NEW.height - 2500) ORDER BY rowid ASC FOR UPDATE SKIP LOCKED);
+        END IF;
         RETURN NEW;
     END
     $BODY$
