@@ -395,7 +395,7 @@ BEGIN;
 
     CREATE EXTENSION pg_cron;
 
-    SELECT cron.schedule('cleaner', '30 seconds', 'CALL cache.CLEAN_QUEUE();');
+    SELECT cron.schedule('cleaner', '59 seconds', 'CALL cache.CLEAN_QUEUE();');
 
 COMMIT;
 
