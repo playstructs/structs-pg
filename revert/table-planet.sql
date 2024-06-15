@@ -4,6 +4,6 @@ BEGIN;
 
 DROP TABLE structs.planet;
 
-DROP TABLE structs.grid_meta;
+DROP TABLE structs.planet_meta;
 
 COMMIT;
