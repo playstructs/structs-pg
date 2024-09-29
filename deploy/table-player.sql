@@ -6,13 +6,13 @@ CREATE UNLOGGED TABLE structs.player (
 	id CHARACTER VARYING PRIMARY KEY,
     index INTEGER,
 
+    creator CHARACTER VARYING,
     primary_address CHARACTER VARYING,
 
     guild_id CHARACTER VARYING,
 	substation_id CHARACTER VARYING,
 	planet_id CHARACTER VARYING,
-
-	storage jsonb,
+    fleet_id CHARACTER VARYING,
 
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL
@@ -67,6 +67,14 @@ CREATE TABLE structs.player_address_pending (
     signature CHARACTER VARYING,
     pubkey CHARACTER VARYING,
     code CHARACTER VARYING,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE structs.player_inventory (
+    address CHARACTER VARYING PRIMARY KEY,
+    player_id CHARACTER VARYING,
+    rocks INTEGER,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );

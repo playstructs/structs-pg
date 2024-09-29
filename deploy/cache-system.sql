@@ -190,15 +190,30 @@ BEGIN;
                     (body->>'maxOre')::INTEGER,
                     body->>'creator',
                     body->>'owner',
-                    body,
+                    (body)::JSONB,
+
+                    (body->>'spaceSlots')::INTEGER,
+                    (body->>'airSlots')::INTEGER,
+                    (body->>'landSlots')::INTEGER,
+                    (body->>'waterSlots')::INTEGER,
+
                     body->>'status',
+
+                    body->>'locationListStart',
+                    body->>'locationListEnd',
+
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         owner = EXCLUDED.owner,
-                        state = EXCLUDED.state,
+
+                        map = EXCLUDED.map,
                         status = EXCLUDED.status,
+
+                        location_list_start = EXCLUDED.location_list_start,
+                        location_list_end = EXCLUDED.location_list_end,
+
                         updated_at = NOW();
 
 
@@ -209,12 +224,14 @@ BEGIN;
                 VALUES (
                     body->>'id',
                     (body->>'index')::INTEGER,
+                    body->>'creator',
                     body->>'primaryAddress',
+
                     body->>'guildId',
                     body->>'substationId',
                     body->>'planetId',
+                    body->>'fleetId',
 
-                    (body->>'storage')::JSONB,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
@@ -223,7 +240,8 @@ BEGIN;
                         guild_id = EXCLUDED.guild_id,
                         substation_id = EXCLUDED.substation_id,
                         planet_id = EXCLUDED.planet_id,
-                        storage = EXCLUDED.storage,
+                        fleet_id = EXCLUDED.fleet_id,
+
                         updated_at = NOW();
 
 
@@ -251,17 +269,193 @@ BEGIN;
             INSERT INTO structs.struct
                 VALUES (
                     body->>'id',
-                    body->>'type',
-                    body->>'owner',
-                    (body)::JSONB,
+                    (body->>'index')::INTEGER,
+                    (body->>'type')::INTEGER,
+
                     body->>'creator',
+                    body->>'owner',
+
+                    body->>'location_type',
+                    body->>'location_id',
+                    body->>'operating_ambit',
+                    (body->>'slot')::INTEGER,
+
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         owner = EXCLUDED.owner,
-                        state = EXCLUDED.state,
+                        location_type = EXCLUDED.location_type,
+                        location_id = EXCLUDED.location_id,
+                        operating_ambit = EXCLUDED.operating_ambit,
+                        slot = EXCLUDED.slot,
                         updated_at = NOW();
+
+        ELSIF NEW.composite_key = 'structs.structs.EventStructDefender.structDefender' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.struct_defender
+            VALUES (
+                           body->>'defendingStructId',
+                           body->>'protectedStructId',
+                           NOW()
+                   ) ON CONFLICT (id) DO UPDATE
+            SET
+                defending_struct_id = EXCLUDED.defending_struct_id,
+                protected_struct_id = EXCLUDED.protected_struct_id,
+                updated_at = EXCLUDED.updated_at;
+
+
+        ELSIF NEW.composite_key = 'structs.structs.EventStructType.structType' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.struct_type
+            VALUES (
+                           (body->>'id')::INTEGER,
+                           body->>'type',
+
+                           body->>'category',
+
+                           (body->>'buildLimit')::INTEGER,
+                           (body->>'buildDifficulty')::INTEGER,
+                           (body->>'buildDraw')::INTEGER,
+                           (body->>'maxHealth')::INTEGER,
+                           (body->>'passiveDraw')::INTEGER,
+                           (body->>'possibleAmbit')::INTEGER,
+
+                           (body->>'movable')::BOOLEAN,
+                           (body->>'slotBound')::BOOLEAN,
+
+
+                           body->>'primaryWeapon',
+                           body->>'primaryWeaponControl',
+                           (body->>'primaryWeaponCharge')::INTEGER,
+                           (body->>'primaryWeaponAmbits')::INTEGER,
+                           (body->>'primaryWeaponTargets')::INTEGER,
+                           (body->>'primaryWeaponShots')::INTEGER,
+                           (body->>'primaryWeaponDamage')::INTEGER,
+                           (body->>'primaryWeaponBlockable')::BOOLEAN,
+                           (body->>'primaryWeaponCounterable')::BOOLEAN,
+                           (body->>'primaryWeaponRecoilDamage')::INTEGER,
+                           (body->>'primaryWeaponShotSuccessRateNumerator')::INTEGER,
+                           (body->>'primaryWeaponShotSuccessRateDenominator')::INTEGER,
+
+                           body->>'secondaryWeapon',
+                           body->>'secondaryWeaponControl',
+                           (body->>'secondaryWeaponCharge')::INTEGER,
+                           (body->>'secondaryWeaponAmbits')::INTEGER,
+                           (body->>'secondaryWeaponTargets')::INTEGER,
+                           (body->>'secondaryWeaponShots')::INTEGER,
+                           (body->>'secondaryWeaponDamage')::INTEGER,
+                           (body->>'secondaryWeaponBlockable')::BOOLEAN,
+                           (body->>'secondaryWeaponCounterable')::BOOLEAN,
+                           (body->>'secondaryWeaponRecoilDamage')::INTEGER,
+                           (body->>'secondaryWeaponShotSuccessRateNumerator')::INTEGER,
+                           (body->>'secondaryWeaponShotSuccessRateDenominator')::INTEGER,
+
+
+                           body->>'passiveWeaponry',
+                           body->>'unitDefenses',
+                           body->>'oreReserveDefenses',
+                           body->>'planetaryDefenses',
+                           body->>'planetaryMining',
+                           body->>'planetaryRefinery',
+                           body->>'powerGeneration',
+
+                           (body->>'activateCharge')::INTEGER,
+                           (body->>'buildCharge')::INTEGER,
+                           (body->>'defendChangeCharge')::INTEGER,
+                           (body->>'moveCharge')::INTEGER,
+                           (body->>'oreMiningCharge')::INTEGER,
+                           (body->>'oreRefiningCharge')::INTEGER,
+                           (body->>'stealthActivateCharge')::INTEGER,
+
+                           (body->>'attackReduction')::INTEGER,
+                           (body->>'attackCounterable')::INTEGER,
+                           (body->>'stealthSystems')::INTEGER,
+                           (body->>'counterAttack')::INTEGER,
+                           (body->>'counterAttackSameAmbit')::INTEGER,
+                           (body->>'postDestructionDamage')::INTEGER,
+                           (body->>'generatingRate')::INTEGER,
+                           (body->>'planetaryShieldContribution')::INTEGER,
+                           (body->>'oreMiningDifficulty')::INTEGER,
+                           (body->>'oreRefiningDifficulty')::INTEGER,
+
+                           (body->>'unguidedDefensiveSuccessRateNumerator')::INTEGER,
+                           (body->>'unguidedDefensiveSuccessRateDenominator')::INTEGER,
+
+                           (body->>'guidedDefensiveSuccessRateNumerator')::INTEGER,
+                           (body->>'guidedDefensiveSuccessRateDenominator')::INTEGER,
+
+                           (body->>'triggerRaidDefeatByDestruction')::BOOLEAN,
+
+                           NOW()
+                   ) ON CONFLICT (id) DO UPDATE
+            SET
+                type = EXCLUDED.type,
+                category = EXCLUDED.category,
+                build_limit = EXCLUDED.build_limit,
+                build_difficulty = EXCLUDED.build_difficulty,
+                build_draw = EXCLUDED.build_draw,
+                max_health = EXCLUDED.max_health,
+                passive_draw = EXCLUDED.passive_draw,
+                possible_ambit = EXCLUDED.possible_ambit,
+                movable = EXCLUDED.movable,
+                slot_bound = EXCLUDED.slot_bound,
+                primary_weapon = EXCLUDED.primary_weapon,
+                primary_weapon_control = EXCLUDED.primary_weapon_control,
+                primary_weapon_charge = EXCLUDED.primary_weapon_charge,
+                primary_weapon_ambits = EXCLUDED.primary_weapon_ambits,
+                primary_weapon_targets = EXCLUDED.primary_weapon_targets,
+                primary_weapon_shots = EXCLUDED.primary_weapon_shots,
+                primary_weapon_damage = EXCLUDED.primary_weapon_damage,
+                primary_weapon_blockable = EXCLUDED.primary_weapon_blockable,
+                primary_weapon_counterable = EXCLUDED.primary_weapon_counterable,
+                primary_weapon_recoil_damage = EXCLUDED.primary_weapon_recoil_damage,
+                primary_weapon_shot_success_rate_numerator = EXCLUDED.primary_weapon_shot_success_rate_numerator,
+                primary_weapon_shot_success_rate_denominator = EXCLUDED.primary_weapon_shot_success_rate_denominator,
+                secondary_weapon = EXCLUDED.secondary_weapon,
+                secondary_weapon_control = EXCLUDED.secondary_weapon_control,
+                secondary_weapon_charge = EXCLUDED.secondary_weapon_charge,
+                secondary_weapon_ambits = EXCLUDED.secondary_weapon_ambits,
+                secondary_weapon_targets = EXCLUDED.secondary_weapon_targets,
+                secondary_weapon_shots = EXCLUDED.secondary_weapon_shots,
+                secondary_weapon_damage = EXCLUDED.secondary_weapon_damage,
+                secondary_weapon_blockable = EXCLUDED.secondary_weapon_blockable,
+                secondary_weapon_counterable = EXCLUDED.secondary_weapon_counterable,
+                secondary_weapon_recoil_damage = EXCLUDED.secondary_weapon_recoil_damage,
+                secondary_weapon_shot_success_rate_numerator = EXCLUDED.secondary_weapon_shot_success_rate_numerator,
+                secondary_weapon_shot_success_rate_denominator = EXCLUDED.secondary_weapon_shot_success_rate_denominator,
+                passive_weaponry = EXCLUDED.passive_weaponry,
+                unit_defenses = EXCLUDED.unit_defenses,
+                ore_reserve_defenses = EXCLUDED.ore_reserve_defenses,
+                planetary_defenses = EXCLUDED.planetary_defenses,
+                planetary_mining = EXCLUDED.planetary_mining,
+                planetary_refinery = EXCLUDED.planetary_refinery,
+                power_generation = EXCLUDED.power_generation,
+                activate_charge = EXCLUDED.activate_charge,
+                build_charge = EXCLUDED.build_charge,
+                defend_change_charge = EXCLUDED.defend_change_charge,
+                move_charge = EXCLUDED.move_charge,
+                ore_mining_charge = EXCLUDED.ore_mining_charge,
+                ore_refining_charge = EXCLUDED.ore_refining_charge,
+                stealth_activate_charge = EXCLUDED.stealth_activate_charge,
+                attack_reduction = EXCLUDED.attack_reduction,
+                attack_counterable = EXCLUDED.attack_counterable,
+                stealth_systems = EXCLUDED.stealth_systems,
+                counter_attack = EXCLUDED.counter_attack,
+                counter_attack_same_ambit = EXCLUDED.counter_attack_same_ambit,
+                post_destruction_damage = EXCLUDED.post_destruction_damage,
+                generating_rate = EXCLUDED.generating_rate,
+                planetary_shield_contribution = EXCLUDED.planetary_shield_contribution,
+                ore_mining_difficulty = EXCLUDED.ore_mining_difficulty,
+                ore_refining_difficulty = EXCLUDED.ore_refining_difficulty,
+                unguided_defensive_success_rate_numerator = EXCLUDED.unguided_defensive_success_rate_numerator,
+                unguided_defensive_success_rate_denominator = EXCLUDED.unguided_defensive_success_rate_denominator,
+                guided_defensive_success_rate_numerator = EXCLUDED.guided_defensive_success_rate_numerator,
+                guided_defensive_success_rate_denominator = EXCLUDED.guided_defensive_success_rate_denominator,
+                trigger_raid_defeat_by_destruction = EXCLUDED.trigger_raid_defeat_by_destruction,
+                updated_at = NOW();
 
 
 
@@ -280,8 +474,8 @@ BEGIN;
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
 
-            ELSIF NEW.composite_key = 'structs.structs.EventGuildMembershipApplication.guildMembershipApplication' THEN
-                        body := (NEW.value)::jsonb;
+        ELSIF NEW.composite_key = 'structs.structs.EventGuildMembershipApplication.guildMembershipApplication' THEN
+                    body := (NEW.value)::jsonb;
 
             INSERT INTO structs.guild_membership_application
             VALUES (
@@ -303,34 +497,34 @@ BEGIN;
 
         -- Make generic address association stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventAddressActivity.addressActivity' THEN
-                            body := (NEW.value)::jsonb;
+            body := (NEW.value)::jsonb;
 
-        INSERT INTO structs.player_address_activity
-        VALUES (
-                       body->>'address',
-                       (body->>'blockHeight')::INTEGER,
-                       (body->>'blockTime')::TIMESTAMPTZ
-               ) ON CONFLICT (address) DO UPDATE
-        SET
-            block_height = EXCLUDED.block_height,
-            block_time = EXCLUDED.block_time;
+            INSERT INTO structs.player_address_activity
+            VALUES (
+                           body->>'address',
+                           (body->>'blockHeight')::INTEGER,
+                           (body->>'blockTime')::TIMESTAMPTZ
+                   ) ON CONFLICT (address) DO UPDATE
+            SET
+                block_height = EXCLUDED.block_height,
+                block_time = EXCLUDED.block_time;
 
         -- Make generic address association stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventAddressAssociation.addressAssociation' THEN
-                    body := (NEW.value)::jsonb;
+            body := (NEW.value)::jsonb;
 
-        INSERT INTO structs.player_address
-        VALUES (
-                       body->>'address',
-                       '1-' || (body->>'playerIndex')::CHARACTER VARYING, -- cast the index into the proper player account ID
-                       body->>'registrationStatus',
-                       NOW(),
-                       NOW()
-               ) ON CONFLICT (address) DO UPDATE
-        SET
-            status = EXCLUDED.status,
-            player_id = EXCLUDED.player_id,
-            updated_at = EXCLUDED.updated_at;
+            INSERT INTO structs.player_address
+            VALUES (
+                           body->>'address',
+                           '1-' || (body->>'playerIndex')::CHARACTER VARYING, -- cast the index into the proper player account ID
+                           body->>'registrationStatus',
+                           NOW(),
+                           NOW()
+                   ) ON CONFLICT (address) DO UPDATE
+            SET
+                status = EXCLUDED.status,
+                player_id = EXCLUDED.player_id,
+                updated_at = EXCLUDED.updated_at;
 
         -- Make generic permission stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventPermission.permissionRecord' THEN
@@ -356,6 +550,32 @@ BEGIN;
                 (body->>'value')::INTEGER,
                 NOW()
             ) ON CONFLICT (id) DO UPDATE
+            SET
+                val = EXCLUDED.val,
+                updated_at = EXCLUDED.updated_at;
+
+        ELSIF NEW.composite_key = 'structs.structs.EventStructAttribute.structAttributeRecord' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.struct_attribute
+            VALUES (
+                           body->>'attributeId',
+                           (body->>'value')::INTEGER,
+                           NOW()
+                   ) ON CONFLICT (id) DO UPDATE
+            SET
+                val = EXCLUDED.val,
+                updated_at = EXCLUDED.updated_at;
+
+        ELSIF NEW.composite_key = 'structs.structs.EventPlanetAttribute.planetAttributeRecord' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.planet_attribute
+            VALUES (
+                           body->>'attributeId',
+                           (body->>'value')::INTEGER,
+                           NOW()
+                   ) ON CONFLICT (id) DO UPDATE
             SET
                 val = EXCLUDED.val,
                 updated_at = EXCLUDED.updated_at;
