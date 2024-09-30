@@ -29,8 +29,8 @@ CREATE OR REPLACE VIEW view.struct AS
 
             struct.creator,
             struct.owner,
-            struct.created_at,
-            struct.updated_at
+            struct.created_at as struct_created_at,
+            struct.updated_at as struct_updated_at
         FROM structs.struct, structs.struct_type
         WHERE struct_type.id = struct.type;
 
