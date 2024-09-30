@@ -42,4 +42,14 @@ CREATE UNLOGGED TABLE structs.planet_attribute (
    updated_at	TIMESTAMPTZ NOT NULL
 );
 
+
+CREATE TABLE structs.planet_raid (
+    id SERIAL PRIMARY KEY,
+    fleet_id CHARACTER VARYING,
+    planet_id CHARACTER VARYING,
+    status CHARACTER VARYING,
+    created_at TIMESTAMPTZ NOT NULL
+
+);
+
 COMMIT;

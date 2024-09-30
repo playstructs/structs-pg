@@ -7,4 +7,6 @@ DROP TABLE structs.planet;
 DROP TABLE structs.planet_attribute;
 DROP TABLE structs.planet_meta;
 
+DROP TABLE structs.planet_raid;
+
 COMMIT;
