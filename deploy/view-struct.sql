@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE OR REPLACE VIEW view.struct AS
         SELECT
-            id as struct_id,
+            struct.id as struct_id,
             index,
             type,
 
