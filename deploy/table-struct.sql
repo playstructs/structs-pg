@@ -31,4 +31,11 @@ CREATE TABLE structs.struct_defender (
     updated_at	TIMESTAMPTZ NOT NULL
 );
 
+
+CREATE TABLE structs.struct_attack (
+    id SERIAL PRIMARY KEY,
+    detail jsonb,
+    created_at TIMESTAMPTZ NOT NULL
+);
+
 COMMIT;

@@ -16,4 +16,6 @@ DROP TABLE structs.player_address_meta;
 
 DROP TABLE structs.player_address_pending;
 
+DROP TABLE structs.player_inventory;
+
 COMMIT;

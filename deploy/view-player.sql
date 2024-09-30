@@ -8,7 +8,7 @@ CREATE OR REPLACE VIEW view.player AS
             guild_id,
             substation_id,
             planet_id,
-            storage->>'amount' as alpha,
+            fleet_id,
             COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='0-' || player.id),0) as ore,
             COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='3-' || player.id),0) as load,
             COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='4-' || player.id),0) as structs_load,
