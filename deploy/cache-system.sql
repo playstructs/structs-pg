@@ -580,6 +580,24 @@ BEGIN;
                 val = EXCLUDED.val,
                 updated_at = EXCLUDED.updated_at;
 
+        ELSIF NEW.composite_key = 'structs.structs.EventAttack.eventAttackDetail' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.struct_attack (detail, created_at)
+                VALUES (body, NOW());
+
+        ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
+            body := (NEW.value)::jsonb;
+
+
+            INSERT INTO structs.struct_attack (fleet_id, planet_id, status, created_at)
+            VALUES (
+                       body->>'fleetId',
+                       body->>'planetId',
+                       body->>'status',
+                       NOW()
+                   );
+
         END IF;
         RETURN NEW;
     END
