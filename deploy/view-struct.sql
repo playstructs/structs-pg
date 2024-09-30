@@ -6,7 +6,6 @@ CREATE OR REPLACE VIEW view.struct AS
         SELECT
             struct.id as struct_id,
             index,
-            type,
 
             location_type,
             location_id,
@@ -28,11 +27,10 @@ CREATE OR REPLACE VIEW view.struct AS
 
             struct_type.*,
 
-            creator,
-            owner,
-            status,
-            created_at,
-            updated_at
+            struct.creator,
+            struct.owner,
+            struct.created_at,
+            struct.updated_at
         FROM structs.struct, structs.struct_type
         WHERE struct_type.id = struct.type;
 
