@@ -59,6 +59,7 @@ CREATE UNLOGGED TABLE structs.player_address_activity (
 CREATE TABLE structs.player_address_meta (
     address CHARACTER VARYING PRIMARY KEY,
     ip INET,
+    user_agent CHARACTER VARYING,
     updated_at TIMESTAMPTZ NOT NULL
 );
 
