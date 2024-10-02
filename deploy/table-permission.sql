@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE UNLOGGED TABLE structs.permission (
    id           CHARACTER VARYING PRIMARY KEY,
-   object_type  INTEGER,
+   object_type  CHARACTER VARYING,
    object_index CHARACTER VARYING,
    object_id    CHARACTER VARYING,
    player_id    CHARACTER VARYING,

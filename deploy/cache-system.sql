@@ -533,7 +533,19 @@ BEGIN;
             INSERT INTO structs.permission
             VALUES (
                 body->>'permissionId',
-                (split_part(body->>'permissionId','-',1))::INTEGER,         -- object_type INTEGER,
+                -- object_type INTEGER,
+                CASE split_part(body->>'permissionId','-',1)
+                    WHEN '0' THEN 'guild'
+                    WHEN '1' THEN 'player'
+                    WHEN '2' THEN 'planet'
+                    WHEN '3' THEN 'reactor'
+                    WHEN '4' THEN 'substation'
+                    WHEN '5' THEN 'struct'
+                    WHEN '6' THEN 'allocation'
+                    WHEN '7' THEN 'infusion'
+                    WHEN '8' THEN 'address'
+                    WHEN '9' THEN 'fleet'
+                END,
                 split_part(split_part(body->>'permissionId','-',2),'@',1),  -- object_index CHARACTER VARYING,
                 split_part(body->>'permissionId','@',1),                    -- object_id    CHARACTER VARYING,
                 split_part(body->>'permissionId','@',2),                    -- player_id    CHARACTER VARYING,

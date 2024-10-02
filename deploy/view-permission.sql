@@ -37,12 +37,13 @@ SELECT
     permission.updated_at
 
 FROM structs.permission
-WHERE permission.object_type = 8;
+WHERE permission.object_type = 'address';
 
 
 CREATE OR REPLACE VIEW view.permission_player AS
 SELECT
     permission.object_id as object_id,
+    permission.object_type as object_type,
     permission.player_id as player_id,
 
     (permission.val & 1) > 0 as permission_play,
@@ -55,6 +56,6 @@ SELECT
     permission.updated_at
 
 FROM structs.permission
-WHERE permission.object_type != 8;
+WHERE permission.object_type != 'address';
 
 COMMIT;
