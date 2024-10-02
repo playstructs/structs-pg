@@ -551,6 +551,44 @@ BEGIN;
             INSERT INTO structs.grid
             VALUES (
                 body->>'attributeId',
+
+                --  attribute_type  CHARACTER VARYING,
+                CASE split_part(body->>'attributeId', '-',1)
+                    WHEN '0' THEN 'ore'
+                    WHEN '1' THEN 'fuel'
+                    WHEN '2' THEN 'capacity'
+                    WHEN '3' THEN 'load'
+                    WHEN '4' THEN 'structs load'
+                    WHEN '5' THEN 'power'
+                    WHEN '6' THEN 'connection capacity'
+                    WHEN '7' THEN 'connection count'
+                    WHEN '8' THEN 'allocation pointer start'
+                    WHEN '9' THEN 'allocation pointer end'
+                    WHEN '10' THEN 'proxy nonce'
+                    WHEN '11' THEN 'last action'
+                    WHEN '12' THEN 'nonce'
+                    WHEN '13' THEN 'ready'
+                END,
+
+                -- object_type   CHARACTER VARYING,
+                CASE split_part(body->>'attributeId', '-', 2)
+                    WHEN '0' THEN 'guild'
+                    WHEN '1' THEN 'player'
+                    WHEN '2' THEN 'planet'
+                    WHEN '3' THEN 'reactor'
+                    WHEN '4' THEN 'substation'
+                    WHEN '5' THEN 'struct'
+                    WHEN '6' THEN 'allocation'
+                    WHEN '7' THEN 'infusion'
+                    WHEN '8' THEN 'address'
+                    WHEN '9' THEN 'fleet'
+                END,
+
+                -- object_index  INTEGER,
+                (split_part(body->>'attributeId', '-', 3))::INTEGER
+                -- object_id CHARACTER VARYING,
+                split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
+
                 (body->>'value')::INTEGER,
                 NOW()
             ) ON CONFLICT (id) DO UPDATE
