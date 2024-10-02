@@ -616,7 +616,7 @@ BEGIN;
                            body->>'attributeId',
 
                            -- object_id       CHARACTER VARYING,
-                           split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3)
+                           split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
                            -- object_type
                            CASE split_part(body->>'attributeId', '-', 2)
                                 WHEN '0' THEN 'guild'
@@ -657,7 +657,7 @@ BEGIN;
             VALUES (
                     body->>'attributeId',
                     -- object_id       CHARACTER VARYING,
-                    split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3)
+                    split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
                     -- object_type
                     CASE split_part(body->>'attributeId', '-', 2)
                         WHEN '0' THEN 'guild'
