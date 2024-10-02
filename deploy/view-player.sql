@@ -56,9 +56,9 @@ CREATE OR REPLACE VIEW view.permission_address AS
     FROM structs.permission
     WHERE permission.object_type = 0;
 
-CREATE OR REPLACE VIEW view.permission_address AS
+CREATE OR REPLACE VIEW view.permission_player AS
 SELECT
-        permission.object_type || '-' || permission.object_index as object_id,
+        permission.object_id as object_id,
         permission.player_id as player_id,
 
         (permission.val & 1) > 0 as permission_play,
