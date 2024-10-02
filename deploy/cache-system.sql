@@ -534,9 +534,9 @@ BEGIN;
             VALUES (
                 body->>'permissionId',
                 (split_part(body->>'permissionId','-',1))::INTEGER,         -- object_type INTEGER,
-                split_part((split_part(body->>'permissionId','-',2),'@',1), -- object_index CHARACTER VARYING,
-                (split_part(body->>'permissionId','@',1), -- object_id    CHARACTER VARYING,
-                (split_part(body->>'permissionId','@',2), -- player_id    CHARACTER VARYING,
+                split_part(split_part(body->>'permissionId','-',2),'@',1),  -- object_index CHARACTER VARYING,
+                split_part(body->>'permissionId','@',1),                    -- object_id    CHARACTER VARYING,
+                split_part(body->>'permissionId','@',2),                    -- player_id    CHARACTER VARYING,
                 (body->>'value')::INTEGER,
                 NOW()
             ) ON CONFLICT (id) DO UPDATE

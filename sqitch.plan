@@ -24,6 +24,7 @@ view-reactor 2024-07-13T18:19:33Z Abstrct <josh@slow.ninja> # An expanded Reacto
 view-struct 2024-07-13T18:18:33Z Abstrct <josh@slow.ninja> # An expanded Struct View
 view-substation 2024-07-13T18:20:33Z Abstrct <josh@slow.ninja> # An expanded Substation View
 view-player 2024-07-13T18:21:33Z Abstrct <josh@slow.ninja> # An expanded Player View
+view-permission 2024-07-13T18:21:33Z Abstrct <josh@slow.ninja> # An more sane way of dealing with Permissions
 view-work 2024-07-13T18:21:33Z Abstrct <josh@slow.ninja> # An basic Work view
 schema-signer 2024-07-15T16:47:52Z Abstrct <josh@slow.ninja> # Add view schema for signing
 table-signer-role 2024-07-15T18:18:33Z Abstrct <josh@slow.ninja> # An Role table for Signing
