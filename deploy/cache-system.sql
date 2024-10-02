@@ -585,7 +585,7 @@ BEGIN;
                 END,
 
                 -- object_index  INTEGER,
-                (split_part(body->>'attributeId', '-', 3))::INTEGER
+                (split_part(body->>'attributeId', '-', 3))::INTEGER,
                 -- object_id CHARACTER VARYING,
                 split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
 
