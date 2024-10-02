@@ -20,9 +20,13 @@ CREATE UNLOGGED TABLE structs.struct (
 );
 
 CREATE UNLOGGED TABLE structs.struct_attribute (
-    id          CHARACTER VARYING PRIMARY KEY,
-    val         INTEGER,
-    updated_at	TIMESTAMPTZ NOT NULL
+    id              CHARACTER VARYING PRIMARY KEY,
+    object_id       CHARACTER VARYING,
+    object_type     CHARACTER VARYING,
+    sub_index       INTEGER,
+    attribute_type  CHARACTER VARYING,
+    val             INTEGER,
+    updated_at	    TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE structs.struct_defender (

@@ -37,9 +37,12 @@ CREATE TABLE structs.planet_meta (
 );
 
 CREATE UNLOGGED TABLE structs.planet_attribute (
-   id          CHARACTER VARYING PRIMARY KEY,
-   val         INTEGER,
-   updated_at	TIMESTAMPTZ NOT NULL
+   id               CHARACTER VARYING PRIMARY KEY,
+   object_id        CHARACTER VARYING,
+   object_type      CHARACTER VARYING,
+   attribute_type   CHARACTER VARYING,
+   val              INTEGER,
+   updated_at	    TIMESTAMPTZ NOT NULL
 );
 
 

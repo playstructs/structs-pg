@@ -570,14 +570,14 @@ BEGIN;
                     WHEN '1' THEN 'fuel'
                     WHEN '2' THEN 'capacity'
                     WHEN '3' THEN 'load'
-                    WHEN '4' THEN 'structs load'
+                    WHEN '4' THEN 'structsLoad'
                     WHEN '5' THEN 'power'
-                    WHEN '6' THEN 'connection capacity'
-                    WHEN '7' THEN 'connection count'
-                    WHEN '8' THEN 'allocation pointer start'
-                    WHEN '9' THEN 'allocation pointer end'
-                    WHEN '10' THEN 'proxy nonce'
-                    WHEN '11' THEN 'last action'
+                    WHEN '6' THEN 'connectionCapacity'
+                    WHEN '7' THEN 'connectionCount'
+                    WHEN '8' THEN 'allocationPointerStart'
+                    WHEN '9' THEN 'allocationPointerEnd'
+                    WHEN '10' THEN 'proxyNonce'
+                    WHEN '11' THEN 'lastAction'
                     WHEN '12' THEN 'nonce'
                     WHEN '13' THEN 'ready'
                 END,
@@ -614,6 +614,35 @@ BEGIN;
             INSERT INTO structs.struct_attribute
             VALUES (
                            body->>'attributeId',
+
+                           -- object_id       CHARACTER VARYING,
+                           split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3)
+                           -- object_type
+                           CASE split_part(body->>'attributeId', '-', 2)
+                                WHEN '0' THEN 'guild'
+                                WHEN '1' THEN 'player'
+                                WHEN '2' THEN 'planet'
+                                WHEN '3' THEN 'reactor'
+                                WHEN '4' THEN 'substation'
+                                WHEN '5' THEN 'struct'
+                                WHEN '6' THEN 'allocation'
+                                WHEN '7' THEN 'infusion'
+                                WHEN '8' THEN 'address'
+                                WHEN '9' THEN 'fleet'
+                           END,
+                           -- sub_index
+                           (split_part(body->>'attributeId', '-', 4))::INTEGER,
+
+                           -- attribute_type  CHARACTER VARYING,
+                           CASE split_part(body->>'attributeId', '-', 1)
+                               WHEN '0' THEN 'health'
+                               WHEN '1' THEN 'status'
+                               WHEN '2' THEN 'blockStartBuild'
+                               WHEN '3' THEN 'blockStartOreMine'
+                               WHEN '4' THEN 'blockStartOreRefine'
+                               WHEN '5' THEN 'protectedStructIndex'
+                               WHEN '6' THEN 'typeCount'
+                           END,
                            (body->>'value')::INTEGER,
                            NOW()
                    ) ON CONFLICT (id) DO UPDATE
@@ -626,9 +655,39 @@ BEGIN;
 
             INSERT INTO structs.planet_attribute
             VALUES (
-                           body->>'attributeId',
-                           (body->>'value')::INTEGER,
-                           NOW()
+                    body->>'attributeId',
+                    -- object_id       CHARACTER VARYING,
+                    split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3)
+                    -- object_type
+                    CASE split_part(body->>'attributeId', '-', 2)
+                        WHEN '0' THEN 'guild'
+                        WHEN '1' THEN 'player'
+                        WHEN '2' THEN 'planet'
+                        WHEN '3' THEN 'reactor'
+                        WHEN '4' THEN 'substation'
+                        WHEN '5' THEN 'struct'
+                        WHEN '6' THEN 'allocation'
+                        WHEN '7' THEN 'infusion'
+                        WHEN '8' THEN 'address'
+                        WHEN '9' THEN 'fleet'
+                    END,
+
+                    -- attribute_type  CHARACTER VARYING,
+                    CASE split_part(body->>'attributeId', '-', 1)
+                       WHEN '0' THEN 'planetaryShield'
+                       WHEN '1' THEN 'repairNetworkQuantity'
+                       WHEN '2' THEN 'defensiveCannonQuantity'
+                       WHEN '3' THEN 'coordinatedGlobalShieldNetworkQuantity'
+                       WHEN '4' THEN 'lowOrbitBallisticsInterceptorNetworkQuantity'
+                       WHEN '5' THEN 'advancedLowOrbitBallisticsInterceptorNetworkQuantity'
+                       WHEN '6' THEN 'lowOrbitBallisticsInterceptorNetworkSuccessRateNumerator'
+                       WHEN '7' THEN 'lowOrbitBallisticsInterceptorNetworkSuccessRateDenominator'
+                       WHEN '8' THEN 'orbitalJammingStationQuantity'
+                       WHEN '9' THEN 'advancedOrbitalJammingStationQuantity'
+                       WHEN '10' THEN 'blockStartRaid'
+                    END,
+                    (body->>'value')::INTEGER,
+                    NOW()
                    ) ON CONFLICT (id) DO UPDATE
             SET
                 val = EXCLUDED.val,
