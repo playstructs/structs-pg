@@ -68,6 +68,8 @@ CREATE TABLE structs.player_address_pending (
     signature CHARACTER VARYING,
     pubkey CHARACTER VARYING,
     code CHARACTER VARYING,
+    ip INET,
+    user_agent CHARACTER VARYING,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );
