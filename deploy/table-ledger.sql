@@ -9,7 +9,7 @@ CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 CREATE TYPE structs.ledger_action AS ENUM ('genesis','transfer in','transfer out','infused','defused','refined');
 
 CREATE UNLOGGED TABLE structs.ledger (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     object_id CHARACTER VARYING,
     address CHARACTER VARYING,
     counterparty CHARACTER VARYING,
