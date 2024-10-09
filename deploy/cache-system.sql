@@ -181,6 +181,48 @@ BEGIN;
                         commission = EXCLUDED.commission,
                         updated_at = NOW();
 
+        ELSIF NEW.composite_key = 'structs.structs.EventFleet.fleet' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.fleet
+            VALUES (
+                           body->>'id',
+                           body->>'owner',
+
+                           jsonb_build_object('space', body->'space') || jsonb_build_object('air', body->'air') || jsonb_build_object('land', body->'land') || jsonb_build_object('water', body->'water'),
+
+                           (body->>'spaceSlots')::INTEGER,
+                           (body->>'airSlots')::INTEGER,
+                           (body->>'landSlots')::INTEGER,
+                           (body->>'waterSlots')::INTEGER,
+
+                           body->>'locationType',
+                           body->>'locationId',
+                           body->>'status',
+
+                           body->>'locationListForward',
+                           body->>'locationListBackward',
+
+                           body->>'commandStruct',
+
+                           NOW(),
+                           NOW()
+                   ) ON CONFLICT (id) DO UPDATE
+            SET
+                owner = EXCLUDED.owner,
+
+                map = jsonb_build_object('space', EXCLUDED.map->'space') || jsonb_build_object('air', EXCLUDED.map->'air') || jsonb_build_object('land', EXCLUDED.map->'land') || jsonb_build_object('water', EXCLUDED.map->'water'),
+
+                location_type = EXCLUDED.location_type,
+                location_id = EXCLUDED.location_id,
+                status = EXCLUDED.status,
+
+                location_list_forward = EXCLUDED.location_list_forward,
+                location_list_backward = EXCLUDED.location_list_backward,
+
+                updated_at = NOW();
+
+
         ELSIF NEW.composite_key = 'structs.structs.EventPlanet.planet' THEN
             body := (NEW.value)::jsonb;
 
@@ -190,7 +232,7 @@ BEGIN;
                     (body->>'maxOre')::INTEGER,
                     body->>'creator',
                     body->>'owner',
-                    (body)::JSONB,
+                    jsonb_build_object('space', body->'space') || jsonb_build_object('air', body->'air') || jsonb_build_object('land', body->'land') || jsonb_build_object('water', body->'water'),
 
                     (body->>'spaceSlots')::INTEGER,
                     (body->>'airSlots')::INTEGER,
@@ -208,7 +250,7 @@ BEGIN;
                     SET
                         owner = EXCLUDED.owner,
 
-                        map = EXCLUDED.map,
+                        map = jsonb_build_object('space', EXCLUDED.map->'space') || jsonb_build_object('air', EXCLUDED.map->'air') || jsonb_build_object('land', EXCLUDED.map->'land') || jsonb_build_object('water', EXCLUDED.map->'water'),
                         status = EXCLUDED.status,
 
                         location_list_start = EXCLUDED.location_list_start,
@@ -275,9 +317,9 @@ BEGIN;
                     body->>'creator',
                     body->>'owner',
 
-                    body->>'location_type',
-                    body->>'location_id',
-                    body->>'operating_ambit',
+                    body->>'locationType',
+                    body->>'locationId',
+                    body->>'operatingAmbit',
                     (body->>'slot')::INTEGER,
 
                     NOW(),

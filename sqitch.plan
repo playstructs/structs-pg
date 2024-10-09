@@ -12,6 +12,7 @@ table-grid 2024-03-13T18:18:33Z Abstrct <josh@slow.ninja> # The Unified Grid Tab
 table-struct 2023-07-17T18:18:33Z Abstrct <josh@slow.ninja> # The Struct table
 table-permission 2024-03-13T18:18:33Z Abstrct <josh@slow.ninja> # The Unified Permission Table
 table-planet 2023-07-17T18:18:49Z Abstrct <josh@slow.ninja> # The Planet table
+table-fleet 2024-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Fleet table
 table-player 2023-07-17T18:19:00Z Abstrct <josh@slow.ninja> # The Player table
 table-struct-type 2023-07-17T18:19:20Z Abstrct <josh@slow.ninja> # The Struct Type table
 table-infusion 2023-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Infusions
