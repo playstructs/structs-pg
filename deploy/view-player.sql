@@ -33,16 +33,7 @@ CREATE OR REPLACE VIEW view.player AS
         FROM
             structs.player_address,
             view.address_inventory
-        WHERE player_address.address  = address_inventory.address
+        WHERE player_address.address = address_inventory.address
         GROUP BY player_address.player_id, player_address.address;
 
 COMMIT;
-
-CREATE UNLOGGED TABLE structs.player_address (
-                                                 address CHARACTER VARYING PRIMARY KEY,
-                                                 player_id CHARACTER VARYING,
-                                                 status CHARACTER VARYING,
-                                                 created_at TIMESTAMPTZ NOT NULL,
-                                                 updated_at TIMESTAMPTZ NOT NULL
-);
-
