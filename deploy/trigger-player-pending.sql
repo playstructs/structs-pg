@@ -12,6 +12,7 @@ BEGIN;
 
         INSERT INTO structs.player_meta
             VALUES (NEW.id,
+                    NEW.guild_id,
                     pending_data.username,
                     pending_data.pfp,
                     '',

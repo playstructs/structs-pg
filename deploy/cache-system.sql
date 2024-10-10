@@ -413,8 +413,8 @@ BEGIN;
                            (body->>'stealthActivateCharge')::INTEGER,
 
                            (body->>'attackReduction')::INTEGER,
-                           (body->>'attackCounterable')::INTEGER,
-                           (body->>'stealthSystems')::INTEGER,
+                           (body->>'attackCounterable')::BOOLEAN,
+                           (body->>'stealthSystems')::BOOLEAN,
                            (body->>'counterAttack')::INTEGER,
                            (body->>'counterAttackSameAmbit')::INTEGER,
                            (body->>'postDestructionDamage')::INTEGER,
