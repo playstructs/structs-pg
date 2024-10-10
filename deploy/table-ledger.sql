@@ -6,7 +6,7 @@ CREATE TYPE structs.denom AS ENUM ('alpha');
 
 CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 
-CREATE TYPE structs.ledger_action AS ENUM ('genesis','transfer in','transfer out','infused','defused','refined');
+CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','infused','defused','refined');
 
 CREATE UNLOGGED TABLE structs.ledger (
     id BIGSERIAL PRIMARY KEY,

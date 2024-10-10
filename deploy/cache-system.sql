@@ -745,7 +745,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.ledger(address, amount, block_height, updated_at, created_at, action, direction, denom)
-                VALUES( body->>'playerId', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), NOW(), 'refine', 'credit', 'alpha');
+                VALUES( body->>'playerId', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), NOW(), 'refined', 'credit', 'alpha');
 
         ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
             body := (NEW.value)::jsonb;
