@@ -19,8 +19,9 @@ CREATE OR REPLACE VIEW view.player AS
             primary_address,
             created_at,
             updated_at
-        FROM structs.player
-        WHERE player.Id = '$playerId';
+        FROM structs.player;
 
 COMMIT;
+
+
 
