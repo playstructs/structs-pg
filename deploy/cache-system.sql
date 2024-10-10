@@ -745,7 +745,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.ledger(address, amount, block_height, updated_at, created_at, action, direction, denom)
-                VALUES( body->>'playerId', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), NOW(), 'refined', 'credit', 'alpha');
+                VALUES( body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), NOW(), 'refined', 'credit', 'alpha');
 
         ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
             body := (NEW.value)::jsonb;
@@ -808,6 +808,36 @@ BEGIN;
         FOR EACH ROW EXECUTE PROCEDURE cache.UPDATE_CURRENT_BLOCK();
 
 
+
+    CREATE OR REPLACE FUNCTION cache.TRANSFER_LEDGER_ENTRY()
+        RETURNS trigger AS
+    $BODY$
+    DECLARE
+        entries RECORD;
+
+        recipient CHARACTER VARYING;
+        sender CHARACTER VARYING;
+        amount CHARACTER VARYING;
+    BEGIN
+        FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
+            SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
+            SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
+            SELECT attributes.value INTO amount     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
+
+            INSERT INTO structs.ledger(address, counterparty, amount, block_height, updated_at, created_at, action, direction, denom)
+                VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), NOW(), 'sent', 'debit', 'alpha');
+
+            INSERT INTO structs.ledger(address, counterparty, amount, block_height, updated_at, created_at, action, direction, denom)
+                VALUES( recipient, sender, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), NOW(), 'received', 'credit', 'alpha');
+        END LOOP;
+
+    RETURN NEW;
+    END
+        $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER TRANSFER_LEDGER_ENTRY AFTER INSERT ON cache.blocks
+        FOR EACH ROW EXECUTE PROCEDURE cache.TRANSFER_LEDGER_ENTRY();
 
     CREATE EXTENSION pg_cron;
 

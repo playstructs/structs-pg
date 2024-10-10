@@ -21,7 +21,28 @@ CREATE OR REPLACE VIEW view.player AS
             updated_at
         FROM structs.player;
 
+
+    CREATE OR REPLACE VIEW view.address_inventory AS
+        select ledger.address, sum(case when ledger.direction='debit' then ledger.amount*-1 ELSE ledger.amount END) as balance from structs.ledger group by ledger.address;
+
+    CREATE OR REPLACE VIEW view.player_inventory AS
+        select
+            player_address.player_id,
+            player_address.address,
+            sum(address_inventory.balance) as balance
+        FROM
+            structs.player_address,
+            view.address_inventory
+        WHERE player_address.address  = address_inventory.address
+        GROUP BY player_address.player_id, player_address.address;
+
 COMMIT;
 
-
+CREATE UNLOGGED TABLE structs.player_address (
+                                                 address CHARACTER VARYING PRIMARY KEY,
+                                                 player_id CHARACTER VARYING,
+                                                 status CHARACTER VARYING,
+                                                 created_at TIMESTAMPTZ NOT NULL,
+                                                 updated_at TIMESTAMPTZ NOT NULL
+);
 
