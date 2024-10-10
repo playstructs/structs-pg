@@ -741,6 +741,12 @@ BEGIN;
             INSERT INTO structs.struct_attack (detail, created_at)
                 VALUES (body, NOW());
 
+        ELSIF NEW.composite_key = 'structs.structs.EventAlphaRefine.eventAlphaRefineDetail' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.ledger(address, amount, block_height, updated_at, created_at, action, direction, denom)
+                VALUES( body->>'playerId', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), NOW(), 'refine', 'credit', 'alpha');
+
         ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
             body := (NEW.value)::jsonb;
 
@@ -785,6 +791,23 @@ BEGIN;
     END
     $BODY$
     LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
+    CREATE OR REPLACE FUNCTION cache.UPDATE_CURRENT_BLOCK()
+        RETURNS trigger AS
+    $BODY$
+    BEGIN
+        UPDATE structs.current_block SET height = NEW.height, updated_at=NOW();
+        RETURN NEW;
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER UPDATE_CURRENT_BLOCK AFTER INSERT ON cache.blocks
+        FOR EACH ROW EXECUTE PROCEDURE cache.UPDATE_CURRENT_BLOCK();
+
+
 
     CREATE EXTENSION pg_cron;
 
