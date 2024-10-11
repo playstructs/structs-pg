@@ -677,6 +677,7 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventStructAttribute.structAttributeRecord' THEN
             body := (NEW.value)::jsonb;
 
+
             INSERT INTO structs.struct_attribute
             VALUES (
                            body->>'attributeId',
