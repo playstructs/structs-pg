@@ -45,6 +45,7 @@ CREATE TABLE structs.player_pending (
 CREATE UNLOGGED TABLE structs.player_address (
     address CHARACTER VARYING PRIMARY KEY,
     player_id CHARACTER VARYING,
+    guild_id CHARACTER VARYING,
     status CHARACTER VARYING,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
@@ -70,14 +71,6 @@ CREATE TABLE structs.player_address_pending (
     code CHARACTER VARYING,
     ip INET,
     user_agent CHARACTER VARYING,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
-);
-
-CREATE TABLE structs.player_inventory (
-    address CHARACTER VARYING PRIMARY KEY,
-    player_id CHARACTER VARYING,
-    rocks INTEGER,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );

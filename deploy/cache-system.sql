@@ -67,6 +67,8 @@ BEGIN;
       type VARCHAR NOT NULL
     );
 
+    CREATE INDEX events_block ON cache.events(block_id);
+
     -- The attributes table records event attributes.
     CREATE UNLOGGED TABLE cache.attributes (
        event_id      BIGINT NOT NULL REFERENCES cache.events(rowid) ON DELETE CASCADE,
@@ -75,6 +77,8 @@ BEGIN;
        value         VARCHAR NULL,
        UNIQUE (event_id, key)
     );
+
+    CREATE INDEX attribute_event_key ON cache.attributes(event_id , composite_key);
 
     CREATE TABLE cache.attributes_tmp (
       composite_key VARCHAR NOT NULL, -- composed type.key
@@ -276,8 +280,9 @@ BEGIN;
 
                     NOW(),
                     NOW()
-                ) ON CONFLICT (id) DO UPDATE
-                    SET
+                ) ON CONFLICT (id) DO
+                    UPDATE
+                        SET
                         primary_address = EXCLUDED.primary_address,
                         guild_id = EXCLUDED.guild_id,
                         substation_id = EXCLUDED.substation_id,
@@ -560,6 +565,7 @@ BEGIN;
             VALUES (
                            body->>'address',
                            body->>'playerId',
+                           (select guild_id from structs.player where player.id=body->>'playerId'),
                            'approved',
                            NOW(),
                            NOW()
@@ -576,6 +582,7 @@ BEGIN;
             VALUES (
                            body->>'address',
                            '1-' || (body->>'playerIndex')::CHARACTER VARYING, -- cast the index into the proper player account ID
+                           (select guild_id from structs.player where player.id=('1-' || (body->>'playerIndex')::CHARACTER VARYING)),
                            body->>'registrationStatus',
                            NOW(),
                            NOW()
@@ -823,6 +830,22 @@ BEGIN;
 
     CREATE TRIGGER UPDATE_CURRENT_BLOCK AFTER INSERT ON cache.blocks
         FOR EACH ROW EXECUTE PROCEDURE cache.UPDATE_CURRENT_BLOCK();
+
+
+    CREATE OR REPLACE FUNCTION cache.UDPATE_ADDRESS_GUILD()
+            RETURNS trigger AS
+        $BODY$
+    BEGIN
+        IF NEW.guild_id <> OLD.guild_ID THEN
+            UPDATE structs.player_address SET guild_id = NEW.guild_id WHERE player_id = NEW.player_id;
+        END IF;
+    RETURN NEW;
+    END
+        $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER UPDATE_ADDRESS_GUILD_ID AFTER UPDATE ON structs.player
+        FOR EACH ROW EXECUTE PROCEDURE cache.UDPATE_ADDRESS_GUILD();
 
 
 
