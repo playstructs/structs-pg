@@ -28,7 +28,6 @@ CREATE OR REPLACE VIEW view.player AS
     CREATE OR REPLACE VIEW view.player_inventory AS
         select
             player_address.player_id,
-            player_address.address,
             sum(address_inventory.balance) as balance
         FROM
             structs.player_address,
