@@ -300,7 +300,7 @@ BEGIN;
                     body->>'id',
                     body->>'validator',
                     body->>'guildId',
-                    (body->>'default_commission')::NUMERIC,
+                    (body->>'defaultCommission')::NUMERIC,
                     NOW(),
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
