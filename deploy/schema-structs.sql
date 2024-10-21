@@ -2,8 +2,8 @@
 
 BEGIN;
 
-CREATE SCHEMA structs;
+    CREATE SCHEMA structs;
 
-
+    CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 COMMIT;
