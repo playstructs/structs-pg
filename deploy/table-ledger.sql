@@ -24,6 +24,6 @@ CREATE TABLE structs.ledger (
 
 
 
-SELECT create_hypertable('structs.ledger', by_range('created_at'));
+--SELECT create_hypertable('structs.ledger', by_range('created_at'));
 
 COMMIT;
