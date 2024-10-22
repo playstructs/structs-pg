@@ -125,9 +125,3 @@ BEGIN;
 COMMIT;
 
 
-SELECT object_index, object_type, time_bucket('5 minutes', time) AS interval,
-       last(value, time)
-FROM stat_capacity
-
-GROUP BY object_index,object_type,  interval
-    ORDER BY interval DESC;
