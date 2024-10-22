@@ -8,7 +8,7 @@ CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 
 CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','infused','defused','refined');
 
-CREATE UNLOGGED TABLE structs.ledger (
+CREATE TABLE structs.ledger (
     id BIGSERIAL PRIMARY KEY,
     object_id CHARACTER VARYING,
     address CHARACTER VARYING,
@@ -23,5 +23,7 @@ CREATE UNLOGGED TABLE structs.ledger (
 );
 
 
+
+SELECT create_hypertable('structs.ledger', by_range('created_at'));
 
 COMMIT;

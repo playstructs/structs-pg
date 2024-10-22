@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.reactor (
+CREATE TABLE structs.reactor (
 	id CHARACTER VARYING PRIMARY KEY,
 	validator CHARACTER VARYING,
 

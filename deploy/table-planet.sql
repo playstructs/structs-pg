@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.planet (
+CREATE TABLE structs.planet (
 	id CHARACTER VARYING PRIMARY KEY,
 
 	max_ore INTEGER,
@@ -36,7 +36,7 @@ CREATE TABLE structs.planet_meta (
     PRIMARY KEY (id, guild_id)
 );
 
-CREATE UNLOGGED TABLE structs.planet_attribute (
+CREATE TABLE structs.planet_attribute (
    id               CHARACTER VARYING PRIMARY KEY,
    object_id        CHARACTER VARYING,
    object_type      CHARACTER VARYING,

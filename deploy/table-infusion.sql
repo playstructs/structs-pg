@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.infusion (
+CREATE TABLE structs.infusion (
     destination_id CHARACTER VARYING,
     address CHARACTER VARYING,
 
