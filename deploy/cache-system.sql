@@ -692,6 +692,8 @@ BEGIN;
                  INSERT INTO structs.stat_connection_capacity VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
                 WHEN '7' THEN
                  INSERT INTO structs.stat_connection_count VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                ELSE
+
             END CASE;
 
         ELSIF NEW.composite_key = 'structs.structs.EventStructAttribute.structAttributeRecord' THEN
@@ -743,6 +745,7 @@ BEGIN;
                    INSERT INTO structs.stat_struct_health VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
                 WHEN '1' THEN
                    INSERT INTO structs.stat_struct_status VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                ELSE
             END CASE;
 
 

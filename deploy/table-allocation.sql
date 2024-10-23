@@ -5,7 +5,7 @@ BEGIN;
 CREATE TABLE structs.allocation (
 	id CHARACTER VARYING PRIMARY KEY,
 
-    allocationType INTEGER,
+    allocationType CHARACTER VARYING,
 
 	source_id CHARACTER VARYING,
     index INTEGER,
