@@ -893,9 +893,14 @@ BEGIN;
         amount CHARACTER VARYING;
     BEGIN
         FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
+            SELECT COALESCE(attributes.value, 0) INTO amount     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
+            IF amount = '' THEN
+                continue;
+            END IF;
+
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
-            SELECT attributes.value INTO amount     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
+
 
             INSERT INTO structs.ledger(address, counterparty, amount, block_height, updated_at, created_at, action, direction, denom)
                 VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), NOW(), 'sent', 'debit', 'alpha');
