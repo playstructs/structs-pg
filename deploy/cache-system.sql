@@ -596,6 +596,12 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventPermission.permissionRecord' THEN
             body := (NEW.value)::jsonb;
 
+            IF body->>'value' = '' THEN
+                DELETE FROM structs.permission WHERE id = body->>'permissionId'
+                CONTINUE;
+            END IF;
+
+
             INSERT INTO structs.permission
             VALUES (
                 body->>'permissionId',
@@ -626,12 +632,37 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventGrid.gridRecord' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.grid
-            VALUES (
-                body->>'attributeId',
+            IF body->>'value' = '' THEN
+                DELETE FROM structs.grid WHERE id = body->>'attributeId'
 
-                --  attribute_type  CHARACTER VARYING,
                 CASE split_part(body->>'attributeId', '-',1)
+                    WHEN '0' THEN
+                        INSERT INTO structs.stat_ore VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '1' THEN
+                        INSERT INTO structs.stat_fuel VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '2' THEN
+                        INSERT INTO structs.stat_capacity VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '3' THEN
+                        INSERT INTO structs.stat_load VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '4' THEN
+                        INSERT INTO structs.stat_structs_load VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '5' THEN
+                        INSERT INTO structs.stat_power VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '6' THEN
+                        INSERT INTO structs.stat_connection_capacity VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '7' THEN
+                        INSERT INTO structs.stat_connection_count VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    ELSE
+
+                END CASE;
+            ELSE
+
+                INSERT INTO structs.grid
+                VALUES (
+                    body->>'attributeId',
+
+                    --  attribute_type  CHARACTER VARYING,
+                    CASE split_part(body->>'attributeId', '-',1)
                     WHEN '0' THEN 'ore'
                     WHEN '1' THEN 'fuel'
                     WHEN '2' THEN 'capacity'
@@ -646,10 +677,10 @@ BEGIN;
                     WHEN '11' THEN 'lastAction'
                     WHEN '12' THEN 'nonce'
                     WHEN '13' THEN 'ready'
-                END,
+                    END,
 
-                -- object_type   CHARACTER VARYING,
-                CASE split_part(body->>'attributeId', '-', 2)
+                    -- object_type   CHARACTER VARYING,
+                    CASE split_part(body->>'attributeId', '-', 2)
                     WHEN '0' THEN 'guild'
                     WHEN '1' THEN 'player'
                     WHEN '2' THEN 'planet'
@@ -660,48 +691,62 @@ BEGIN;
                     WHEN '7' THEN 'infusion'
                     WHEN '8' THEN 'address'
                     WHEN '9' THEN 'fleet'
-                END,
+                    END,
 
-                -- object_index  INTEGER,
-                (split_part(body->>'attributeId', '-', 3))::INTEGER,
-                -- object_id CHARACTER VARYING,
-                split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
+                    -- object_index  INTEGER,
+                    (split_part(body->>'attributeId', '-', 3))::INTEGER,
+                    -- object_id CHARACTER VARYING,
+                    split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
 
-                (body->>'value')::INTEGER,
-                NOW()
-            ) ON CONFLICT (id) DO UPDATE
-            SET
-                val = EXCLUDED.val,
-                updated_at = EXCLUDED.updated_at;
+                    (body->>'value')::INTEGER,
+                    NOW()
+                    ) ON CONFLICT (id) DO UPDATE
+                          SET
+                              val = EXCLUDED.val,
+                          updated_at = EXCLUDED.updated_at;
 
 
-            CASE split_part(body->>'attributeId', '-',1)
-		        WHEN '0' THEN
-                 INSERT INTO structs.stat_ore VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '1' THEN
-                 INSERT INTO structs.stat_fuel VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '2' THEN
-                 INSERT INTO structs.stat_capacity VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '3' THEN
-                 INSERT INTO structs.stat_load VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '4' THEN
-                 INSERT INTO structs.stat_structs_load VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '5' THEN
-                 INSERT INTO structs.stat_power VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '6' THEN
-                 INSERT INTO structs.stat_connection_capacity VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '7' THEN
-                 INSERT INTO structs.stat_connection_count VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                ELSE
+                    CASE split_part(body->>'attributeId', '-',1)
+                                    WHEN '0' THEN
+                                     INSERT INTO structs.stat_ore VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '1' THEN
+                                     INSERT INTO structs.stat_fuel VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '2' THEN
+                                     INSERT INTO structs.stat_capacity VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '3' THEN
+                                     INSERT INTO structs.stat_load VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '4' THEN
+                                     INSERT INTO structs.stat_structs_load VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '5' THEN
+                                     INSERT INTO structs.stat_power VALUES (NOW(), structs.GET_OBJECT_TYPE((split_part(body->>'attributeId', '-', 2))::INTEGER), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '6' THEN
+                                     INSERT INTO structs.stat_connection_capacity VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '7' THEN
+                                     INSERT INTO structs.stat_connection_count VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    ELSE
 
-            END CASE;
+                    END CASE;
+
+            END IF;
+
 
         ELSIF NEW.composite_key = 'structs.structs.EventStructAttribute.structAttributeRecord' THEN
             body := (NEW.value)::jsonb;
 
+            IF body->>'value' = '' THEN
+                DELETE FROM structs.struct_attribute WHERE id = body->>'attributeId'
 
-            INSERT INTO structs.struct_attribute
-            VALUES (
+                CASE split_part(body->>'attributeId', '-',1)
+                    WHEN '0' THEN
+                      INSERT INTO structs.stat_struct_health VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    WHEN '1' THEN
+                       INSERT INTO structs.stat_struct_status VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, 0);
+                    ELSE
+                END CASE;
+            ELSE
+
+                INSERT INTO structs.struct_attribute
+                VALUES (
                            body->>'attributeId',
 
                            -- object_id       CHARACTER VARYING,
@@ -735,62 +780,68 @@ BEGIN;
                            (body->>'value')::INTEGER,
                            NOW()
                    ) ON CONFLICT (id) DO UPDATE
-            SET
-                val = EXCLUDED.val,
-                updated_at = EXCLUDED.updated_at;
+                SET
+                    val = EXCLUDED.val,
+                    updated_at = EXCLUDED.updated_at;
 
 
-            CASE split_part(body->>'attributeId', '-',1)
-                WHEN '0' THEN
-                   INSERT INTO structs.stat_struct_health VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                WHEN '1' THEN
-                   INSERT INTO structs.stat_struct_status VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
-                ELSE
-            END CASE;
+                CASE split_part(body->>'attributeId', '-',1)
+                    WHEN '0' THEN
+                       INSERT INTO structs.stat_struct_health VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    WHEN '1' THEN
+                       INSERT INTO structs.stat_struct_status VALUES (NOW(), (split_part(body->>'attributeId', '-', 3))::INTEGER, (body->>'value')::INTEGER);
+                    ELSE
+                END CASE;
 
+            END IF;
 
         ELSIF NEW.composite_key = 'structs.structs.EventPlanetAttribute.planetAttributeRecord' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.planet_attribute
-            VALUES (
-                    body->>'attributeId',
-                    -- object_id       CHARACTER VARYING,
-                    split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
-                    -- object_type
-                    CASE split_part(body->>'attributeId', '-', 2)
-                        WHEN '0' THEN 'guild'
-                        WHEN '1' THEN 'player'
-                        WHEN '2' THEN 'planet'
-                        WHEN '3' THEN 'reactor'
-                        WHEN '4' THEN 'substation'
-                        WHEN '5' THEN 'struct'
-                        WHEN '6' THEN 'allocation'
-                        WHEN '7' THEN 'infusion'
-                        WHEN '8' THEN 'address'
-                        WHEN '9' THEN 'fleet'
-                    END,
+            IF body->>'value' = '' THEN
+                DELETE FROM structs.planet_attribute WHERE id = body->>'attributeId'
+            ELSE
 
-                    -- attribute_type  CHARACTER VARYING,
-                    CASE split_part(body->>'attributeId', '-', 1)
-                       WHEN '0' THEN 'planetaryShield'
-                       WHEN '1' THEN 'repairNetworkQuantity'
-                       WHEN '2' THEN 'defensiveCannonQuantity'
-                       WHEN '3' THEN 'coordinatedGlobalShieldNetworkQuantity'
-                       WHEN '4' THEN 'lowOrbitBallisticsInterceptorNetworkQuantity'
-                       WHEN '5' THEN 'advancedLowOrbitBallisticsInterceptorNetworkQuantity'
-                       WHEN '6' THEN 'lowOrbitBallisticsInterceptorNetworkSuccessRateNumerator'
-                       WHEN '7' THEN 'lowOrbitBallisticsInterceptorNetworkSuccessRateDenominator'
-                       WHEN '8' THEN 'orbitalJammingStationQuantity'
-                       WHEN '9' THEN 'advancedOrbitalJammingStationQuantity'
-                       WHEN '10' THEN 'blockStartRaid'
-                    END,
-                    (body->>'value')::INTEGER,
-                    NOW()
-                   ) ON CONFLICT (id) DO UPDATE
-            SET
-                val = EXCLUDED.val,
-                updated_at = EXCLUDED.updated_at;
+                INSERT INTO structs.planet_attribute
+                    VALUES (
+                        body->>'attributeId',
+                        -- object_id       CHARACTER VARYING,
+                        split_part(body->>'attributeId', '-', 2) || '-' || split_part(body->>'attributeId', '-', 3),
+                        -- object_type
+                        CASE split_part(body->>'attributeId', '-', 2)
+                            WHEN '0' THEN 'guild'
+                            WHEN '1' THEN 'player'
+                            WHEN '2' THEN 'planet'
+                            WHEN '3' THEN 'reactor'
+                            WHEN '4' THEN 'substation'
+                            WHEN '5' THEN 'struct'
+                            WHEN '6' THEN 'allocation'
+                            WHEN '7' THEN 'infusion'
+                            WHEN '8' THEN 'address'
+                            WHEN '9' THEN 'fleet'
+                        END,
+
+                        -- attribute_type  CHARACTER VARYING,
+                        CASE split_part(body->>'attributeId', '-', 1)
+                           WHEN '0' THEN 'planetaryShield'
+                           WHEN '1' THEN 'repairNetworkQuantity'
+                           WHEN '2' THEN 'defensiveCannonQuantity'
+                           WHEN '3' THEN 'coordinatedGlobalShieldNetworkQuantity'
+                           WHEN '4' THEN 'lowOrbitBallisticsInterceptorNetworkQuantity'
+                           WHEN '5' THEN 'advancedLowOrbitBallisticsInterceptorNetworkQuantity'
+                           WHEN '6' THEN 'lowOrbitBallisticsInterceptorNetworkSuccessRateNumerator'
+                           WHEN '7' THEN 'lowOrbitBallisticsInterceptorNetworkSuccessRateDenominator'
+                           WHEN '8' THEN 'orbitalJammingStationQuantity'
+                           WHEN '9' THEN 'advancedOrbitalJammingStationQuantity'
+                           WHEN '10' THEN 'blockStartRaid'
+                        END,
+                        (body->>'value')::INTEGER,
+                        NOW()
+                       ) ON CONFLICT (id) DO UPDATE
+                SET
+                    val = EXCLUDED.val,
+                    updated_at = EXCLUDED.updated_at;
+            END IF;
 
         ELSIF NEW.composite_key = 'structs.structs.EventAttack.eventAttackDetail' THEN
             body := (NEW.value)::jsonb;
@@ -894,13 +945,11 @@ BEGIN;
     BEGIN
         FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
             SELECT COALESCE(attributes.value, 0) INTO amount     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
-            IF amount = '' THEN
-                continue;
-            END IF;
+
+            CONTINUE WHEN amount = '';
 
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
-
 
             INSERT INTO structs.ledger(address, counterparty, amount, block_height, updated_at, created_at, action, direction, denom)
                 VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), NOW(), 'sent', 'debit', 'alpha');
