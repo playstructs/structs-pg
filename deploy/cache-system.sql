@@ -597,7 +597,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             IF body->>'value' = '' THEN
-                DELETE FROM structs.permission WHERE id = body->>'permissionId'
+                DELETE FROM structs.permission WHERE id = body->>'permissionId';
                 CONTINUE;
             END IF;
 
@@ -633,7 +633,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             IF body->>'value' = '' THEN
-                DELETE FROM structs.grid WHERE id = body->>'attributeId'
+                DELETE FROM structs.grid WHERE id = body->>'attributeId';
 
                 CASE split_part(body->>'attributeId', '-',1)
                     WHEN '0' THEN
@@ -734,7 +734,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             IF body->>'value' = '' THEN
-                DELETE FROM structs.struct_attribute WHERE id = body->>'attributeId'
+                DELETE FROM structs.struct_attribute WHERE id = body->>'attributeId';
 
                 CASE split_part(body->>'attributeId', '-',1)
                     WHEN '0' THEN
@@ -799,7 +799,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             IF body->>'value' = '' THEN
-                DELETE FROM structs.planet_attribute WHERE id = body->>'attributeId'
+                DELETE FROM structs.planet_attribute WHERE id = body->>'attributeId';
             ELSE
 
                 INSERT INTO structs.planet_attribute
