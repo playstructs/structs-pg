@@ -105,7 +105,7 @@ BEGIN;
             INSERT INTO structs.allocation
                 VALUES (
                     body->>'id',
-                    (body->>'type')::INTEGER,
+                    body->>'type',
 
                     body->>'sourceObjectId',
                     (body->>'index')::INTEGER,
