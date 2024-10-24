@@ -763,7 +763,7 @@ BEGIN;
                                 WHEN '9' THEN 'fleet'
                            END,
                            -- sub_index
-                           (split_part(body->>'attributeId', '-', 4))::INTEGER,
+                           CASE split_part(body->>'attributeId', '-', 4) WHEN '' THEN 0 ELSE (split_part(body->>'attributeId', '-', 4))::INTEGER END,
 
                            -- attribute_type  CHARACTER VARYING,
                            CASE split_part(body->>'attributeId', '-', 1)
