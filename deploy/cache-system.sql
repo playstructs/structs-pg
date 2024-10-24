@@ -598,36 +598,34 @@ BEGIN;
 
             IF body->>'value' = '' THEN
                 DELETE FROM structs.permission WHERE id = body->>'permissionId';
-                CONTINUE;
+            ELSE
+
+                INSERT INTO structs.permission
+                VALUES (
+                    body->>'permissionId',
+                    -- object_type INTEGER,
+                    CASE split_part(body->>'permissionId','-',1)
+                        WHEN '0' THEN 'guild'
+                        WHEN '1' THEN 'player'
+                        WHEN '2' THEN 'planet'
+                        WHEN '3' THEN 'reactor'
+                        WHEN '4' THEN 'substation'
+                        WHEN '5' THEN 'struct'
+                        WHEN '6' THEN 'allocation'
+                        WHEN '7' THEN 'infusion'
+                        WHEN '8' THEN 'address'
+                        WHEN '9' THEN 'fleet'
+                    END,
+                    split_part(split_part(body->>'permissionId','-',2),'@',1),  -- object_index CHARACTER VARYING,
+                    split_part(body->>'permissionId','@',1),                    -- object_id    CHARACTER VARYING,
+                    split_part(body->>'permissionId','@',2),                    -- player_id    CHARACTER VARYING,
+                    (body->>'value')::INTEGER,
+                    NOW()
+                ) ON CONFLICT (id) DO UPDATE
+                SET
+                    val = EXCLUDED.val,
+                    updated_at = EXCLUDED.updated_at;
             END IF;
-
-
-            INSERT INTO structs.permission
-            VALUES (
-                body->>'permissionId',
-                -- object_type INTEGER,
-                CASE split_part(body->>'permissionId','-',1)
-                    WHEN '0' THEN 'guild'
-                    WHEN '1' THEN 'player'
-                    WHEN '2' THEN 'planet'
-                    WHEN '3' THEN 'reactor'
-                    WHEN '4' THEN 'substation'
-                    WHEN '5' THEN 'struct'
-                    WHEN '6' THEN 'allocation'
-                    WHEN '7' THEN 'infusion'
-                    WHEN '8' THEN 'address'
-                    WHEN '9' THEN 'fleet'
-                END,
-                split_part(split_part(body->>'permissionId','-',2),'@',1),  -- object_index CHARACTER VARYING,
-                split_part(body->>'permissionId','@',1),                    -- object_id    CHARACTER VARYING,
-                split_part(body->>'permissionId','@',2),                    -- player_id    CHARACTER VARYING,
-                (body->>'value')::INTEGER,
-                NOW()
-            ) ON CONFLICT (id) DO UPDATE
-            SET
-                val = EXCLUDED.val,
-                updated_at = EXCLUDED.updated_at;
-
         -- make generic grid stuff happen
         ELSIF NEW.composite_key = 'structs.structs.EventGrid.gridRecord' THEN
             body := (NEW.value)::jsonb;
