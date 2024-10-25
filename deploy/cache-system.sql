@@ -949,10 +949,10 @@ BEGIN;
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, created_at, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
                 VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'sent', 'debit', 'alpha');
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, created_at, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
                 VALUES( recipient, sender, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'received', 'credit', 'alpha');
         END LOOP;
 

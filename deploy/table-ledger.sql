@@ -15,7 +15,7 @@ CREATE TABLE structs.ledger (
     counterparty CHARACTER VARYING,
     amount BIGINT,
     block_height BIGINT,
-    created_at TIMESTAMPTZ NOT NULL,
+    time TIMESTAMPTZ NOT NULL,
     action structs.ledger_action,
     direction structs.ledger_direction,
     denom structs.denom
@@ -23,6 +23,6 @@ CREATE TABLE structs.ledger (
 
 
 
---SELECT create_hypertable('structs.ledger', by_range('created_at'));
+SELECT create_hypertable('structs.ledger', by_range('time'));
 
 COMMIT;
