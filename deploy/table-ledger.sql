@@ -9,13 +9,13 @@ CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','infused','defused','refined');
 
 CREATE TABLE structs.ledger (
+    time TIMESTAMPTZ NOT NULL,
     id BIGSERIAL PRIMARY KEY,
     object_id CHARACTER VARYING,
     address CHARACTER VARYING,
     counterparty CHARACTER VARYING,
     amount BIGINT,
     block_height BIGINT,
-    time TIMESTAMPTZ NOT NULL,
     action structs.ledger_action,
     direction structs.ledger_direction,
     denom structs.denom
