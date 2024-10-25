@@ -21,8 +21,6 @@ CREATE TABLE structs.ledger (
     denom structs.denom
 );
 
-
-
 SELECT create_hypertable('structs.ledger', by_range('time'));
 
 COMMIT;
