@@ -10,7 +10,7 @@ CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','infused'
 
 CREATE TABLE structs.ledger (
     time TIMESTAMPTZ NOT NULL,
-    id BIGSERIAL PRIMARY KEY,
+    id BIGSERIAL NOT NULL,
     object_id CHARACTER VARYING,
     address CHARACTER VARYING,
     counterparty CHARACTER VARYING,
