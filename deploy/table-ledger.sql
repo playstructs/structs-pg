@@ -15,7 +15,6 @@ CREATE TABLE structs.ledger (
     counterparty CHARACTER VARYING,
     amount BIGINT,
     block_height BIGINT,
-    updated_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     action structs.ledger_action,
     direction structs.ledger_direction,
