@@ -2,11 +2,11 @@
 
 BEGIN;
 
-CREATE TYPE structs.denom AS ENUM ('alpha');
+CREATE TYPE structs.denom AS ENUM ('alpha','ore');
 
 CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 
-CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','infused','defused','refined');
+CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','migrated','infused','defused','mined','refined','seized','forfeited');
 
 CREATE TABLE structs.ledger (
     time TIMESTAMPTZ NOT NULL,
