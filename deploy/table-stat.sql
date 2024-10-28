@@ -15,6 +15,25 @@ BEGIN;
         'fleet'
     );
 
+    CREATE OR REPLACE FUNCTION structs.GET_OBJECT_ID(object_type structs.object_type, index INTEGER) RETURNS CHARACTER VARYING AS
+    $BODY$
+    BEGIN
+      RETURN (CASE object_type
+                  WHEN 'guild' THEN '0'
+                  WHEN 'player' THEN '1'
+                  WHEN 'planet' THEN '2'
+                  WHEN 'reactor' THEN '3'
+                  WHEN 'substation' THEN '4'
+                  WHEN 'struct' THEN '5'
+                  WHEN 'allocation' THEN '6'
+                  WHEN 'infusion' THEN '7'
+                  WHEN 'address' THEN '8'
+                  WHEN 'fleet' THEN '9'
+          END) || '-' || index;
+    END;
+    $BODY$
+    LANGUAGE plpgsql IMMUTABLE COST 100;
+
     CREATE OR REPLACE FUNCTION structs.GET_OBJECT_TYPE(object_id INTEGER) RETURNS structs.object_type AS
     $BODY$
         BEGIN
