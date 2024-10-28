@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.struct (
+CREATE UNLOGGED TABLE structs.struct (
 	id CHARACTER VARYING PRIMARY KEY,
 	index INTEGER,
 
@@ -19,7 +19,7 @@ CREATE TABLE structs.struct (
     updated_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE structs.struct_attribute (
+CREATE UNLOGGED TABLE structs.struct_attribute (
     id              CHARACTER VARYING PRIMARY KEY,
     object_id       CHARACTER VARYING,
     object_type     CHARACTER VARYING,
@@ -29,14 +29,14 @@ CREATE TABLE structs.struct_attribute (
     updated_at	    TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE structs.struct_defender (
+CREATE UNLOGGED TABLE structs.struct_defender (
     defending_struct_id   CHARACTER VARYING PRIMARY KEY,
     protected_struct_id   CHARACTER VARYING,
     updated_at	TIMESTAMPTZ NOT NULL
 );
 
 
-CREATE TABLE structs.struct_attack (
+CREATE UNLOGGED TABLE structs.struct_attack (
     id SERIAL PRIMARY KEY,
     detail jsonb,
     created_at TIMESTAMPTZ NOT NULL

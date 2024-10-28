@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.current_block (
+CREATE UNLOGGED TABLE structs.current_block (
 	height BIGINT,
     updated_at	TIMESTAMPTZ NOT NULL
 );

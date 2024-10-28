@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.guild (
+CREATE UNLOGGED TABLE structs.guild (
 	id CHARACTER VARYING PRIMARY KEY,
     index INTEGER,
 
@@ -39,7 +39,7 @@ CREATE TABLE structs.guild_meta (
 
 
 
-CREATE TABLE structs.guild_membership_application (
+CREATE UNLOGGED TABLE structs.guild_membership_application (
     guild_id CHARACTER VARYING,
     player_id CHARACTER VARYING,
     join_type CHARACTER VARYING,

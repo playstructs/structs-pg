@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE structs.fleet (
+CREATE UNLOGGED TABLE structs.fleet (
 	id CHARACTER VARYING PRIMARY KEY,
 	owner CHARACTER VARYING,
 

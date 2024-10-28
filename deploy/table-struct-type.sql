@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TABLE struct_type (
+CREATE UNLOGGED TABLE struct_type (
     id INTEGER PRIMARY KEY,
     type CHARACTER VARYING,
     category CHARACTER VARYING,
