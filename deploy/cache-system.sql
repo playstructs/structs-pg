@@ -978,8 +978,6 @@ BEGIN;
         FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
             SELECT COALESCE(attributes.value, 0) INTO amount     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
 
-            CONTINUE WHEN amount = '';
-
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
 
