@@ -978,7 +978,7 @@ BEGIN;
     BEGIN
         FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
 
-            SELECT (regexp_matches(attributes.value, '(^[0-1\.]+)([a-zA-Z]+)'))[1]::INTEGER, (regexp_matches(attributes.value, '(^[0-1\.]+)([a-zA-Z]+)'))[2]::structs.denom INTO amount, denom     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
+            SELECT (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z]+)'))[1]::INTEGER, (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z]+)'))[2]::structs.denom INTO amount, denom     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
 
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
