@@ -974,18 +974,20 @@ BEGIN;
         recipient CHARACTER VARYING;
         sender CHARACTER VARYING;
         amount CHARACTER VARYING;
+        denom structs.denom;
     BEGIN
         FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
-            SELECT COALESCE(attributes.value, 0) INTO amount     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
+
+            SELECT (regexp_matches(attributes.value, '(^[0-1\.]+)([a-zA-Z]+)'))[1]::INTEGER, (regexp_matches(attributes.value, '(^[0-1\.]+)([a-zA-Z]+)'))[2]::structs.denom INTO amount, denom     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.amount';
 
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
 
             INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
-                VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'sent', 'debit', 'alpha');
+                VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'sent', 'debit', denom);
 
             INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
-                VALUES( recipient, sender, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'received', 'credit', 'alpha');
+                VALUES( recipient, sender, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'received', 'credit', denom);
         END LOOP;
 
     RETURN NEW;
