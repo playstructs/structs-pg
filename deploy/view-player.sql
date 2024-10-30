@@ -23,16 +23,21 @@ CREATE OR REPLACE VIEW view.player AS
 
 
     CREATE OR REPLACE VIEW view.address_inventory AS
-        select ledger.address, sum(case when ledger.direction='debit' then ledger.amount*-1 ELSE ledger.amount END) as balance from structs.ledger group by ledger.address;
+        select
+                ledger.address,
+                sum(case when ledger.direction='debit' then ledger.amount*-1 ELSE ledger.amount END) as balance,
+                denom
+        from structs.ledger group by ledger.address, ledger.denom;
 
     CREATE OR REPLACE VIEW view.player_inventory AS
         select
             player_address.player_id,
-            sum(address_inventory.balance) as balance
+            sum(address_inventory.balance) as balance,
+            address_inventory.denom
         FROM
             structs.player_address,
             view.address_inventory
         WHERE player_address.address = address_inventory.address
-        GROUP BY player_address.player_id, player_address.address;
+        GROUP BY player_address.player_id, player_address.address, address_inventory.denom;
 
 COMMIT;
