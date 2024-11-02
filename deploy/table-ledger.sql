@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TYPE structs.denom AS ENUM ('alpha','ore');
+CREATE TYPE structs.denom AS ENUM ('alpha','ore','bleep','bloop');
 
 CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 
