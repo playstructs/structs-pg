@@ -952,7 +952,7 @@ BEGIN;
         $BODY$
     BEGIN
         IF NEW.guild_id <> OLD.guild_ID THEN
-            UPDATE structs.player_address SET guild_id = NEW.guild_id WHERE player_id = NEW.player_id;
+            UPDATE structs.player_address SET guild_id = NEW.guild_id WHERE player_id = NEW.id;
         END IF;
     RETURN NEW;
     END
