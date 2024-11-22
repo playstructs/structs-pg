@@ -997,6 +997,42 @@ BEGIN;
     CREATE TRIGGER TRANSFER_LEDGER_ENTRY AFTER INSERT ON cache.blocks
         FOR EACH ROW EXECUTE PROCEDURE cache.TRANSFER_LEDGER_ENTRY();
 
+
+
+    CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_MOVEMENT() RETURNS trigger AS
+    $BODY$
+    DECLARE
+        location_id CHARACTER VARYING;
+    BEGIN
+        IF
+            NEW.location_id <> OLD.location_id
+            OR NEW.ambit <> OLD.ambit
+            OR NEW.slot <> OLD.slot
+        THEN
+            IF NEW.location_type = 'fleet' THEN
+                SELECT fleet.location_id INTO location_id FROM structs.fleet where fleet.id = NEW.location_id;
+            END IF;
+
+            INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                VALUES (NOW(), COALESCE(location_id, NEW.location_id), 'struct_move',
+                        jsonb_build_object( 'struct_id', NEW.id,
+                                            'location_type', NEW.location_type,
+                                            'location_id', NEW.location_id,
+                                            'ambit', NEW.ambit,
+                                            'slot', NEW.slot)
+                );
+
+        END IF;
+        RETURN NEW;
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER PLANET_ACTIVITY_STRUCT_MOVEMENT AFTER UPDATE ON structs.struct
+        FOR EACH ROW EXECUTE PROCEDURE cache.PLANET_ACTIVITY_STRUCT_MOVEMENT();
+
+
+
     CREATE EXTENSION pg_cron;
 
     --SELECT cron.schedule('cleaner', '59 seconds', 'CALL cache.CLEAN_QUEUE();');

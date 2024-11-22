@@ -55,4 +55,26 @@ CREATE TABLE structs.planet_raid (
 
 );
 
+
+
+    CREATE TYPE structs.activity_category AS ENUM (
+        'raid',
+        'struct_attack',
+        'struct_defense_change',
+        'struct_status',
+        'struct_move'
+    );
+
+    CREATE UNLOGGED TABLE structs.planet_activity (
+        time TIMESTAMPTZ NOT NULL,
+        id SERIAL PRIMARY KEY,
+        planet_id CHARACTER VARYING NOT NULL,
+        category structs.activity_category,
+        detail jsonb
+    );
+
+    SELECT create_hypertable('structs.planet_activity', by_range('time'));
+
+
+
 COMMIT;
