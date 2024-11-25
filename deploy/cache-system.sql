@@ -1033,6 +1033,210 @@ BEGIN;
 
 
 
+    CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_RAID_STATUS() RETURNS trigger AS
+    $BODY$
+    BEGIN
+        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+            VALUES (NOW(), NEW.planet_id, 'raid_status',
+                jsonb_build_object( 'fleet_id', NEW.fleet_id,
+                                'status', NEW.status)
+        );
+        RETURN NEW;
+    END
+        $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER PLANET_ACTIVITY_RAID_STATUS AFTER INSERT OR UPDATE ON structs.planet_raid
+        FOR EACH ROW EXECUTE PROCEDURE cache.PLANET_ACTIVITY_RAID_STATUS();
+
+
+
+    CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_FLEET_MOVE() RETURNS trigger AS
+        $BODY$
+    DECLARE
+        old_move_detail jsonb;
+        new_move_detail jsonb;
+    BEGIN
+
+        IF OLD.location_id <> NEW.location_id THEN
+
+            old_move_detail := jsonb_build_object( 'fleet_id', OLD.id, 'fleet_status', OLD.status )
+            IF OLD.status = 'away' THEN
+                -- Add a list of fleets
+               WITH RECURSIVE fleets AS (
+                    SELECT id, location_list_backward
+                    FROM fleet
+                    WHERE location_id = OLD.location_id and location_list_forward = '' and status = 'away'
+                    UNION
+                    SELECT
+                        e.id,
+                        e.location_list_backward
+                    FROM
+                        fleet e
+                            INNER JOIN fleets s ON s.location_list_backward = e.id
+                )
+                SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || old_move_detail INTO old_move_detail FROM fleets;
+
+            END IF;
+
+            INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                VALUES (NOW(), OLD.location_id, 'fleet_depart', old_move_detail );
+
+            new_move_detail := jsonb_build_object( 'fleet_id', NEW.fleet_id, 'fleet_status', NEW.status)
+            IF NEW.status = 'away' THEN
+                -- Add a list of fleets
+               WITH RECURSIVE fleets AS (
+                    SELECT id, location_list_backward
+                    FROM fleet
+                    WHERE location_id = NEW.location_id and location_list_forward = '' and status = 'away'
+                    UNION
+                    SELECT
+                        e.id,
+                        e.location_list_backward
+                    FROM
+                        fleet e
+                            INNER JOIN fleets s ON s.location_list_backward = e.id
+                    )
+                    SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || new_move_detail INTO old_move_detail FROM fleets;
+            END IF;
+
+
+            INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                VALUES (NOW(), NEW.planet_id, 'fleet_arrive', new_move_detail);
+
+
+        END IF;
+
+    RETURN NEW;
+    END
+            $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER PLANET_ACTIVITY_FLEET_MOVE AFTER INSERT OR UPDATE ON structs.fleet
+       FOR EACH ROW EXECUTE PROCEDURE cache.PLANET_ACTIVITY_FLEET_MOVE();
+
+
+
+CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trigger AS
+    $BODY$
+    DECLARE
+        location_id CHARACTER VARYING;
+    BEGIN
+
+        IF TG_OP = 'DELETE' THEN
+            CASE NEW.attribute_type
+                WHEN 'typeCount' THEN
+                    -- Nothing to do here
+
+                WHEN 'protectedStructIndex' THEN
+                    -- OLD.val - Struct Index no longer being protected
+                    -- NEW.val - Struct Index now being protected
+                    -- NEW.object_id - Defending Struct ID
+
+                    -- We're going to project this activity on the planet of the protected Struct(s)
+
+                    IF COALESCE(OLD.val,0) > 0 THEN
+                        SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || OLD.val) INTO location_id;
+                        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                            VALUES (NOW(), location_id, 'struct_defense_remove',
+                                jsonb_build_object( 'defender_struct_id', NEW.object_id,
+                                                    'protected_struct_id', '5-' || OLD.val)
+                               );
+                    END IF;
+
+                WHEN 'status' THEN
+                    -- Shouldn't need a final status emit
+
+                WHEN 'health' THEN
+                    -- Health is covered via the battle actions
+
+                WHEN 'blockStartBuild' THEN
+                    -- Covered by Status changes to offline
+
+                WHEN 'blockStartOreMine' THEN
+                    -- Covered by Status changes to offline
+
+                WHEN 'blockStartOreRefine' THEN
+                    -- Covered by Status changes to offline
+            END;
+
+        ELSE -- Insert and Update
+
+            CASE NEW.attribute_type
+                WHEN 'typeCount' THEN
+                    -- Nothing to do here
+
+                WHEN 'protectedStructIndex' THEN
+                    -- OLD.val - Struct Index no longer being protected
+                    -- NEW.val - Struct Index now being protected
+                    -- NEW.object_id - Defending Struct ID
+
+                    -- We're going to project this activity on the planet of the protected Struct(s)
+
+                    IF COALESCE(OLD.val,0) > 0 THEN
+                        SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || OLD.val) INTO location_id;
+                        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                            VALUES (NOW(), location_id, 'struct_defense_remove',
+                                jsonb_build_object( 'defender_struct_id', NEW.object_id,
+                                    'protected_struct_id', '5-' || OLD.val)
+                            );
+                    END IF;
+
+                    IF COALESCE(NEW.val,0) > 0 THEN
+                        SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || NEW.val) INTO location_id;
+                        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                            VALUES (NOW(), location_id, 'struct_defense_add',
+                                jsonb_build_object( 'defender_struct_id', NEW.object_id,
+                                                    'protected_struct_id', '5-' || NEW.val)
+                               );
+                    END IF;
+
+                WHEN 'status' THEN
+                    SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
+                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                        VALUES (NOW(), location_id, 'struct_status',
+                            jsonb_build_object( 'struct_id', NEW.object_id,
+                                                'status', NEW.val)
+                           );
+
+                WHEN 'health' THEN
+                   -- Health is covered via the battle actions
+
+                WHEN 'blockStartBuild' THEN
+                    SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
+                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                        VALUES (NOW(), location_id, 'struct_block_build_start',
+                            jsonb_build_object( 'struct_id', NEW.object_id,
+                                                'block', NEW.val)
+                           );
+
+                WHEN 'blockStartOreMine' THEN
+                    SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
+                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                        VALUES (NOW(), location_id, 'struct_block_ore_mine_start',
+                            jsonb_build_object( 'struct_id', NEW.object_id,
+                                                'block', NEW.val)
+                           );
+
+                WHEN 'blockStartOreRefine' THEN
+                    SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
+                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
+                        VALUES (NOW(), location_id, 'struct_block_ore_refine_start',
+                            jsonb_build_object( 'struct_id', NEW.object_id,
+                                                'block', NEW.val)
+                           );
+            END;
+        END IF;
+        RETURN NEW;
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER PLANET_ACTIVITY_STRUCT_ATTRIBUTE AFTER INSERT OR UPDATE OR DELETE ON structs.struct_attribute
+        FOR EACH ROW EXECUTE PROCEDURE cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE();
+
+
+
     CREATE EXTENSION pg_cron;
 
     --SELECT cron.schedule('cleaner', '59 seconds', 'CALL cache.CLEAN_QUEUE();');

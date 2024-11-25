@@ -58,11 +58,18 @@ CREATE TABLE structs.planet_raid (
 
 
     CREATE TYPE structs.activity_category AS ENUM (
-        'raid',
+        'raid_status',
+        'fleet_arrive',
+        'fleet_advance',
+        'fleet_depart',
         'struct_attack',
-        'struct_defense_change',
+        'struct_defense_remove',
+        'struct_defense_add',
         'struct_status',
-        'struct_move'
+        'struct_move',
+        'struct_block_build_start',
+        'struct_block_ore_mine_start',
+        'struct_block_ore_refine_start'
     );
 
     CREATE UNLOGGED TABLE structs.planet_activity (
