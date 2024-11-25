@@ -72,7 +72,7 @@ CREATE TABLE structs.planet_raid (
         'struct_block_ore_refine_start'
     );
 
-    CREATE UNLOGGED TABLE structs.planet_activity (
+    CREATE TABLE structs.planet_activity (
         time TIMESTAMPTZ NOT NULL,
         id SERIAL PRIMARY KEY,
         planet_id CHARACTER VARYING NOT NULL,

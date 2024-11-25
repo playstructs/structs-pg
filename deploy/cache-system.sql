@@ -1063,7 +1063,7 @@ BEGIN;
             old_move_detail := jsonb_build_object( 'fleet_id', OLD.id, 'fleet_status', OLD.status )
             IF OLD.status = 'away' THEN
                 -- Add a list of fleets
-               WITH RECURSIVE fleets AS (
+               WITH RECURSIVE r_fleets AS (
                     SELECT id, location_list_backward
                     FROM fleet
                     WHERE location_id = OLD.location_id and location_list_forward = '' and status = 'away'
@@ -1073,9 +1073,9 @@ BEGIN;
                         e.location_list_backward
                     FROM
                         fleet e
-                            INNER JOIN fleets s ON s.location_list_backward = e.id
+                            INNER JOIN r_fleets s ON s.location_list_backward = e.id
                 )
-                SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || old_move_detail INTO old_move_detail FROM fleets;
+                SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || old_move_detail INTO old_move_detail FROM r_fleets;
 
             END IF;
 
@@ -1085,7 +1085,7 @@ BEGIN;
             new_move_detail := jsonb_build_object( 'fleet_id', NEW.fleet_id, 'fleet_status', NEW.status)
             IF NEW.status = 'away' THEN
                 -- Add a list of fleets
-               WITH RECURSIVE fleets AS (
+               WITH RECURSIVE r_fleets AS (
                     SELECT id, location_list_backward
                     FROM fleet
                     WHERE location_id = NEW.location_id and location_list_forward = '' and status = 'away'
@@ -1095,9 +1095,9 @@ BEGIN;
                         e.location_list_backward
                     FROM
                         fleet e
-                            INNER JOIN fleets s ON s.location_list_backward = e.id
+                            INNER JOIN r_fleets s ON s.location_list_backward = e.id
                     )
-                    SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || new_move_detail INTO old_move_detail FROM fleets;
+                    SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || new_move_detail INTO old_move_detail FROM r_fleets;
             END IF;
 
 
