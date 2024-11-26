@@ -57,15 +57,21 @@ CREATE TABLE structs.planet_raid (
 
     CREATE TABLE structs.planet_activity_sequence (
         planet_id CHARACTER VARYING PRIMARY KEY,
-        counter INTEGER NOT NULL DEFAULT 1
+        counter INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE OR REPLACE FUNCTION structs.GET_PLANET_ACTIVITY_SEQUENCE(character varying) RETURNS integer AS
     $BODY$
-        UPDATE structs.planet_activity_sequence
-            SET counter = counter + 1
-            WHERE planet_id = $1
-            RETURNING counter
+        --This update sucks because it requires an insert exist
+        --UPDATE structs.planet_activity_sequence
+        --    SET counter = counter + 1
+        --    WHERE planet_id = $1
+        --    RETURNING counter
+
+        INSERT INTO structs.planet_activity_sequence
+            VALUES($1, 0)
+            ON CONFLICT (planet_id) DO UPDATE SET counter = planet_activity_sequence.counter + 1
+            RETURNING counter;
     $BODY$
     LANGUAGE sql VOLATILE;
 
