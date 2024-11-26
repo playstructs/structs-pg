@@ -100,7 +100,6 @@ BEGIN;
 
     SELECT create_hypertable('structs.planet_activity', by_range('time'));
 
-
     CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_NOTIFY() RETURNS trigger AS
     $BODY$
     BEGIN
