@@ -2,58 +2,58 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.planet (
-	id CHARACTER VARYING PRIMARY KEY,
+    CREATE UNLOGGED TABLE structs.planet (
+        id CHARACTER VARYING PRIMARY KEY,
 
-	max_ore INTEGER,
+        max_ore INTEGER,
 
-	creator CHARACTER VARYING,
-	owner CHARACTER VARYING,
+        creator CHARACTER VARYING,
+        owner CHARACTER VARYING,
 
-    map jsonb,
+        map jsonb,
 
-    space_slots INTEGER,
-    air_slots INTEGER,
-    land_slots INTEGER,
-    water_slots INTEGER,
+        space_slots INTEGER,
+        air_slots INTEGER,
+        land_slots INTEGER,
+        water_slots INTEGER,
 
-	status CHARACTER VARYING,
+        status CHARACTER VARYING,
 
-	location_list_start CHARACTER VARYING,
-	location_list_end CHARACTER VARYING,
+        location_list_start CHARACTER VARYING,
+        location_list_end CHARACTER VARYING,
 
-	created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
-);
+        created_at TIMESTAMPTZ NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL
+    );
 
-CREATE TABLE structs.planet_meta (
-    id CHARACTER VARYING,
-    guild_id CHARACTER VARYING,
-    name CHARACTER VARYING,
+    CREATE TABLE structs.planet_meta (
+        id CHARACTER VARYING,
+        guild_id CHARACTER VARYING,
+        name CHARACTER VARYING,
 
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    PRIMARY KEY (id, guild_id)
-);
+        created_at TIMESTAMPTZ NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL,
+        PRIMARY KEY (id, guild_id)
+    );
 
-CREATE UNLOGGED TABLE structs.planet_attribute (
-   id               CHARACTER VARYING PRIMARY KEY,
-   object_id        CHARACTER VARYING,
-   object_type      CHARACTER VARYING,
-   attribute_type   CHARACTER VARYING,
-   val              INTEGER,
-   updated_at	    TIMESTAMPTZ NOT NULL
-);
+    CREATE UNLOGGED TABLE structs.planet_attribute (
+       id               CHARACTER VARYING PRIMARY KEY,
+       object_id        CHARACTER VARYING,
+       object_type      CHARACTER VARYING,
+       attribute_type   CHARACTER VARYING,
+       val              INTEGER,
+       updated_at	    TIMESTAMPTZ NOT NULL
+    );
 
 
-CREATE TABLE structs.planet_raid (
-    id SERIAL PRIMARY KEY,
-    fleet_id CHARACTER VARYING,
-    planet_id CHARACTER VARYING,
-    status CHARACTER VARYING,
-    created_at TIMESTAMPTZ NOT NULL
+    CREATE TABLE structs.planet_raid (
+        id SERIAL PRIMARY KEY,
+        fleet_id CHARACTER VARYING,
+        planet_id CHARACTER VARYING,
+        status CHARACTER VARYING,
+        created_at TIMESTAMPTZ NOT NULL
 
-);
+    );
 
     CREATE TABLE structs.planet_activity_sequence (
         planet_id CHARACTER VARYING PRIMARY KEY,
@@ -101,5 +101,16 @@ CREATE TABLE structs.planet_raid (
     SELECT create_hypertable('structs.planet_activity', by_range('time'));
 
 
+    CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_NOTIFY() RETURNS trigger AS
+    $BODY$
+    BEGIN
+        PERFORM pg_notify('grass', to_jsonb(NEW)::TEXT);
+        RETURN NEW;
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER PLANET_ACTIVITY_NOTIFY AFTER INSERT ON structs.planet_raid
+        FOR EACH ROW EXECUTE PROCEDURE cache.PLANET_ACTIVITY_NOTIFY();
 
 COMMIT;
