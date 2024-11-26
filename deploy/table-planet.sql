@@ -55,7 +55,19 @@ CREATE TABLE structs.planet_raid (
 
 );
 
+    CREATE TABLE structs.planet_activity_sequence (
+        planet_id CHARACTER VARYING PRIMARY KEY,
+        counter INTEGER NOT NULL DEFAULT 1
+    );
 
+    CREATE OR REPLACE FUNCTION structs.GET_PLANET_ACTIVITY_SEQUENCE(character varying) RETURNS integer AS
+    $BODY$
+        UPDATE structs.planet_activity_sequence
+            SET counter = counter + 1
+            WHERE planet_id = $1
+            RETURNING counter
+    $BODY$
+    LANGUAGE sql VOLATILE;
 
     CREATE TYPE structs.activity_category AS ENUM (
         'raid_status',
@@ -74,7 +86,7 @@ CREATE TABLE structs.planet_raid (
 
     CREATE TABLE structs.planet_activity (
         time TIMESTAMPTZ NOT NULL,
-        id SERIAL,
+        seq INTEGER NOT NULL,
         planet_id CHARACTER VARYING NOT NULL,
         category structs.activity_category,
         detail jsonb

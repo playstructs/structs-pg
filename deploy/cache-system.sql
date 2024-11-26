@@ -1013,8 +1013,8 @@ BEGIN;
                 SELECT fleet.location_id INTO location_id FROM structs.fleet where fleet.id = NEW.location_id;
             END IF;
 
-            INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                VALUES (NOW(), COALESCE(location_id, NEW.location_id), 'struct_move',
+            INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(COALESCE(location_id, NEW.location_id)), COALESCE(location_id, NEW.location_id), 'struct_move',
                         jsonb_build_object( 'struct_id', NEW.id,
                                             'location_type', NEW.location_type,
                                             'location_id', NEW.location_id,
@@ -1036,8 +1036,8 @@ BEGIN;
     CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_RAID_STATUS() RETURNS trigger AS
     $BODY$
     BEGIN
-        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-            VALUES (NOW(), NEW.planet_id, 'raid_status',
+        INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+            VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.planet_id), NEW.planet_id, 'raid_status',
                 jsonb_build_object( 'fleet_id', NEW.fleet_id,
                                 'status', NEW.status)
         );
@@ -1079,8 +1079,8 @@ BEGIN;
 
             END IF;
 
-            INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                VALUES (NOW(), OLD.location_id, 'fleet_depart', old_move_detail );
+            INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.location_id),  OLD.location_id, 'fleet_depart', old_move_detail );
 
             new_move_detail := jsonb_build_object( 'fleet_id', NEW.fleet_id, 'fleet_status', NEW.status);
             IF NEW.status = 'away' THEN
@@ -1101,8 +1101,8 @@ BEGIN;
             END IF;
 
 
-            INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                VALUES (NOW(), NEW.planet_id, 'fleet_arrive', new_move_detail);
+            INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.location_id), NEW.location_id, 'fleet_arrive', new_move_detail);
 
 
         END IF;
@@ -1137,8 +1137,8 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
                     IF COALESCE(OLD.val,0) > 0 THEN
                         SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || OLD.val) INTO location_id;
-                        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                            VALUES (NOW(), location_id, 'struct_defense_remove',
+                        INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                            VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_defense_remove',
                                 jsonb_build_object( 'defender_struct_id', NEW.object_id,
                                                     'protected_struct_id', '5-' || OLD.val)
                                );
@@ -1175,8 +1175,8 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
                     IF COALESCE(OLD.val,0) > 0 THEN
                         SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || OLD.val) INTO location_id;
-                        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                            VALUES (NOW(), location_id, 'struct_defense_remove',
+                        INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                            VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_defense_remove',
                                 jsonb_build_object( 'defender_struct_id', NEW.object_id,
                                     'protected_struct_id', '5-' || OLD.val)
                             );
@@ -1184,8 +1184,8 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
                     IF COALESCE(NEW.val,0) > 0 THEN
                         SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || NEW.val) INTO location_id;
-                        INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                            VALUES (NOW(), location_id, 'struct_defense_add',
+                        INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                            VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_defense_add',
                                 jsonb_build_object( 'defender_struct_id', NEW.object_id,
                                                     'protected_struct_id', '5-' || NEW.val)
                                );
@@ -1193,8 +1193,8 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
                 WHEN 'status' THEN
                     SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
-                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                        VALUES (NOW(), location_id, 'struct_status',
+                    INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                        VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_status',
                             jsonb_build_object( 'struct_id', NEW.object_id,
                                                 'status', NEW.val)
                            );
@@ -1204,24 +1204,24 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
                 WHEN 'blockStartBuild' THEN
                     SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
-                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                        VALUES (NOW(), location_id, 'struct_block_build_start',
+                    INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                        VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_block_build_start',
                             jsonb_build_object( 'struct_id', NEW.object_id,
                                                 'block', NEW.val)
                            );
 
                 WHEN 'blockStartOreMine' THEN
                     SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
-                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                        VALUES (NOW(), location_id, 'struct_block_ore_mine_start',
+                    INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                        VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_block_ore_mine_start',
                             jsonb_build_object( 'struct_id', NEW.object_id,
                                                 'block', NEW.val)
                            );
 
                 WHEN 'blockStartOreRefine' THEN
                     SELECT structs.GET_ACTIVITY_LOCATION_ID(NEW.object_id) INTO location_id;
-                    INSERT INTO structs.planet_activity(time, planet_id, category, detail)
-                        VALUES (NOW(), location_id, 'struct_block_ore_refine_start',
+                    INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                        VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_block_ore_refine_start',
                             jsonb_build_object( 'struct_id', NEW.object_id,
                                                 'block', NEW.val)
                            );
