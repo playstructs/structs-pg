@@ -74,7 +74,7 @@ CREATE TABLE structs.planet_raid (
 
     CREATE TABLE structs.planet_activity (
         time TIMESTAMPTZ NOT NULL,
-        id SERIAL PRIMARY KEY,
+        id SERIAL,
         planet_id CHARACTER VARYING NOT NULL,
         category structs.activity_category,
         detail jsonb
