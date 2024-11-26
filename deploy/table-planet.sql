@@ -113,6 +113,7 @@ BEGIN;
                             'planet_id', NEW.planet_id,
                             'seq', NEW.seq,
                             'category', NEW.category,
+                            'time', NEW.time,
                             'stub', 'true')::TEXT;
         END IF;
 
