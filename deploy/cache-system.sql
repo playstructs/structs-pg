@@ -844,9 +844,17 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventAttack.eventAttackDetail' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.struct_attack (detail, created_at)
-                VALUES (body, NOW());
-
+            WITH r_location AS (
+                SELECT structs.GET_ACTIVITY_LOCATION_ID(body->>'attackerStructId') as location_id
+            )
+            INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
+                SELECT
+                        NOW(),
+                        structs.GET_PLANET_ACTIVITY_SEQUENCE(r_location.location_id),
+                        r_location.location_id,
+                        'struct_attack',
+                        body
+                    FROM r_location;
 
         ELSIF NEW.composite_key = 'structs.structs.EventOreMine.eventOreMineDetail' THEN
             body := (NEW.value)::jsonb;
@@ -891,7 +899,7 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
 
-            INSERT INTO structs.struct_attack (fleet_id, planet_id, status, created_at)
+            INSERT INTO structs.planet_raid (fleet_id, planet_id, status, created_at)
             VALUES (
                        body->>'fleetId',
                        body->>'planetId',
