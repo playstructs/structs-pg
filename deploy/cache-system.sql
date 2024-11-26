@@ -1060,7 +1060,7 @@ BEGIN;
 
         IF OLD.location_id <> NEW.location_id THEN
 
-            old_move_detail := jsonb_build_object( 'fleet_id', OLD.id, 'fleet_status', OLD.status )
+            old_move_detail := jsonb_build_object( 'fleet_id', OLD.id, 'fleet_status', OLD.status );
             IF OLD.status = 'away' THEN
                 -- Add a list of fleets
                WITH RECURSIVE r_fleets AS (
@@ -1082,7 +1082,7 @@ BEGIN;
             INSERT INTO structs.planet_activity(time, planet_id, category, detail)
                 VALUES (NOW(), OLD.location_id, 'fleet_depart', old_move_detail );
 
-            new_move_detail := jsonb_build_object( 'fleet_id', NEW.fleet_id, 'fleet_status', NEW.status)
+            new_move_detail := jsonb_build_object( 'fleet_id', NEW.fleet_id, 'fleet_status', NEW.status);
             IF NEW.status = 'away' THEN
                 -- Add a list of fleets
                WITH RECURSIVE r_fleets AS (
