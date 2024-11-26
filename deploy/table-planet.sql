@@ -102,8 +102,22 @@ BEGIN;
 
     CREATE OR REPLACE FUNCTION structs.PLANET_ACTIVITY_NOTIFY() RETURNS trigger AS
     $BODY$
+    DECLARE
+        payload TEXT;
     BEGIN
-        PERFORM pg_notify('grass', to_jsonb(NEW)::TEXT);
+        payload := to_jsonb(NEW)::TEXT;
+
+        -- Notify payload is max 8000bytes.
+        IF length(payload) > 7995 THEN
+            payload := jsonb_build_object(
+                            'planet_id', NEW.planet_id,
+                            'seq', NEW.seq,
+                            'category', NEW.category,
+                            'stub', 'true')::TEXT;
+        END IF;
+
+        PERFORM pg_notify('grass', payload);
+
         RETURN NEW;
     END
     $BODY$
