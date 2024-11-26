@@ -36,12 +36,6 @@ BEGIN;
     );
 
 
-    CREATE UNLOGGED TABLE structs.struct_attack (
-        id SERIAL PRIMARY KEY,
-        detail jsonb,
-        created_at TIMESTAMPTZ NOT NULL
-    );
-
     CREATE OR REPLACE FUNCTION structs.GET_ACTIVITY_LOCATION_ID(struct_id CHARACTER VARYING) RETURNS CHARACTER VARYING AS
     $BODY$
     DECLARE
