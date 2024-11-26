@@ -1158,7 +1158,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
                 WHEN 'blockStartOreRefine' THEN
                     -- Covered by Status changes to offline
-            END;
+            END CASE;
 
         ELSE -- Insert and Update
 
@@ -1225,7 +1225,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                             jsonb_build_object( 'struct_id', NEW.object_id,
                                                 'block', NEW.val)
                            );
-            END;
+            END CASE;
         END IF;
         RETURN NEW;
     END
