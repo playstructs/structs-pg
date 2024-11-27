@@ -111,7 +111,7 @@ BEGIN;
         -- Create a smaller stub if the payload is larger
         IF length(payload) > 7995 THEN
             payload := jsonb_build_object(
-                            'channel','structs.planet.' || NEW.planet_id,
+                            'subject','structs.planet.' || NEW.planet_id,
                             'planet_id', NEW.planet_id,
                             'seq', NEW.seq,
                             'category', NEW.category,
