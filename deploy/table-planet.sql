@@ -108,6 +108,7 @@ BEGIN;
         payload := to_jsonb(NEW)::TEXT;
 
         -- Notify payload is max 8000bytes.
+        -- Create a smaller stub if the payload is larger
         IF length(payload) > 7995 THEN
             payload := jsonb_build_object(
                             'planet_id', NEW.planet_id,
