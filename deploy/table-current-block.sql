@@ -2,11 +2,10 @@
 
 BEGIN;
 
-CREATE TABLE structs.current_block (
+CREATE UNLOGGED TABLE structs.current_block (
+    chain TEXT PRIMARY KEY,
 	height BIGINT,
     updated_at	TIMESTAMPTZ NOT NULL
 );
-
-INSERT INTO structs.current_block VALUES(0, NOW());
 
 COMMIT;

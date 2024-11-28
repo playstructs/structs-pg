@@ -907,6 +907,15 @@ BEGIN;
                        NOW()
                    );
 
+        --      4657 | eventTimeDetail       | structs.structs.EventTime.eventTimeDetail                  | {"blockHeight":"571","blockTime":"2024-11-02T03:32:44.756267626Z"}
+        ELSIF NEW.composite_key = 'structs.structs.EventTime.eventTimeDetail ' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.current_block
+                    VALUES ('testnet', body->>'blockHeight', body->>'blockTime')
+                        ON CONFLICT (chain) DO UPDATE SET height = EXCLUDED.height, updated_at = EXCLUDED.updated_at;
+
+
         END IF;
         RETURN NEW;
     END
@@ -938,21 +947,6 @@ BEGIN;
     END
     $BODY$
     LANGUAGE plpgsql SECURITY DEFINER;
-
-
-
-    CREATE OR REPLACE FUNCTION cache.UPDATE_CURRENT_BLOCK()
-        RETURNS trigger AS
-    $BODY$
-    BEGIN
-        UPDATE structs.current_block SET height = NEW.height, updated_at=NOW();
-        RETURN NEW;
-    END
-    $BODY$
-    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
-
-    CREATE TRIGGER UPDATE_CURRENT_BLOCK AFTER INSERT ON cache.blocks
-        FOR EACH ROW EXECUTE PROCEDURE cache.UPDATE_CURRENT_BLOCK();
 
 
     CREATE OR REPLACE FUNCTION cache.UDPATE_ADDRESS_GUILD()
