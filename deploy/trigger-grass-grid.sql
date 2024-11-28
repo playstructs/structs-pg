@@ -10,6 +10,8 @@ BEGIN;
         payload := jsonb_build_object(
                         'subject','structs.grid.' || NEW.object_type || '.' || NEW.object_id,
                         'category', NEW.attribute_type,
+                        'object_id', NEW.object_id,
+                        'object_type', NEW.object_type,
                         'value', NEW.val,
                         'updated_at', NEW.updated_at)::TEXT;
 
