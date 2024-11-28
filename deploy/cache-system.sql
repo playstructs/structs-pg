@@ -907,14 +907,11 @@ BEGIN;
                        NOW()
                    );
 
-        --      4657 | eventTimeDetail       | structs.structs.EventTime.eventTimeDetail                  | {"blockHeight":"571","blockTime":"2024-11-02T03:32:44.756267626Z"}
-        ELSIF NEW.composite_key = 'structs.structs.EventTime.eventTimeDetail ' THEN
+        ELSIF NEW.composite_key = 'structs.structs.EventTime.eventTimeDetail' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.current_block
-                    VALUES ('testnet', body->>'blockHeight', body->>'blockTime')
-                        ON CONFLICT (chain) DO UPDATE SET height = EXCLUDED.height, updated_at = EXCLUDED.updated_at;
-
+            INSERT INTO structs.current_block VALUES ('testnet', (body->>'blockHeight')::BIGINT, (body->>'blockTime')::TIMESTAMPTZ)
+                ON CONFLICT (chain) DO UPDATE SET height = EXCLUDED.height, updated_at = EXCLUDED.updated_at;
 
         END IF;
         RETURN NEW;
