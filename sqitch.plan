@@ -39,5 +39,6 @@ trigger-player-pending 2024-07-15T18:19:33Z Abstrct <josh@slow.ninja> # A suppor
 trigger-infusion-ledger-entry 2024-07-15T18:19:33Z Abstrct <josh@slow.ninja> # A supporting trigger for the infusion entries of the ledger
 trigger-grass-current-block 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Current Block
 trigger-grass-guild 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Guild Updates
+trigger-grass-grid 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Grid Updates
 trigger-grass-planet-activity 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Planet Activity
 trigger-grass-player 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Player Updates

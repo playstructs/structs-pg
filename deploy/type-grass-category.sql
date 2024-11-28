@@ -27,7 +27,10 @@ BEGIN;
 
         -- Player
         'player_consensus',
-        'player_meta'
+        'player_meta',
+
+        -- Grid
+
     );
 
 
