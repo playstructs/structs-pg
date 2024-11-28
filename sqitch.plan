@@ -3,6 +3,7 @@
 %uri=https://github.com/playstructs/structs-pg
 
 schema-structs 2023-07-13T16:47:52Z Abstrct <josh@slow.ninja> # Add structs schema for all objects
+type-grass-category 2024-11-27T18:17:39Z Abstrct <josh@slow.ninja> # Types used by GRASS
 table-current-block 2024-10-09T18:17:39Z Abstrct <josh@slow.ninja> # The current block
 table-allocation 2023-07-17T18:17:39Z Abstrct <josh@slow.ninja> # The Allocation table
 table-substation 2023-07-17T18:17:53Z Abstrct <josh@slow.ninja> # The Substation table
@@ -36,3 +37,7 @@ table-signer-account 2024-07-15T18:18:33Z Abstrct <josh@slow.ninja> # An Account
 table-signer-tx 2024-07-15T18:19:33Z Abstrct <josh@slow.ninja> # An TX table for Signing
 trigger-player-pending 2024-07-15T18:19:33Z Abstrct <josh@slow.ninja> # A supporting trigger for the player signup process
 trigger-infusion-ledger-entry 2024-07-15T18:19:33Z Abstrct <josh@slow.ninja> # A supporting trigger for the infusion entries of the ledger
+trigger-grass-current-block 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Current Block
+trigger-grass-guild 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Guild Updates
+trigger-grass-planet-activity 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Planet Activity
+trigger-grass-player 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Player Updates

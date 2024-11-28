@@ -75,58 +75,16 @@ BEGIN;
     $BODY$
     LANGUAGE sql VOLATILE;
 
-    CREATE TYPE structs.activity_category AS ENUM (
-        'raid_status',
-        'fleet_arrive',
-        'fleet_advance',
-        'fleet_depart',
-        'struct_attack',
-        'struct_defense_remove',
-        'struct_defense_add',
-        'struct_status',
-        'struct_move',
-        'struct_block_build_start',
-        'struct_block_ore_mine_start',
-        'struct_block_ore_refine_start'
-    );
 
     CREATE TABLE structs.planet_activity (
         time TIMESTAMPTZ NOT NULL,
         seq INTEGER NOT NULL,
         planet_id CHARACTER VARYING NOT NULL,
-        category structs.activity_category,
+        category structs.grass_category,
         detail jsonb
     );
 
     SELECT create_hypertable('structs.planet_activity', by_range('time'));
 
-    CREATE OR REPLACE FUNCTION structs.PLANET_ACTIVITY_NOTIFY() RETURNS trigger AS
-    $BODY$
-    DECLARE
-        payload TEXT;
-    BEGIN
-        payload := (to_jsonb(NEW) || jsonb_build_object('channel','structs.planet.' || NEW.planet_id))::TEXT;
-
-        -- Notify payload is max 8000bytes.
-        -- Create a smaller stub if the payload is larger
-        IF length(payload) > 7995 THEN
-            payload := jsonb_build_object(
-                            'subject','structs.planet.' || NEW.planet_id,
-                            'planet_id', NEW.planet_id,
-                            'seq', NEW.seq,
-                            'category', NEW.category,
-                            'time', NEW.time,
-                            'stub', 'true')::TEXT;
-        END IF;
-
-        PERFORM pg_notify('grass', payload);
-
-        RETURN NEW;
-    END
-    $BODY$
-    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
-
-    CREATE TRIGGER PLANET_ACTIVITY_NOTIFY AFTER INSERT ON structs.planet_activity
-        FOR EACH ROW EXECUTE PROCEDURE structs.PLANET_ACTIVITY_NOTIFY();
 
 COMMIT;
