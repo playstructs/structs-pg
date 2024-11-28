@@ -59,4 +59,22 @@ BEGIN;
     CREATE TRIGGER GUILD_META_NOTIFY AFTER INSERT OR UPDATE ON structs.guild_meta
         FOR EACH ROW EXECUTE PROCEDURE structs.GUILD_META_NOTIFY();
 
+
+    CREATE OR REPLACE FUNCTION structs.GUILD_MEMBERSHIP_NOTIFY() RETURNS trigger AS
+    $BODY$
+    DECLARE
+        payload TEXT;
+    BEGIN
+        payload := (to_jsonb(NEW) || jsonb_build_object('subject','structs.guild.' || NEW.guild_id, 'category', 'guild_membership'))::TEXT;
+
+        PERFORM pg_notify('grass', payload);
+
+        RETURN NEW;
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER GUILD_MEMBERSHIP_NOTIFY AFTER INSERT OR UPDATE ON structs.guild_membership_application
+        FOR EACH ROW EXECUTE PROCEDURE structs.GUILD_MEMBERSHIP_NOTIFY();
+
 COMMIT;
