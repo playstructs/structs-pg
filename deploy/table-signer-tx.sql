@@ -70,6 +70,7 @@ BEGIN;
         'substation-player-migrate'
     );
 
+
     CREATE TABLE signer.tx (
         id SERIAL PRIMARY KEY,
         role_id INTEGER,
