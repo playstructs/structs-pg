@@ -73,7 +73,7 @@ BEGIN;
 
     CREATE TABLE signer.tx (
         id SERIAL PRIMARY KEY,
-        role_id INTEGER,
+        role_id CHARACTER VARYING,
         account_id INTEGER,
         command structs.tx_type NOT NULL,
         args TEXT[],
