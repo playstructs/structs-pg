@@ -7,6 +7,8 @@ BEGIN;
     DECLARE
         payload TEXT;
     BEGIN
+
+        -- TODO change to case w\ better support for the status field
         payload := jsonb_build_object(
                         'subject','structs.grid.' || NEW.object_type || '.' || NEW.object_id,
                         'category', NEW.attribute_type,
