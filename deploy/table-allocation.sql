@@ -15,8 +15,8 @@ CREATE UNLOGGED TABLE structs.allocation (
     controller CHARACTER VARYING,
     locked boolean,
 
-    created_at TIMESTAMPTZ NOT NULL,
-	updated_at	TIMESTAMPTZ NOT NULL  
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ); 
 
 COMMIT;

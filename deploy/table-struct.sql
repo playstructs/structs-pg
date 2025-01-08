@@ -15,8 +15,8 @@ BEGIN;
         operating_ambit CHARACTER VARYING,
         slot INTEGER,
 
-        created_at TIMESTAMPTZ NOT NULL,
-        updated_at TIMESTAMPTZ NOT NULL
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE UNLOGGED TABLE structs.struct_attribute (
@@ -26,13 +26,13 @@ BEGIN;
         sub_index       INTEGER,
         attribute_type  CHARACTER VARYING,
         val             INTEGER,
-        updated_at	    TIMESTAMPTZ NOT NULL
+        updated_at	    TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE UNLOGGED TABLE structs.struct_defender (
         defending_struct_id   CHARACTER VARYING PRIMARY KEY,
         protected_struct_id   CHARACTER VARYING,
-        updated_at	TIMESTAMPTZ NOT NULL
+        updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
 

@@ -14,8 +14,8 @@ CREATE UNLOGGED TABLE structs.player (
 	planet_id CHARACTER VARYING,
     fleet_id CHARACTER VARYING,
 
-	created_at TIMESTAMPTZ NOT NULL,
-	updated_at TIMESTAMPTZ NOT NULL
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE structs.player_meta (
@@ -27,8 +27,8 @@ CREATE TABLE structs.player_meta (
 
     status CHARACTER VARYING,
 
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id, guild_id)
 );
 
@@ -38,8 +38,8 @@ CREATE TABLE structs.player_pending (
     pubkey CHARACTER VARYING,
     username CHARACTER VARYING,
     pfp CHARACTER VARYING,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE structs.player_address (
@@ -47,32 +47,32 @@ CREATE TABLE structs.player_address (
     player_id CHARACTER VARYING,
     guild_id CHARACTER VARYING,
     status CHARACTER VARYING,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE UNLOGGED TABLE structs.player_address_activity (
     address CHARACTER VARYING PRIMARY KEY,
     block_height INTEGER,
-    block_time TIMESTAMPTZ NOT NULL
+    block_time TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE structs.player_address_meta (
     address CHARACTER VARYING PRIMARY KEY,
     ip INET,
     user_agent CHARACTER VARYING,
-    updated_at TIMESTAMPTZ NOT NULL
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE UNLOGGED TABLE structs.player_address_pending (
     address CHARACTER VARYING PRIMARY KEY,
     signature CHARACTER VARYING,
     pubkey CHARACTER VARYING,
-    code CHARACTER VARYING UNIQUE DEFAULT structs.unique_human_random(5, 'player_address_pending', 'code'), -- char(5)
+    code CHARACTER VARYING NOT NULL DEFAULT structs.unique_human_random(5, 'player_address_pending', 'code'), -- char(5)
     ip INET,
     user_agent CHARACTER VARYING,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE UNIQUE INDEX player_address_pending_code_idx ON structs.player_address_pending (code);

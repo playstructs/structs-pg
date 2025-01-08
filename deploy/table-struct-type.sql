@@ -67,15 +67,15 @@ CREATE UNLOGGED TABLE struct_type (
     guided_defensive_success_rate_numerator INTEGER,
     guided_defensive_success_rate_denominator INTEGER,
     trigger_raid_defeat_by_destruction boolean,
-    updated_at TIMESTAMPTZ NOT NULL
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE structs.struct_type_meta (
     id INTEGER PRIMARY KEY,
     name CHARACTER VARYING,
     description TEXT,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 

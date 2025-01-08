@@ -10,8 +10,8 @@ CREATE UNLOGGED TABLE structs.reactor (
 
     default_commission NUMERIC,
 
-	created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 COMMIT;
