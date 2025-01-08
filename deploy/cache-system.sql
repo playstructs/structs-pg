@@ -621,7 +621,7 @@ BEGIN;
 
                     CASE split_part(body->>'permissionId','-',1)
                         WHEN '8' THEN (select player_address.player_id from structs.player_address WHERE player_address.address = split_part(split_part(body->>'permissionId','-',2),'@',1))
-                        ELSE THEN split_part(body->>'permissionId','@',2)
+                        ELSE split_part(body->>'permissionId','@',2)
                     END,                    -- player_id    CHARACTER VARYING,
 
                     (body->>'value')::INTEGER,
