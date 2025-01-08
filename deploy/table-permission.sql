@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE structs.permission (
    object_id    CHARACTER VARYING,
    player_id    CHARACTER VARYING,
    val          INTEGER,
-   updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW()
+   updated_at	TIMESTAMPTZ DEFAULT NOW()
 );
 
 COMMIT;

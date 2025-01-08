@@ -17,8 +17,8 @@ BEGIN;
 
         creator CHARACTER VARYING,
         owner CHARACTER VARYING,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE structs.guild_meta (
@@ -33,8 +33,8 @@ BEGIN;
         this_infrastructure bool,
         status CHARACTER VARYING,
 
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
 
@@ -47,8 +47,8 @@ BEGIN;
         proposer CHARACTER VARYING,
         substation_id CHARACTER VARYING,
 
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
         PRIMARY KEY (guild_id, player_id)
     );
 

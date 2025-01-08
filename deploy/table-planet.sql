@@ -22,8 +22,8 @@ BEGIN;
         location_list_start CHARACTER VARYING,
         location_list_end CHARACTER VARYING,
 
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE structs.planet_meta (
@@ -31,8 +31,8 @@ BEGIN;
         guild_id CHARACTER VARYING,
         name CHARACTER VARYING,
 
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
         PRIMARY KEY (id, guild_id)
     );
 
@@ -42,7 +42,7 @@ BEGIN;
        object_type      CHARACTER VARYING,
        attribute_type   CHARACTER VARYING,
        val              INTEGER,
-       updated_at	    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+       updated_at	    TIMESTAMPTZ DEFAULT NOW()
     );
 
 
@@ -51,7 +51,7 @@ BEGIN;
         fleet_id CHARACTER VARYING,
         planet_id CHARACTER VARYING,
         status CHARACTER VARYING,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW()
 
     );
 
@@ -77,7 +77,7 @@ BEGIN;
 
 
     CREATE TABLE structs.planet_activity (
-        time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        time TIMESTAMPTZ DEFAULT NOW(),
         seq INTEGER NOT NULL,
         planet_id CHARACTER VARYING NOT NULL,
         category structs.grass_category,

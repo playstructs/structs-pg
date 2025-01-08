@@ -10,7 +10,7 @@ CREATE UNLOGGED TABLE structs.grid (
     object_index    INTEGER,
     object_id       CHARACTER VARYING,
     val             INTEGER,
-    updated_at	    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at	    TIMESTAMPTZ DEFAULT NOW()
 );
 
 COMMIT;

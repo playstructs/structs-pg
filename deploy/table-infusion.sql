@@ -16,8 +16,8 @@ CREATE UNLOGGED TABLE structs.infusion (
 
     commission NUMERIC,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+	updated_at	TIMESTAMPTZ DEFAULT NOW(),
 	PRIMARY KEY (destination_id, address)
 ); 
 

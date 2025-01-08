@@ -81,8 +81,8 @@ BEGIN;
         flags TEXT[],
         status structs.tx_status NOT NULL,
         output TEXT,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE OR REPLACE FUNCTION signer.CLAIM_TRANSACTION(claiming_role_id INTEGER, claiming_account_id INTEGER) RETURNS json AS

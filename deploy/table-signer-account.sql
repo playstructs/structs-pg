@@ -14,8 +14,8 @@ BEGIN;
         role_id CHARACTER VARYING REFERENCES signer.role(id),
         address CHARACTER VARYING,
         status structs.account_status,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE OR REPLACE FUNCTION signer.CLAIM_ACCOUNT(requested_role_id CHARACTER VARYING) RETURNS json AS

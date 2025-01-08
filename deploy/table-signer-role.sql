@@ -6,8 +6,8 @@ BEGIN;
         id CHARACTER VARYING PRIMARY KEY,
         label CHARACTER VARYING,
 
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at	TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
 
 COMMIT;
