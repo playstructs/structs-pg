@@ -9,6 +9,7 @@ BEGIN;
 
     create or replace function structs.random_human_string(len int) returns text as $$
     declare
+        -- Character Set limited to those less likely to be mistakenly read as other letters
         chars text[] = '{2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z}';
         result text = '';
         i int = 0;
