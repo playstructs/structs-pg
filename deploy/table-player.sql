@@ -68,11 +68,13 @@ CREATE UNLOGGED TABLE structs.player_address_pending (
     address CHARACTER VARYING PRIMARY KEY,
     signature CHARACTER VARYING,
     pubkey CHARACTER VARYING,
-    code CHARACTER VARYING,
+    code CHARACTER VARYING UNIQUE DEFAULT structs.unique_human_random(5, 'player_address_pending', 'code'), -- char(5)
     ip INET,
     user_agent CHARACTER VARYING,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
 );
+
+CREATE UNIQUE INDEX player_address_pending_code_idx ON structs.player_address_pending (code);
 
 COMMIT;
