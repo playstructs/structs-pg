@@ -85,44 +85,50 @@ BEGIN;
         updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
 
-
-    -- structsd keys list --output json | jq '[ .[] | {address: .address} ]'
-    --  select '[{"address":"structs1cu54ewxa8xlse0tesajzuj3jsw6sgu85y90yfa"},{"address":"structs1rlprjpgzgs7e56msqrauuyvmjrzd46ywsxxnp2"},{"address":"structs1lz987z2qsyl8gmh0awuszccvjq32t7nm7336x2"}]'::jsonb->1->>'address'
-    -- select value->>'address' from json_array_elements('[{"address":"structs1cu54ewxa8xlse0tesajzuj3jsw6sgu85y90yfa"},{"address":"structs1rlprjpgzgs7e56msqrauuyvmjrzd46ywsxxnp2"},{"address":"structs1lz987z2qsyl8gmh0awuszccvjq32t7nm7336x2"}]')
-
-
-    CREATE OR REPLACE FUNCTION signer.CLAIM_TRANSACTION(claim_account_set JSONB) RETURNS json AS
+    CREATE OR REPLACE FUNCTION signer.CLAIM_INTERNAL_TRANSACTION() RETURNS json AS
     $BODY$
     DECLARE
         claimed_tx JSON;
         address_permission RECORD;
     BEGIN
 
-        -- todo add a locked lookup
-        WITH base_role AS (SELECT value->>'address' as address, permission.val as permission, permission.player_id as object_id FROM jsonb_array_elements(claim_account_set), structs.permission WHERE value->>'address' = permission.object_index)
-            SELECT * INTO address_permission FROM (
-                SELECT
-                    base_role.address as address,
-                    base_role.val & permission.val as permission,
-                    permission.object_id as object_id
-                FROM structs.permission, base_role
-                WHERE permission.player_id = base_role.object_id
-                UNION
-                SELECT * FROM base_role
-            );
+        WITH base_role AS (
+            SELECT
+                account.address as address,
+                permission.val as permission,
+                permission.player_id as object_id
+            FROM
+                signer.account,
+                structs.permission
+            WHERE account.address = permission.object_index
+        )
+        SELECT * INTO address_permission FROM (
+            SELECT
+                base_role.address as address,
+                base_role.permission & permission.val as permission,
+                permission.object_id as object_id
+            FROM structs.permission, base_role
+            WHERE permission.player_id = base_role.object_id
+            UNION
+            SELECT * FROM base_role
+        );
 
         WITH pending_transaction AS MATERIALIZED (
             SELECT *
             FROM signer.tx
             WHERE
-                    status = 'pending'
-              AND object_id in (select address_permission.object_id from address_permission where (address_permission.permission & tx.permission_requirement) > 0)
+                status = 'pending'
+                AND object_id IN (
+                    SELECT address_permission.object_id
+                    FROM address_permission
+                    WHERE (address_permission.permission & tx.permission_requirement) > 0
+                )
             ORDER BY updated_at ASC
             LIMIT 1 FOR UPDATE SKIP LOCKED
         )
         UPDATE signer.tx
         SET status     = 'claimed',
-            account_id = claiming_account_id,
+            -- account_id = <>,
             updated_at = NOW()
         WHERE id = ANY (SELECT id FROM pending_transaction)
         RETURNING to_json(tx) INTO claimed_tx;
@@ -131,34 +137,6 @@ BEGIN;
     END
     $BODY$
         LANGUAGE plpgsql VOLATILE COST 100;
-
-
-    CREATE OR REPLACE FUNCTION signer.CLAIM_TRANSACTION(claiming_role_id INTEGER, claiming_account_id INTEGER) RETURNS json AS
-    $BODY$
-    DECLARE
-        claimed_tx JSON;
-    BEGIN
-
-        WITH pending_transaction AS MATERIALIZED (
-            SELECT *
-              FROM signer.tx
-              WHERE
-                status = 'pending'
-                AND object_id = claiming_role_id
-              ORDER BY updated_at ASC
-              LIMIT 1 FOR UPDATE SKIP LOCKED
-        )
-        UPDATE signer.tx
-        SET status     = 'claimed',
-            account_id = claiming_account_id,
-            updated_at = NOW()
-        WHERE id = ANY (SELECT id FROM pending_transaction)
-        RETURNING to_json(tx) INTO claimed_tx;
-
-        RETURN claimed_tx;
-    END
-    $BODY$
-    LANGUAGE plpgsql VOLATILE COST 100;
 
 
     CREATE OR REPLACE FUNCTION signer.TRANSACTION_ERROR(transaction_id INTEGER, transaction_error TEXT) RETURNS VOID AS
