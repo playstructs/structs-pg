@@ -617,12 +617,16 @@ BEGIN;
                         WHEN '9' THEN 'fleet'
                     END,
                     split_part(split_part(body->>'permissionId','-',2),'@',1),  -- object_index CHARACTER VARYING,
-                    split_part(body->>'permissionId','@',1),                    -- object_id    CHARACTER VARYING,
+
+                    CASE split_part(body->>'permissionId','-',1)
+                        WHEN '8' THEN (SELECT player_address.player_id FROM structs.player_address WHERE player_address.address = split_part(split_part(body->>'permissionId','-',2),'@',1))
+                        ELSE split_part(body->>'permissionId','@',1)
+                    END,                                                        -- object_id    CHARACTER VARYING,
 
                     CASE split_part(body->>'permissionId','-',1)
                         WHEN '8' THEN (SELECT player_address.player_id FROM structs.player_address WHERE player_address.address = split_part(split_part(body->>'permissionId','-',2),'@',1))
                         ELSE split_part(body->>'permissionId','@',2)
-                    END,                    -- player_id    CHARACTER VARYING,
+                    END,                                                        -- player_id    CHARACTER VARYING,
 
                     (body->>'value')::INTEGER,
                     NOW()
