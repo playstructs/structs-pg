@@ -11,6 +11,7 @@ BEGIN;
 
     CREATE TABLE signer.account (
         id SERIAL PRIMARY KEY,
+        role_id CHARACTER VARYING,
         address CHARACTER VARYING UNIQUE,
         status structs.account_status,
         created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -94,15 +95,19 @@ BEGIN;
     LANGUAGE plpgsql VOLATILE COST 100;
 
 
-    CREATE OR REPLACE FUNCTION signer.LOAD_INTERNAL_ACCOUNTS(account_set JSONB) RETURNS VOID AS
+    CREATE OR REPLACE FUNCTION signer.LOAD_INTERNAL_ACCOUNTS(account_set JSONB, default_role_id CHARACTER VARYING) RETURNS VOID AS
     $BODY$
     BEGIN
-        INSERT INTO signer.account(address, status)
+        INSERT INTO signer.account(address, status, role_id)
             SELECT
                 value->>'address' as address,
                 CASE (SELECT count(1) FROM structs.player_address WHERE player_address.address = value->>'address')
                     WHEN 0 THEN 'pending_registration'
                     ELSE 'available'
+                END,
+                CASE (SELECT count(1) FROM structs.player_address WHERE player_address.address = value->>'address')
+                    WHEN 0 THEN default_role_id
+                    ELSE (SELECT player_address.player_id FROM structs.player_address WHERE player_address.address = value->>'address')
                 END
             FROM
                 jsonb_array_elements(account_set)
