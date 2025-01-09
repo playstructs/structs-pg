@@ -73,7 +73,7 @@ BEGIN;
 
     CREATE TABLE signer.tx (
         id SERIAL PRIMARY KEY,
-        role_id CHARACTER VARYING,
+        object_id CHARACTER VARYING,
         permission_requirement INTEGER,
         account_id INTEGER,
         command structs.tx_type NOT NULL,
@@ -90,21 +90,33 @@ BEGIN;
     --  select '[{"address":"structs1cu54ewxa8xlse0tesajzuj3jsw6sgu85y90yfa"},{"address":"structs1rlprjpgzgs7e56msqrauuyvmjrzd46ywsxxnp2"},{"address":"structs1lz987z2qsyl8gmh0awuszccvjq32t7nm7336x2"}]'::jsonb->1->>'address'
     -- select value->>'address' from json_array_elements('[{"address":"structs1cu54ewxa8xlse0tesajzuj3jsw6sgu85y90yfa"},{"address":"structs1rlprjpgzgs7e56msqrauuyvmjrzd46ywsxxnp2"},{"address":"structs1lz987z2qsyl8gmh0awuszccvjq32t7nm7336x2"}]')
 
-    -- SELECT value->>'address' as address, permission.val, permission.player_id FROM jsonb_array_elements('[{"address":"structs1vwkmager2knx6xkauj8ycdc7nkw48umlnwtt6f"},{"address":"structs1ul8sd7nk573aw2gyzzwn2ahxqzrq0qg70en5e9"},{"address":"structs1lz987z2qsyl8gmh0awuszccvjq32t7nm7336x2"}]'), structs.permission WHERE value->>'address' = permission.object_index;
 
     CREATE OR REPLACE FUNCTION signer.CLAIM_TRANSACTION(claim_account_set JSONB) RETURNS json AS
     $BODY$
     DECLARE
         claimed_tx JSON;
+        address_permission RECORD;
     BEGIN
-        SELECT value->>'address' as address, permission.val, permission.player_id FROM jsonb_array_elements(claim_account_set), structs.permission WHERE value->>'address' = permission.object_index;
+
+        -- todo add a locked lookup
+        WITH base_role AS (SELECT value->>'address' as address, permission.val as permission, permission.player_id as object_id FROM jsonb_array_elements(claim_account_set), structs.permission WHERE value->>'address' = permission.object_index)
+            SELECT * INTO address_permission FROM (
+                SELECT
+                    base_role.address as address,
+                    base_role.val & permission.val as permission,
+                    permission.object_id as object_id
+                FROM structs.permission, base_role
+                WHERE permission.player_id = base_role.object_id
+                UNION
+                SELECT * FROM base_role
+            );
 
         WITH pending_transaction AS MATERIALIZED (
             SELECT *
             FROM signer.tx
             WHERE
                     status = 'pending'
-              AND role_id = claiming_role_id
+              AND object_id in (select address_permission.object_id from address_permission where (address_permission.permission & tx.permission_requirement) > 0)
             ORDER BY updated_at ASC
             LIMIT 1 FOR UPDATE SKIP LOCKED
         )
@@ -132,7 +144,7 @@ BEGIN;
               FROM signer.tx
               WHERE
                 status = 'pending'
-                AND role_id = claiming_role_id
+                AND object_id = claiming_role_id
               ORDER BY updated_at ASC
               LIMIT 1 FOR UPDATE SKIP LOCKED
         )
