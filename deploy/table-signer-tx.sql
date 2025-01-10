@@ -79,7 +79,7 @@ BEGIN;
         command structs.tx_type NOT NULL,
         args JSONB,
         flags JSONB,
-        status structs.tx_status NOT NULL,
+        status structs.tx_status DEFAULT 'pending',
         output TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at	TIMESTAMPTZ DEFAULT NOW()
