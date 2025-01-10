@@ -75,7 +75,7 @@ BEGIN;
         END IF;
 
         IF claimed_account IS NULL THEN
-            IF (SELECT COUNT(1) FROM signer.account WHERE role_id = tx_object_id AND status = 'new') = 0 THEN
+            IF (SELECT COUNT(1) FROM signer.account WHERE role_id = tx_object_id AND status in ('new','pending_registration')) = 0 THEN
                 INSERT INTO signer.account (role_id, status, created_at, updated_at)
                     VALUES(tx_object_id, 'new', NOW(), NOW())
                         RETURNING * INTO claimed_account;
