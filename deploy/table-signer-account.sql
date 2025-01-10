@@ -75,9 +75,11 @@ BEGIN;
         END IF;
 
         IF claimed_account IS NULL THEN
-            INSERT INTO signer.account (role_id, status, created_at, updated_at)
-                VALUES(requested_role_id, 'new', NOW(), NOW())
-                    RETURNING * INTO claimed_account;
+            IF (SELECT COUNT(1) FROM signer.account WHERE role_id = tx_object_id AND status = 'new') = 0 THEN
+                INSERT INTO signer.account (role_id, status, created_at, updated_at)
+                    VALUES(tx_object_id, 'new', NOW(), NOW())
+                        RETURNING * INTO claimed_account;
+            END IF;
         END IF;
 
         RETURN to_json(claimed_account);
