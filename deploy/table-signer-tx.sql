@@ -2,14 +2,14 @@
 
 BEGIN;
 
-    CREATE TYPE structs.tx_status AS ENUM(
+    CREATE TYPE structs.signer_tx_status AS ENUM(
         'pending',
         'claimed',
         'broadcast',
         'error'
     );
 
-    CREATE TYPE structs.tx_type AS ENUM (
+    CREATE TYPE structs.signer_tx_type AS ENUM (
         'address-register',
         'address-revoke',
         'allocation-create',
@@ -76,10 +76,10 @@ BEGIN;
         object_id CHARACTER VARYING,
         permission_requirement INTEGER,
         account_id INTEGER,
-        command structs.tx_type NOT NULL,
+        command structs.signer_tx_type NOT NULL,
         args JSONB,
         flags JSONB,
-        status structs.tx_status DEFAULT 'pending',
+        status structs.signer_tx_status DEFAULT 'pending',
         output TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at	TIMESTAMPTZ DEFAULT NOW()

@@ -2,18 +2,19 @@
 
 BEGIN;
 
-    CREATE TYPE structs.account_status AS ENUM(
+    CREATE TYPE structs.signer_account_status AS ENUM(
+        'stub',
+        'generating',
+        'pending',
         'available',
-        'signing',
-        'new',
-        'pending_registration'
+        'signing'
     );
 
     CREATE TABLE signer.account (
         id SERIAL PRIMARY KEY,
         role_id CHARACTER VARYING,
         address CHARACTER VARYING UNIQUE,
-        status structs.account_status,
+        status structs.signer_account_status,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
@@ -71,7 +72,7 @@ BEGIN;
         RETURNING * INTO claimed_account; -- to_json(tx) INTO claimed_account;
 
         IF claimed_account IS NOT NULL THEN
-            UPDATE signer.tx SET account_id = claimed_account->>'id' WHERE id=tx_id;
+            UPDATE signer.tx SET account_id = claimed_account.id WHERE id=tx_id;
         END IF;
 
         IF claimed_account IS NULL THEN
@@ -88,17 +89,38 @@ BEGIN;
     LANGUAGE plpgsql VOLATILE COST 100;
 
 
-    CREATE OR REPLACE FUNCTION signer.PENDING_ACCOUNT(account_id INTEGER, role_id CHARACTER VARYING, new_address CHARACTER VARYING, pubkey CHARACTER VARYING, signature CHARACTER VARYING, permission INTEGER) RETURNS VOID AS
+    CREATE OR REPLACE FUNCTION signer.UPDATE_PENDING_ACCOUNT(account_id INTEGER, new_role_id CHARACTER VARYING, new_address CHARACTER VARYING, pubkey CHARACTER VARYING, signature CHARACTER VARYING, permission INTEGER) RETURNS VOID AS
     $BODY$
     BEGIN
         UPDATE signer.account SET address=new_address, status='pending_registration' WHERE id=account_id;
 
         -- [address] [proof pubkey] [proof signature] [permissions]
         INSERT INTO signer.tx (object_id, command, args, permission_requirement )
-            VALUES (role_id, 'address-register', '["' || new_address || '","'|| pubkey ||'","'|| signature ||'","'|| permission ||'" ]',127);
+            VALUES (new_role_id, 'address-register', '["' || new_address || '","'|| pubkey ||'","'|| signature ||'","'|| permission ||'" ]',127);
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
+
+    CREATE OR REPLACE FUNCTION signer.GET_NEW_ACCOUNT() RETURNS jsonb AS
+    $BODY$
+    DECLARE
+        new_account RECORD;
+    BEGIN
+
+        WITH pending_account AS MATERIALIZED (
+            SELECT * FROM signer.account WHERE status='new'
+            LIMIT 1 FOR UPDATE SKIP LOCKED
+        )
+        UPDATE signer.account
+        SET status     = 'registering',
+            updated_at = NOW()
+        WHERE id = ANY (SELECT id FROM pending_account)
+        RETURNING * INTO new_account;
+
+        RETURN to_jsonb(new_account);
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE COST 100;
 
 
     CREATE OR REPLACE FUNCTION signer.LOAD_INTERNAL_ACCOUNTS(account_set JSONB, default_role_id CHARACTER VARYING) RETURNS VOID AS
