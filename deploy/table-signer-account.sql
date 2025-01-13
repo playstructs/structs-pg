@@ -12,7 +12,7 @@ BEGIN;
 
     CREATE TABLE signer.account (
         id SERIAL PRIMARY KEY,
-        role_id CHARACTER VARYING,
+        role_id INTEGER,
         address CHARACTER VARYING UNIQUE,
         status structs.signer_account_status,
         created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -95,7 +95,7 @@ BEGIN;
         UPDATE signer.account SET address=new_address, status='pending' WHERE id=account_id;
 
         -- [address] [proof pubkey] [proof signature] [permissions]
-        INSERT INTO signer.tx (object_id, command, args, permission_requirement )
+        INSERT INTO signer.tx (role_id, command, args, permission_requirement )
             VALUES (new_role_id, 'address-register', '["' || new_address || '","'|| pubkey ||'","'|| signature ||'","'|| permission ||'" ]',127);
     END
     $BODY$
@@ -117,11 +117,14 @@ BEGIN;
     BEGIN
 
         WITH pending_account AS MATERIALIZED (
-            SELECT * FROM signer.account WHERE status='new'
+            SELECT
+                account.*,
+                (SELECT role.player_id FROM signer.role WHERE role.id = account.role_id) as player_id
+            FROM signer.account WHERE status='stub'
             LIMIT 1 FOR UPDATE SKIP LOCKED
         )
         UPDATE signer.account
-        SET status     = 'registering',
+        SET status     = 'generating',
             updated_at = NOW()
         WHERE id = ANY (SELECT id FROM pending_account)
         RETURNING * INTO new_account;
