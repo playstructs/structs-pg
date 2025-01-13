@@ -92,7 +92,7 @@ BEGIN;
     CREATE OR REPLACE FUNCTION signer.UPDATE_PENDING_ACCOUNT(account_id INTEGER, new_role_id CHARACTER VARYING, new_address CHARACTER VARYING, pubkey CHARACTER VARYING, signature CHARACTER VARYING, permission INTEGER) RETURNS VOID AS
     $BODY$
     BEGIN
-        UPDATE signer.account SET address=new_address, status='pending_registration' WHERE id=account_id;
+        UPDATE signer.account SET address=new_address, status='pending' WHERE id=account_id;
 
         -- [address] [proof pubkey] [proof signature] [permissions]
         INSERT INTO signer.tx (object_id, command, args, permission_requirement )
@@ -100,6 +100,15 @@ BEGIN;
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.CREATE_PENDING_ACCOUNT_FROM_ROLE(_role_id INTEGER, _address CHARACTER VARYING) RETURNS VOID AS
+    $BODY$
+    BEGIN
+        INSERT INTO signer.account(role_id, address, status) VALUES (_role_id, _address, 'pending');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE COST 100;
 
     CREATE OR REPLACE FUNCTION signer.GET_NEW_ACCOUNT() RETURNS jsonb AS
     $BODY$

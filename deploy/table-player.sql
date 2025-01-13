@@ -34,10 +34,21 @@ CREATE TABLE structs.player_meta (
 
 CREATE TABLE structs.player_pending (
     primary_address CHARACTER VARYING PRIMARY KEY,
+    guild_id CHARACTER VARYING,
     signature CHARACTER VARYING,
     pubkey CHARACTER VARYING,
     username CHARACTER VARYING,
     pfp CHARACTER VARYING,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE structs.player_internal_pending (
+    username CHARACTER VARYING PRIMARY KEY,
+    guild_id CHARACTER VARYING,
+    pfp CHARACTER VARYING,
+    primary_address CHARACTER VARYING,
+    role_id INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -76,5 +87,6 @@ CREATE UNLOGGED TABLE structs.player_address_pending (
 );
 
 CREATE UNIQUE INDEX player_address_pending_code_idx ON structs.player_address_pending (code);
+
 
 COMMIT;

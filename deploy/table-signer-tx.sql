@@ -85,6 +85,27 @@ BEGIN;
         updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
 
+    CREATE OR REPLACE FUNCTION signer.CREATE_TRANSACTION(
+        _object_id CHARACTER VARYING,
+        _permission_requirement INTEGER,
+        _command structs.signer_tx_type,
+        _args JSONB,
+        _flags JSONB
+    ) RETURNS JSONB AS
+    $BODY$
+    DECLARE
+        new_transaction JSONB;
+    BEGIN
+        INSERT INTO signer.tx(object_id, permission_requirement, command,  args, flags)
+            VALUES(_object_id, _permission_requirement, _command, _args, _flags)
+            RETURNING to_jsonb(*) INTO new_transaction;
+
+        RETURN new_transaction;
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE COST 100;
+
+
     CREATE OR REPLACE FUNCTION signer.CLAIM_INTERNAL_TRANSACTION() RETURNS json AS
     $BODY$
     DECLARE
