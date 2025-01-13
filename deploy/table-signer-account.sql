@@ -89,14 +89,14 @@ BEGIN;
     LANGUAGE plpgsql VOLATILE COST 100;
 
 
-    CREATE OR REPLACE FUNCTION signer.UPDATE_PENDING_ACCOUNT(account_id INTEGER, new_role_id CHARACTER VARYING, new_address CHARACTER VARYING, pubkey CHARACTER VARYING, signature CHARACTER VARYING, permission INTEGER) RETURNS VOID AS
+    CREATE OR REPLACE FUNCTION signer.UPDATE_PENDING_ACCOUNT(_account_id INTEGER, _player_id CHARACTER VARYING, _address CHARACTER VARYING, _pubkey CHARACTER VARYING, _signature CHARACTER VARYING, _permission INTEGER) RETURNS VOID AS
     $BODY$
     BEGIN
-        UPDATE signer.account SET address=new_address, status='pending' WHERE id=account_id;
+        UPDATE signer.account SET address=_address, status='pending' WHERE id=_account_id;
 
         -- [address] [proof pubkey] [proof signature] [permissions]
         INSERT INTO signer.tx (role_id, command, args, permission_requirement )
-            VALUES (new_role_id, 'address-register', '["' || new_address || '","'|| pubkey ||'","'|| signature ||'","'|| permission ||'" ]',127);
+            VALUES (_player_id, 'address-register', '["' || _address || '","'|| _pubkey ||'","'|| _signature ||'","'|| _permission ||'" ]',127);
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;

@@ -17,7 +17,7 @@ BEGIN;
             DELETE FROM structs.player_internal_pending WHERE player_internal_pending.primary_address = NEW.primary_address RETURNING * INTO pending_data;
             get diagnostics numrows = row_count;
 
-            IF numrowas > 0 THEN
+            IF numrows > 0 THEN
                 UPDATE signer.role SET player_id = NEW.id WHERE id=pending_data.role_id;
             END IF;
         END IF;
