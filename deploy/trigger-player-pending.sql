@@ -50,7 +50,7 @@ BEGIN;
     BEGIN
         INSERT INTO signer.role(guild_id, status) VALUES (
                 NEW.guild_id,
-                (CASE WHEN NEW.primary_address IS NULL THEN 'stub' ELSE 'pending' END)
+                (CASE WHEN NEW.primary_address IS NULL THEN 'stub' ELSE 'pending' END)::structs.signer_role_status
             ) RETURNING id INTO NEW.role_id;
         RETURN NEW;
     END
