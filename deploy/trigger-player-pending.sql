@@ -48,7 +48,10 @@ BEGIN;
         RETURNS trigger AS
     $BODY$
     BEGIN
-        INSERT INTO signer.role(guild_id, status) VALUES (NEW.guild_id, 'stub') RETURNING id INTO NEW.role_id;
+        INSERT INTO signer.role(guild_id, status) VALUES (
+                NEW.guild_id,
+                (CASE WHEN NEW.primary_address IS NULL THEN 'stub' ELSE 'pending' END)
+            ) RETURNING id INTO NEW.role_id;
         RETURN NEW;
     END
     $BODY$
