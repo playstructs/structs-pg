@@ -22,7 +22,7 @@ BEGIN;
     CREATE OR REPLACE FUNCTION signer.CLAIM_ROLE_STUB() RETURNS JSONB AS
     $BODY$
     DECLARE
-        claimed_role JSON;
+        claimed_role RECORD;
     BEGIN
         WITH role_stub AS MATERIALIZED (
             SELECT *
@@ -31,13 +31,13 @@ BEGIN;
             ORDER BY updated_at ASC
             LIMIT 1 FOR UPDATE SKIP LOCKED
         )
-        UPDATE signer.tx
+        UPDATE signer.role
         SET status     = 'generating',
             updated_at = NOW()
         WHERE id = ANY (SELECT id FROM role_stub)
-        RETURNING to_jsonb(tx) INTO claimed_role;
+        RETURNING * INTO claimed_role;
 
-        RETURN claimed_role;
+        RETURN to_jsonb(claimed_role);
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;

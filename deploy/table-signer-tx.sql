@@ -94,22 +94,22 @@ BEGIN;
     ) RETURNS JSONB AS
     $BODY$
     DECLARE
-        new_transaction JSONB;
+        new_transaction RECORD;
     BEGIN
         INSERT INTO signer.tx(object_id, permission_requirement, command,  args, flags)
             VALUES(_object_id, _permission_requirement, _command, _args, _flags)
-            RETURNING to_jsonb(*) INTO new_transaction;
+            RETURNING * INTO new_transaction;
 
-        RETURN new_transaction;
+        RETURN to_jsonb(new_transaction);
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
 
 
-    CREATE OR REPLACE FUNCTION signer.CLAIM_INTERNAL_TRANSACTION() RETURNS json AS
+    CREATE OR REPLACE FUNCTION signer.CLAIM_INTERNAL_TRANSACTION() RETURNS JSONB AS
     $BODY$
     DECLARE
-        claimed_tx JSON;
+        claimed_tx RECORD;
         address_permission RECORD;
     BEGIN
 
@@ -134,27 +134,31 @@ BEGIN;
             SELECT * FROM base_role
         );
 
-        WITH pending_transaction AS MATERIALIZED (
-            SELECT *
-            FROM signer.tx
-            WHERE
-                status = 'pending'
-                AND object_id IN (
-                    SELECT address_permission.object_id
-                    FROM address_permission
-                    WHERE (address_permission.permission & tx.permission_requirement) > 0
-                )
-            ORDER BY updated_at ASC
-            LIMIT 1 FOR UPDATE SKIP LOCKED
-        )
-        UPDATE signer.tx
-        SET status     = 'claimed',
-            -- account_id = <>,
-            updated_at = NOW()
-        WHERE id = ANY (SELECT id FROM pending_transaction)
-        RETURNING to_json(tx) INTO claimed_tx;
+        IF address_permission IS NOT NULL THEN
 
-        RETURN claimed_tx;
+            WITH pending_transaction AS MATERIALIZED (
+                SELECT *
+                FROM signer.tx
+                WHERE
+                    status = 'pending'
+                    AND object_id IN (
+                        SELECT address_permission.object_id
+                        FROM address_permission
+                        WHERE (address_permission.permission & tx.permission_requirement) > 0
+                    )
+                ORDER BY updated_at ASC
+                LIMIT 1 FOR UPDATE SKIP LOCKED
+            )
+            UPDATE signer.tx
+            SET status     = 'claimed',
+                -- account_id = <>,
+                updated_at = NOW()
+            WHERE id = ANY (SELECT id FROM pending_transaction)
+            RETURNING * INTO claimed_tx;
+
+        END IF;
+
+        RETURN to_jsonb(claimed_tx);
     END
     $BODY$
         LANGUAGE plpgsql VOLATILE COST 100;
