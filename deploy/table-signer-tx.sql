@@ -110,7 +110,6 @@ BEGIN;
     $BODY$
     DECLARE
         claimed_tx RECORD;
-        address_permission RECORD;
     BEGIN
 
         WITH base_role AS (
@@ -122,30 +121,25 @@ BEGIN;
                 signer.account,
                 structs.permission
             WHERE account.address = permission.object_index
-        )
-        SELECT * INTO address_permission FROM (
+        ), address_permission AS (
             SELECT
-                base_role.address as address,
-                base_role.permission & permission.val as permission,
-                permission.object_id as object_id
+              base_role.address as address,
+              base_role.permission & permission.val as permission,
+              permission.object_id as object_id
             FROM structs.permission, base_role
             WHERE permission.player_id = base_role.object_id
             UNION
             SELECT * FROM base_role
-        );
-
-        IF address_permission IS NOT NULL THEN
-
-            WITH pending_transaction AS MATERIALIZED (
+          ), pending_transaction AS MATERIALIZED (
                 SELECT *
                 FROM signer.tx
                 WHERE
-                    status = 'pending'
-                    AND object_id IN (
-                        SELECT address_permission.object_id
-                        FROM address_permission
-                        WHERE (address_permission.permission & tx.permission_requirement) > 0
-                    )
+                        status = 'pending'
+                  AND object_id IN (
+                    SELECT address_permission.object_id
+                    FROM address_permission
+                    WHERE (address_permission.permission & tx.permission_requirement) > 0
+                )
                 ORDER BY updated_at ASC
                 LIMIT 1 FOR UPDATE SKIP LOCKED
             )
@@ -155,8 +149,6 @@ BEGIN;
                 updated_at = NOW()
             WHERE id = ANY (SELECT id FROM pending_transaction)
             RETURNING * INTO claimed_tx;
-
-        END IF;
 
         RETURN to_jsonb(claimed_tx);
     END

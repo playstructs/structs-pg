@@ -18,20 +18,21 @@ BEGIN;
             get diagnostics numrows = row_count;
 
             IF numrows > 0 THEN
-                UPDATE signer.role SET player_id = NEW.id WHERE id=pending_data.role_id;
+                UPDATE signer.role SET player_id = NEW.id, status='ready' WHERE id=pending_data.role_id;
             END IF;
         END IF;
 
         IF numrows > 0 THEN
             INSERT INTO structs.player_meta
             VALUES (NEW.id,
-                NEW.guild_id,
+                pending_data.guild_id,
                 pending_data.username,
                 pending_data.pfp,
                 '',
                 NOW(),
                 NOW()
                );
+
         END IF;
 
         RETURN NEW;

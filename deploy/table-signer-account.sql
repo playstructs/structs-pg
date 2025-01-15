@@ -19,11 +19,10 @@ BEGIN;
         updated_at	TIMESTAMPTZ DEFAULT NOW()
     );
 
-    CREATE OR REPLACE FUNCTION signer.CLAIM_INTERNAL_ACCOUNT(tx_id CHARACTER VARYING) RETURNS json AS
+    CREATE OR REPLACE FUNCTION signer.CLAIM_INTERNAL_ACCOUNT(tx_id INTEGER) RETURNS json AS
     $BODY$
     DECLARE
         claimed_account RECORD;
-        address_permission RECORD;
 
         tx_object_id CHARACTER VARYING;
         tx_permission_requirement INTEGER;
@@ -43,20 +42,21 @@ BEGIN;
                 signer.account,
                 structs.permission
             WHERE account.address = permission.object_index
-        )
-        SELECT * INTO address_permission FROM (
-            SELECT
-              base_role.address as address,
-              base_role.permission & permission.val as permission,
-              permission.object_id as object_id
-            FROM structs.permission, base_role
-            WHERE permission.player_id = base_role.object_id
-            UNION
-            SELECT * FROM base_role
-        ) WHERE object_id = tx_object_id AND (permission & tx_permission_requirement) > 0;
-
-
-        WITH pending_account AS MATERIALIZED (
+        ), address_permission AS (
+            SELECT *
+            FROM (SELECT base_role.address                     as address,
+                       base_role.permission & permission.val as permission,
+                       permission.object_id                  as object_id
+                FROM structs.permission,
+                     base_role
+                WHERE permission.player_id = base_role.object_id
+                UNION
+                SELECT *
+                FROM base_role)
+            WHERE
+                object_id = tx_object_id
+                AND (permission & tx_permission_requirement) > 0
+        ), pending_account AS MATERIALIZED (
             SELECT *
             FROM signer.account
             WHERE
@@ -76,9 +76,9 @@ BEGIN;
         END IF;
 
         IF claimed_account IS NULL THEN
-            IF (SELECT COUNT(1) FROM signer.account WHERE role_id = tx_object_id AND status in ('new','pending_registration')) = 0 THEN
+            IF (SELECT COUNT(1) FROM signer.account WHERE account.role_id in (select role.id from signer.role where role.player_id in (select permission.player_id from structs.permission WHERE permission.object_id = tx_object_id and (permission.val & tx_permission_requirement) > 0)) AND status in ('stub','generating','pending')) = 0 THEN
                 INSERT INTO signer.account (role_id, status, created_at, updated_at)
-                    VALUES(tx_object_id, 'new', NOW(), NOW())
+                    VALUES((select role.id from signer.role where role.player_id in (select permission.player_id from structs.permission WHERE permission.object_id = tx_object_id and (permission.val & tx_permission_requirement) > 0) LIMIT 1), 'stub', NOW(), NOW())
                         RETURNING * INTO claimed_account;
             END IF;
         END IF;
@@ -95,8 +95,8 @@ BEGIN;
         UPDATE signer.account SET address=_address, status='pending' WHERE id=_account_id;
 
         -- [address] [proof pubkey] [proof signature] [permissions]
-        INSERT INTO signer.tx (role_id, command, args, permission_requirement )
-            VALUES (_player_id, 'address-register', '["' || _address || '","'|| _pubkey ||'","'|| _signature ||'","'|| _permission ||'" ]',127);
+        INSERT INTO signer.tx (object_id, command, args, permission_requirement )
+            VALUES (_player_id, 'address-register', jsonb_build_array(_player_id, _address , _pubkey ,_signature , _permission),127);
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
@@ -118,16 +118,21 @@ BEGIN;
 
         WITH pending_account AS MATERIALIZED (
             SELECT
-                account.*,
-                (SELECT role.player_id FROM signer.role WHERE role.id = account.role_id) as player_id
+                account.*
             FROM signer.account WHERE status='stub'
             LIMIT 1 FOR UPDATE SKIP LOCKED
-        )
-        UPDATE signer.account
-        SET status     = 'generating',
-            updated_at = NOW()
-        WHERE id = ANY (SELECT id FROM pending_account)
-        RETURNING * INTO new_account;
+        ), updated_account AS (
+            UPDATE signer.account
+            SET status     = 'generating',
+                updated_at = NOW()
+            WHERE id = ANY (SELECT id FROM pending_account)
+            RETURNING *)
+        SELECT * INTO new_account FROM (
+            SELECT
+                updated_account.*,
+            (SELECT role.player_id FROM signer.role WHERE role.id = updated_account.role_id) as player_id
+            FROM updated_account
+        );
 
         RETURN to_jsonb(new_account);
     END
