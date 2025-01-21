@@ -161,6 +161,37 @@ BEGIN;
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
 
+    CREATE OR REPLACE FUNCTION signer.LOAD_ACCOUNT(_address CHARACTER VARYING) RETURNS BOOLEAN AS
+    $BODY$
+    DECLARE
+        _role_id INTEGER;
+        _player_id CHARACTER VARYING;
+        _guild_id CHARACTER VARYING;
+    BEGIN
 
+        -- Is the address already in the signer?
+        IF (SELECT count(1) FROM signer.account where account.address = _address) > 0 THEN
+            RETURN false;
+        END IF;
+
+        -- Does the address exist on chain?
+        SELECT player_id, guild_id INTO _player_id, _guild_id FROM structs.player_address WHERE player_address.address = _address;
+
+        IF _player_id = '' OR _player_id IS NULL THEN
+            RETURN false;
+        END IF;
+
+        IF (SELECT count(1) FROM signer.role WHERE role.player_id = _player_id) = 0 THEN
+            INSERT INTO signer.role(player_id, guild_id, status) VALUES (_player_id, _guild_id, 'ready') RETURNING id INTO _role_id;
+        ELSE
+            SELECT id INTO _role_id FROM signer.role WHERE role.player_id = _player_id;
+        END IF;
+
+        INSERT INTO signer.account(address, status, role_id) VALUES (_address, 'available', _role_id);
+
+        RETURN true;
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE COST 100;
 
 COMMIT;
