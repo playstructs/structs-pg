@@ -1014,7 +1014,7 @@ BEGIN;
     BEGIN
         IF
             NEW.location_id <> OLD.location_id
-            OR NEW.ambit <> OLD.ambit
+            OR NEW.operating_ambit <> OLD.operating_ambit
             OR NEW.slot <> OLD.slot
         THEN
             IF NEW.location_type = 'fleet' THEN
@@ -1026,7 +1026,7 @@ BEGIN;
                         jsonb_build_object( 'struct_id', NEW.id,
                                             'location_type', NEW.location_type,
                                             'location_id', NEW.location_id,
-                                            'ambit', NEW.ambit,
+                                            'ambit', NEW.operating_ambit,
                                             'slot', NEW.slot)
                 );
 
