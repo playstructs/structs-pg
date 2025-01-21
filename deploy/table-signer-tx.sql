@@ -75,6 +75,7 @@ BEGIN;
         id SERIAL PRIMARY KEY,
         object_id CHARACTER VARYING,
         permission_requirement INTEGER,
+        priority INTEGER DEFAULT 10,
         account_id INTEGER,
         command structs.signer_tx_type NOT NULL,
         args JSONB,

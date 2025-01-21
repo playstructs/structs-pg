@@ -1090,7 +1090,7 @@ BEGIN;
             INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
                 VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.location_id),  OLD.location_id, 'fleet_depart', old_move_detail );
 
-            new_move_detail := jsonb_build_object( 'fleet_id', NEW.fleet_id, 'fleet_status', NEW.status);
+            new_move_detail := jsonb_build_object( 'fleet_id', NEW.id, 'fleet_status', NEW.status);
             IF NEW.status = 'away' THEN
                 -- Add a list of fleets
                WITH RECURSIVE r_fleets AS (
