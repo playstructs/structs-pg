@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.player (
+CREATE TABLE structs.player (
 	id CHARACTER VARYING PRIMARY KEY,
     index INTEGER,
 
@@ -62,7 +62,7 @@ CREATE TABLE structs.player_address (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNLOGGED TABLE structs.player_address_activity (
+CREATE TABLE structs.player_address_activity (
     address CHARACTER VARYING PRIMARY KEY,
     block_height INTEGER,
     block_time TIMESTAMPTZ DEFAULT NOW()
@@ -75,7 +75,7 @@ CREATE TABLE structs.player_address_meta (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNLOGGED TABLE structs.player_address_pending (
+CREATE TABLE structs.player_address_pending (
     address CHARACTER VARYING PRIMARY KEY,
     signature CHARACTER VARYING,
     pubkey CHARACTER VARYING,

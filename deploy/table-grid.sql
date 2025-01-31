@@ -3,7 +3,7 @@
 BEGIN;
 
 -- ID Format "%d-%d-%d", gridAttributeType, objectType, objectId
-CREATE UNLOGGED TABLE structs.grid (
+CREATE TABLE structs.grid (
     id              CHARACTER VARYING PRIMARY KEY,
     attribute_type  CHARACTER VARYING,
     object_type     CHARACTER VARYING,

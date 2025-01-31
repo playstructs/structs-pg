@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.permission (
+CREATE  TABLE structs.permission (
    id           CHARACTER VARYING PRIMARY KEY,
    object_type  CHARACTER VARYING,
    object_index CHARACTER VARYING,

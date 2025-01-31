@@ -2,7 +2,7 @@
 
 BEGIN;
 
-    CREATE UNLOGGED TABLE structs.struct (
+    CREATE  TABLE structs.struct (
         id CHARACTER VARYING PRIMARY KEY,
         index INTEGER,
 
@@ -19,7 +19,7 @@ BEGIN;
         updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
-    CREATE UNLOGGED TABLE structs.struct_attribute (
+    CREATE  TABLE structs.struct_attribute (
         id              CHARACTER VARYING PRIMARY KEY,
         object_id       CHARACTER VARYING,
         object_type     CHARACTER VARYING,
@@ -29,7 +29,7 @@ BEGIN;
         updated_at	    TIMESTAMPTZ DEFAULT NOW()
     );
 
-    CREATE UNLOGGED TABLE structs.struct_defender (
+    CREATE  TABLE structs.struct_defender (
         defending_struct_id   CHARACTER VARYING PRIMARY KEY,
         protected_struct_id   CHARACTER VARYING,
         updated_at	TIMESTAMPTZ DEFAULT NOW()

@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE UNLOGGED TABLE structs.substation (
+CREATE  TABLE structs.substation (
 	id CHARACTER VARYING PRIMARY KEY,
 
 	owner CHARACTER VARYING,
