@@ -23,4 +23,16 @@ CREATE OR REPLACE VIEW view.guild AS
     FROM structs.guild;
 
 
+    CREATE OR REPLACE VIEW view.guild_inventory AS
+    select
+        player_address.guild_id,
+        sum(address_inventory.balance) as balance,
+        address_inventory.denom
+    FROM
+        structs.player_address,
+        view.address_inventory
+    WHERE player_address.address = address_inventory.address
+    GROUP BY player_address.guild_id, address_inventory.denom;
+
+
 COMMIT;
