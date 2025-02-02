@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE  TABLE structs.allocation (
+CREATE TABLE structs.allocation (
 	id CHARACTER VARYING PRIMARY KEY,
 
     allocationType CHARACTER VARYING,
