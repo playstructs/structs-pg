@@ -14,7 +14,7 @@ CREATE TABLE structs.ledger (
     object_id CHARACTER VARYING,
     address CHARACTER VARYING,
     counterparty CHARACTER VARYING,
-    amount BIGINT,
+    amount NUMERIC,
     block_height BIGINT,
     action structs.ledger_action,
     direction structs.ledger_direction,
