@@ -72,6 +72,7 @@ CREATE  TABLE struct_type (
 
 CREATE TABLE structs.struct_type_meta (
     id INTEGER PRIMARY KEY,
+    guild_id CHARACTER VARYING,
     name CHARACTER VARYING,
     description TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
