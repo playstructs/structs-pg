@@ -1066,7 +1066,7 @@ BEGIN;
         new_move_detail jsonb;
     BEGIN
 
-        IF OLD.location_id <> NEW.location_id THEN
+        IF OLD.location_id IS NOT NULL AND OLD.location_id <> '' AND (OLD.location_id <> NEW.location_id) THEN
 
             old_move_detail := jsonb_build_object( 'fleet_id', OLD.id, 'fleet_status', OLD.status );
             IF OLD.status = 'away' THEN
