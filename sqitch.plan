@@ -20,6 +20,8 @@ table-player 2023-07-17T18:19:00Z Abstrct <josh@slow.ninja> # The Player table
 table-struct-type 2023-07-17T18:19:20Z Abstrct <josh@slow.ninja> # The Struct Type table
 table-infusion 2023-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Infusions
 table-ledger 2024-07-17T18:20:20Z Abstrct <josh@slow.ninja> # A ledger attempt
+table-provider 2025-02-17T18:20:20Z Abstrct <josh@slow.ninja> # A Provider table
+table-agreement 2025-02-17T18:20:20Z Abstrct <josh@slow.ninja> # An Agreement
 cache-system 2023-07-17T18:05:37Z Abstrct <josh@slow.ninja> # The complete cache invalidation schema
 role-structs-indexer 2023-07-17T18:25:20Z Abstrct <josh@slow.ninja> # The Consensus Indexer User
 role-structs-webapp 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Web Application User

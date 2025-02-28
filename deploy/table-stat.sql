@@ -12,7 +12,9 @@ BEGIN;
         'allocation',
         'infusion',
         'address',
-        'fleet'
+        'fleet',
+        'provider',
+        'agreement'
     );
 
     CREATE OR REPLACE FUNCTION structs.GET_OBJECT_ID(object_type structs.object_type, index INTEGER) RETURNS CHARACTER VARYING AS
@@ -29,6 +31,8 @@ BEGIN;
                   WHEN 'infusion' THEN '7'
                   WHEN 'address' THEN '8'
                   WHEN 'fleet' THEN '9'
+                  WHEN 'provider' THEN '10'
+                  WHEN 'agreement' THEN '11'
           END) || '-' || index;
     END;
     $BODY$
@@ -48,6 +52,8 @@ BEGIN;
                 WHEN 7 THEN 'infusion'
                 WHEN 8 THEN 'address'
                 WHEN 9 THEN 'fleet'
+                WHEN 10 THEN 'provider'
+                WHEN 11 THEN 'agreement'
                 ELSE null
                 END)::structs.object_type;
         END

@@ -123,6 +123,33 @@ BEGIN;
                         locked = EXCLUDED.locked,
                         updated_at = NOW();
 
+        ELSIF NEW.composite_key = 'structs.structs.EventAgreement.agreement' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.agreement
+                VALUES (
+                   body->>'id',
+
+                   body->>'providerId',
+                   body->>'allocationId',
+
+                   (body->>'capacity')::BIGINT,
+
+                   (body->>'startBlock')::BIGINT,
+                   (body->>'endBlock')::BIGINT,
+
+                   body->>'creator',
+                   body->>'controller',
+
+                   NOW(),
+                   NOW()
+             ) ON CONFLICT (id) DO UPDATE
+                SET
+                    capacity=EXLCUDED.capacity,
+                    start_block=EXCLUDED.start_block,
+                    end_block=EXCLUDED.end_block,
+                    updated_at = NOW();
+
         ELSIF NEW.composite_key = 'structs.structs.EventGuild.guild' THEN
             body := (NEW.value)::jsonb;
 
@@ -289,6 +316,44 @@ BEGIN;
                         planet_id = EXCLUDED.planet_id,
                         fleet_id = EXCLUDED.fleet_id,
 
+                        updated_at = NOW();
+
+        ELSIF NEW.composite_key = 'structs.structs.EventProvider.provider' THEN
+            body := (NEW.value)::jsonb;
+
+            INSERT INTO structs.provider
+                VALUES (
+                    body->>'id',
+                    (body->>'index')::INTEGER,
+
+                    body->>'substationId',
+
+                    (body->>'rateAmount')::BIGINT,
+                    body->>'rateDenom',
+
+                    body->>'accessPolicy',
+
+                    (body->>'capacityMinimum')::BIGINT,
+                    (body->>'capacityMaximum')::BIGINT,
+                    (body->>'durationMinimum')::BIGINT,
+                    (body->>'durationMaximum')::BIGINT,
+
+                    (body->>'providerCancellationPenalty')::NUMERIC,
+                    (body->>'consumerCancellationPenalty')::NUMERIC,
+
+
+                    body->>'creator',
+                    body->>'controller',
+
+                    NOW(),
+                    NOW()
+                ) ON CONFLICT (id) DO UPDATE
+                    SET
+                        access_policy=EXLCUDED.access_policy,
+                        capacity_minimum=EXCLUDED.capacity_minimum,
+                        capacity_maximum=EXCLUDED.capacity_maximum,
+                        duration_minimum=EXCLUDED.duration_minimum,
+                        duration_maximum=EXCLUDED.duration_maximum,
                         updated_at = NOW();
 
 
@@ -615,6 +680,8 @@ BEGIN;
                         WHEN '7' THEN 'infusion'
                         WHEN '8' THEN 'address'
                         WHEN '9' THEN 'fleet'
+                        WHEN '10' THEN 'provider'
+                        WHEN '11' THEN 'agreement'
                     END,
                     split_part(split_part(body->>'permissionId','-',2),'@',1),  -- object_index CHARACTER VARYING,
 
@@ -684,6 +751,7 @@ BEGIN;
                     WHEN '11' THEN 'lastAction'
                     WHEN '12' THEN 'nonce'
                     WHEN '13' THEN 'ready'
+                    WHEN '14' THEN 'checkpointBlock'
                     END,
 
                     -- object_type   CHARACTER VARYING,
@@ -698,6 +766,8 @@ BEGIN;
                     WHEN '7' THEN 'infusion'
                     WHEN '8' THEN 'address'
                     WHEN '9' THEN 'fleet'
+                    WHEN '10' THEN 'provider'
+                    WHEN '11' THEN 'agreement'
                     END,
 
                     -- object_index  INTEGER,
@@ -770,6 +840,8 @@ BEGIN;
                                 WHEN '7' THEN 'infusion'
                                 WHEN '8' THEN 'address'
                                 WHEN '9' THEN 'fleet'
+                                WHEN '10' THEN 'provider'
+                                WHEN '11' THEN 'agreement'
                            END,
                            -- sub_index
                            CASE split_part(body->>'attributeId', '-', 4) WHEN '' THEN 0 ELSE (split_part(body->>'attributeId', '-', 4))::INTEGER END,
@@ -826,6 +898,8 @@ BEGIN;
                             WHEN '7' THEN 'infusion'
                             WHEN '8' THEN 'address'
                             WHEN '9' THEN 'fleet'
+                            WHEN '10' THEN 'provider'
+                            WHEN '11' THEN 'agreement'
                         END,
 
                         -- attribute_type  CHARACTER VARYING,
