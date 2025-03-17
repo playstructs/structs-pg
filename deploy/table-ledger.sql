@@ -2,7 +2,7 @@
 
 BEGIN;
 
-CREATE TYPE structs.denom AS ENUM ('alpha','ore','bleep','bloop');
+--CREATE TYPE structs.denom AS ENUM ('alpha','ore','bleep','bloop');
 
 CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 
@@ -18,7 +18,7 @@ CREATE TABLE structs.ledger (
     block_height BIGINT,
     action structs.ledger_action,
     direction structs.ledger_direction,
-    denom structs.denom
+    denom TEXT
 );
 
 SELECT create_hypertable('structs.ledger', by_range('time'));

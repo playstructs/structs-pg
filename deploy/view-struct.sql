@@ -21,9 +21,14 @@ CREATE OR REPLACE VIEW view.struct AS
 
             COALESCE((SELECT struct_attribute.val FROM structs.struct_attribute WHERE struct_attribute.id='5-' || struct.id),0) as  protected_struct_index,
 
-            COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='1-' || struct.id),0) as generator_fuel,
-            COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='3-' || struct.id),0) as generator_load,
-            COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='2-' || struct.id),0) as generator_capacity,
+            COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='1-' || struct.id),0) as generator_fuel_microgram,
+            floor(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='1-' || struct.id),0)/1000000) as generator_fuel,
+
+            COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='3-' || struct.id),0) as generator_load_milliwatt,
+            floor(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='3-' || struct.id),0)/1000) as generator_load,
+
+            COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='2-' || struct.id),0) as generator_capacity_milliwatt,
+            floor(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='2-' || struct.id),0)/1000) as generator_capacity,
 
             struct_type.*,
 

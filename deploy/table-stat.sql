@@ -64,7 +64,7 @@ BEGIN;
         time	        TIMESTAMPTZ NOT NULL,
         object_type     structs.object_type NOT NULL,
         object_index    INTEGER NOT NULL,
-        value           INTEGER
+        value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_ore', by_range('time'));
@@ -73,7 +73,7 @@ BEGIN;
        time	        TIMESTAMPTZ NOT NULL,
        object_type     structs.object_type NOT NULL,
        object_index    INTEGER NOT NULL,
-       value           INTEGER
+       value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_fuel', by_range('time'));
@@ -82,7 +82,7 @@ BEGIN;
        time	        TIMESTAMPTZ NOT NULL,
        object_type     structs.object_type NOT NULL,
        object_index    INTEGER NOT NULL,
-       value           INTEGER
+       value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_capacity', by_range('time'));
@@ -91,7 +91,7 @@ BEGIN;
        time	        TIMESTAMPTZ NOT NULL,
        object_type     structs.object_type NOT NULL,
        object_index    INTEGER NOT NULL,
-       value           INTEGER
+       value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_load', by_range('time'));
@@ -99,7 +99,7 @@ BEGIN;
     CREATE TABLE structs.stat_structs_load (
         time	        TIMESTAMPTZ NOT NULL,
         object_index    INTEGER NOT NULL,
-        value           INTEGER
+        value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_structs_load', by_range('time'));
@@ -108,7 +108,7 @@ BEGIN;
         time	        TIMESTAMPTZ NOT NULL,
         object_type     structs.object_type NOT NULL,
         object_index    INTEGER NOT NULL,
-        value           INTEGER
+        value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_power', by_range('time'));
@@ -116,7 +116,7 @@ BEGIN;
     CREATE TABLE structs.stat_connection_count (
         time	        TIMESTAMPTZ NOT NULL,
         object_index    INTEGER NOT NULL,
-        value           INTEGER
+        value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_connection_count', by_range('time'));
@@ -124,7 +124,7 @@ BEGIN;
     CREATE TABLE structs.stat_connection_capacity (
        time	        TIMESTAMPTZ NOT NULL,
        object_index    INTEGER NOT NULL,
-       value           INTEGER
+       value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_connection_capacity', by_range('time'));
@@ -132,7 +132,7 @@ BEGIN;
     CREATE TABLE structs.stat_struct_health (
         time	        TIMESTAMPTZ NOT NULL,
         object_index    INTEGER NOT NULL,
-        value           INTEGER
+        value           NUMERIC
     );
 
     SELECT create_hypertable('structs.stat_struct_health', by_range('time'));
