@@ -1055,7 +1055,7 @@ BEGIN;
         recipient CHARACTER VARYING;
         sender CHARACTER VARYING;
         amount CHARACTER VARYING;
-        denom structs.denom;
+        denom TEXT;
     BEGIN
         FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'transfer.amount' and value <> '' LOOP
 
