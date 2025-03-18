@@ -31,6 +31,7 @@ BEGIN;
         socials jsonb,
         website CHARACTER VARYING,
         this_infrastructure bool,
+        denom jsonb,
         status CHARACTER VARYING,
 
         created_at TIMESTAMPTZ DEFAULT NOW(),
