@@ -41,7 +41,7 @@ CREATE OR REPLACE VIEW view.player AS
         select
                 ledger.address,
                 sum(case when ledger.direction='debit' then ledger.amount*-1 ELSE ledger.amount END) as balance,
-                denom
+                CASE denom WHEN 'ore' THEN 'ore' ELSE substring(denom, 2, length(denom)-1) END as denom
         from structs.ledger group by ledger.address, ledger.denom;
 
     CREATE OR REPLACE VIEW view.player_inventory AS

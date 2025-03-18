@@ -942,40 +942,40 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventOreMine.eventOreMineDetail' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.ledger(address, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'mined', 'credit', 'ore');
 
 
         ELSIF NEW.composite_key = 'structs.structs.EventOreMigrate.eventOreMigrateDetail' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'primaryAddress', body->>'oldPrimaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1),NOW(), 'migrated', 'credit', 'ore');
 
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'oldPrimaryAddress', body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'migrated', 'debit', 'ore');
 
 
         ELSIF NEW.composite_key = 'structs.structs.EventOreTheft.eventOreTheftDetail' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'thiefPrimaryAddress', body->>'victimPrimaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'seized', 'credit', 'ore');
 
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'victimPrimaryAddress', body->>'thiefPrimaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'forfeited', 'debit', 'ore');
 
 
         ELSIF NEW.composite_key = 'structs.structs.EventAlphaRefine.eventAlphaRefineDetail' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.ledger(address, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'refined', 'debit', 'ore');
 
 
-            INSERT INTO structs.ledger(address, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
                 VALUES( body->>'primaryAddress', 1000000*(body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'refined', 'credit', 'ualpha');
 
         ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
@@ -1064,11 +1064,11 @@ BEGIN;
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.recipient';
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
 
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                 VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'sent', 'debit', denom);
 
             -- amount was ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT
-            INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                 VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'received', 'credit', denom);
         END LOOP;
 
@@ -1078,7 +1078,7 @@ BEGIN;
 
             SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'coinbase.minter';
 
-            INSERT INTO structs.ledger(address, amount, block_height, time, action, direction, denom)
+            INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
                 VALUES( recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'minted', 'credit', denom);
         END LOOP;
 

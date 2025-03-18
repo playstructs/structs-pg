@@ -14,7 +14,8 @@ CREATE TABLE structs.ledger (
     object_id CHARACTER VARYING,
     address CHARACTER VARYING,
     counterparty CHARACTER VARYING,
-    amount NUMERIC,
+    amount NUMERIC GENERATED ALWAYS AS (structs.UNIT_LEGACY_FORMAT(amount_p, denom)) STORED,
+    amount_p NUMERIC, -- real amount
     block_height BIGINT,
     action structs.ledger_action,
     direction structs.ledger_direction,
