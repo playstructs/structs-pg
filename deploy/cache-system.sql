@@ -976,7 +976,7 @@ BEGIN;
 
 
             INSERT INTO structs.ledger(address, amount, block_height, time, action, direction, denom)
-                VALUES( body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'refined', 'credit', 'alpha');
+                VALUES( body->>'primaryAddress', 1000000*(body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'refined', 'credit', 'ualpha');
 
         ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
             body := (NEW.value)::jsonb;
@@ -1065,10 +1065,21 @@ BEGIN;
             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'transfer.sender';
 
             INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
-                VALUES( sender, recipient, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'sent', 'debit', denom);
+                VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'sent', 'debit', denom);
 
+            -- amount was ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT
             INSERT INTO structs.ledger(address, counterparty, amount, block_height, time, action, direction, denom)
-                VALUES( recipient, sender, ((regexp_split_to_array(amount,'[a-z]'))[1])::BIGINT, (NEW.height -1), NOW(), 'received', 'credit', denom);
+                VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'received', 'credit', denom);
+        END LOOP;
+
+        FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'coinbase.minter' LOOP
+
+            SELECT (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC, (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT INTO amount, denom     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'coinbase.amount';
+
+            SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'coinbase.minter';
+
+            INSERT INTO structs.ledger(address, amount, block_height, time, action, direction, denom)
+                VALUES( recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'minted', 'credit', denom);
         END LOOP;
 
     RETURN NEW;

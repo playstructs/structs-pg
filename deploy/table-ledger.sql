@@ -6,7 +6,7 @@ BEGIN;
 
 CREATE TYPE structs.ledger_direction AS ENUM ('debit', 'credit');
 
-CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','migrated','infused','defused','mined','refined','seized','forfeited');
+CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','migrated','infused','defused','mined','refined','seized','forfeited','minted','burned');
 
 CREATE TABLE structs.ledger (
     time TIMESTAMPTZ DEFAULT NOW(),
