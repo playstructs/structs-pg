@@ -3,7 +3,7 @@
 BEGIN;
 
 
-    CREATE OR REPLACE FUNCTION structs.UNIT_DISPLAY_FORMAT(_amount NUMERIC, _denom TEXT, _unit TEXT)
+    CREATE OR REPLACE FUNCTION structs.UNIT_DISPLAY_FORMAT(_amount NUMERIC, _denom TEXT)
       RETURNS TEXT AS
     $BODY$
     DECLARE
@@ -20,31 +20,13 @@ BEGIN;
 
             current_length := LENGTH(floor(_amount)::CHARACTER VARYING);
 
-            format_exp := CASE _unit
-                    WHEN 'talpha' THEN 18
-                    WHEN 'teragram' THEN 18
-
-                    WHEN 'kalpha' THEN 9
-                    WHEN 'kilogram' THEN 9
-
-                    WHEN 'alpha' THEN 6
-                    WHEN 'gram' THEN 6
-
-                    WHEN 'malpha' THEN 3
-                    WHEN 'milligram' THEN 3
-
-                    WHEN 'ualpha' THEN 0
-                    WHEN 'microgram' THEN 0
-
-                    WHEN 'auto' THEN
-                        (CASE
-                             WHEN current_length >= 16 THEN 18
-                             WHEN current_length between 10 AND 15 THEN 9
-                             WHEN current_length between 6 AND 9 THEN 6
-                             WHEN current_length between 3 AND 5 THEN 3
-                             WHEN current_length between 0 AND 2 THEN 0
-                        END)
-                    END;
+            format_exp := CASE
+                             WHEN current_length >= 16 THEN 18              -- 'talpha' Tergram
+                             WHEN current_length between 10 AND 15 THEN 9   -- 'kalpha' Kilogram
+                             WHEN current_length between 6 AND 9 THEN 6     -- 'alpha'  gram
+                             WHEN current_length between 3 AND 5 THEN 3     -- 'malpha' milligram
+                             WHEN current_length between 0 AND 2 THEN 0     -- 'ualpha' microgram
+                        END;
 
 
             format_postfix := CASE format_exp
@@ -63,16 +45,9 @@ BEGIN;
             SELECT guild_meta.denom->>'0', guild_meta.denom->>'6' INTO format_token_small, format_token_big FROM structs.guild_meta WHERE guild_meta.id = trim(_denom,'uguild.') ;
 
             format_exp := CASE
-                              WHEN _unit like 'guild%' THEN 6
-                              WHEN _unit = format_token_big THEN 6
-                              WHEN _unit like 'uguild%' THEN 0
-                              WHEN _unit = format_token_small THEN 0
-                              WHEN _unit = 'auto' THEN
-                                  (CASE
-                                       WHEN current_length >= 6 THEN 6
-                                       WHEN current_length between 0 AND 5 THEN 0
-                                      END)
-                            END;
+                            WHEN current_length >= 6 THEN 6              -- guild.
+                            WHEN current_length between 0 AND 5 THEN 0   -- uguild.
+                          END;
 
 
             format_postfix := CASE format_exp
@@ -86,22 +61,13 @@ BEGIN;
 
             current_length := LENGTH(floor(_amount)::CHARACTER VARYING);
 
-            format_exp := CASE _unit
-                              WHEN 'terawatt' THEN 18
-                              WHEN 'megawatt' THEN 9
-                              WHEN 'kilowatt' THEN 6
-                              WHEN 'watt' THEN 3
-                              WHEN 'milliwatt' THEN 0
-
-                              WHEN 'auto' THEN
-                                  (CASE
-                                       WHEN current_length >= 16 THEN 18
-                                       WHEN current_length between 10 AND 15 THEN 9
-                                       WHEN current_length between 6 AND 9 THEN 6
-                                       WHEN current_length between 3 AND 5 THEN 3
-                                       WHEN current_length between 0 AND 2 THEN 0
-                                      END)
-                END;
+            format_exp := CASE
+                           WHEN current_length >= 16 THEN 18            -- terawatt
+                           WHEN current_length between 10 AND 15 THEN 9 -- megawatt
+                           WHEN current_length between 6 AND 9 THEN 6   -- kilowatt
+                           WHEN current_length between 3 AND 5 THEN 3   -- watt
+                           WHEN current_length between 0 AND 2 THEN 0   -- milliwatt
+                          END;
 
 
             format_postfix := CASE format_exp
@@ -117,19 +83,11 @@ BEGIN;
         ELSIF _denom = 'ore' THEN
             current_length := LENGTH(floor(_amount)::CHARACTER VARYING);
 
-            format_exp := CASE _unit
-                              WHEN 'teragram' THEN 12
-                              WHEN 'kilogram' THEN 3
-                              WHEN 'gram' THEN 0
-
-                              WHEN 'auto' THEN
-                                  (CASE
-                                       WHEN current_length >= 12 THEN 18
-                                       WHEN current_length between 4 AND 11 THEN 3
-                                       WHEN current_length between 0 AND 3 THEN 0
-                                      END)
-                END;
-
+            format_exp := CASE
+                           WHEN current_length >= 12 THEN 18            -- teragram
+                           WHEN current_length between 4 AND 11 THEN 3  -- kilogram
+                           WHEN current_length between 0 AND 3 THEN 0   -- gram
+                          END;
 
             format_postfix := CASE format_exp
                                   WHEN 12 THEN 'Tg'
