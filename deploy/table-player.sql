@@ -89,4 +89,22 @@ CREATE TABLE structs.player_address_pending (
 CREATE UNIQUE INDEX player_address_pending_code_idx ON structs.player_address_pending (code);
 
 
+    CREATE TABLE structs.player_external_pending (
+        guild_id CHARACTER VARYING,
+        primary_address CHARACTER VARYING PRIMARY KEY,
+        pubkey CHARACTER VARYING,
+        signature CHARACTER VARYING,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE OR REPLACE FUNCTION structs.SET_PLAYER_INTERNAL_PENDING_PROXY(_guild_id CHARACTER VARYING, _address CHARACTER VARYING, _pubkey CHARACTER VARYING, _signature CHARACTER VARYING )
+     RETURNS VOID AS
+    $BODY$
+    BEGIN
+        INSERT INTO structs.player_external_pending VALUES (_guild_id, _address, _pubkey, _signature, NOW(), NOW());
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE COST 100;
+
 COMMIT;
