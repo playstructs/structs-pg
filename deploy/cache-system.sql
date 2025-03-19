@@ -153,7 +153,7 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventGuild.guild' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.guild
+            INSERT INTO structs.guild (id, index, endpoint, join_infusion_minimum_p, join_infusion_minimum_bypass_by_request, join_infusion_minimum_bypass_by_invite, primary_reactor_id, entry_substation_id,creator, owner, created_at, updated_at )
                 VALUES (
                     body->>'id',
                     (body->>'index')::INTEGER,
@@ -174,7 +174,7 @@ BEGIN;
                 ) ON CONFLICT (id) DO UPDATE
                     SET
                         endpoint = EXCLUDED.endpoint,
-                        join_infusion_minimum = EXCLUDED.join_infusion_minimum,
+                        join_infusion_minimum_p = EXCLUDED.join_infusion_minimum_p,
                         join_infusion_minimum_bypass_by_request = EXCLUDED.join_infusion_minimum_bypass_by_request,
                         join_infusion_minimum_bypass_by_invite = EXCLUDED.join_infusion_minimum_bypass_by_invite,
                         primary_reactor_id = EXCLUDED.primary_reactor_id,

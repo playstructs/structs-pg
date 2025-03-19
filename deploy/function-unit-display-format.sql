@@ -101,7 +101,7 @@ BEGIN;
         RETURN format_amount;
     END
     $BODY$
-      LANGUAGE plpgsql IMMUTABLE
+      LANGUAGE plpgsql STABLE
       COST 100;
 
 

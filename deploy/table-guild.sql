@@ -8,7 +8,8 @@ BEGIN;
 
         endpoint CHARACTER VARYING,
 
-        join_infusion_minimum INTEGER,
+        join_infusion_minimum NUMERIC GENERATED ALWAYS AS (structs.UNIT_LEGACY_FORMAT(join_infusion_minimum_p, 'ualpha')) STORED,
+        join_infusion_minimum_p NUMERIC,
         join_infusion_minimum_bypass_by_request CHARACTER VARYING,
         join_infusion_minimum_bypass_by_invite CHARACTER VARYING,
 
