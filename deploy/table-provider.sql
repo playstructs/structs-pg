@@ -8,15 +8,15 @@ CREATE TABLE structs.provider (
 
     substation_id CHARACTER VARYING,
 
-    rate_amount BIGINT,
+    rate_amount NUMERIC,
     rate_denom CHARACTER VARYING,
 
     access_policy CHARACTER VARYING,
 
-    capacity_minimum BIGINT,
-    capacity_maximum BIGINT,
-    duration_minimum BIGINT,
-    duration_maximum BIGINT,
+    capacity_minimum NUMERIC,
+    capacity_maximum NUMERIC,
+    duration_minimum NUMERIC,
+    duration_maximum NUMERIC,
 
     provider_cancellation_penalty NUMERIC,
     consumer_cancellation_penalty NUMERIC,

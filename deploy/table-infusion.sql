@@ -9,10 +9,10 @@ CREATE  TABLE structs.infusion (
     destination_type CHARACTER VARYING,
     player_id CHARACTER VARYING,
 
-	fuel INTEGER,
-    defusing INTEGER,
-	power INTEGER,
-    ratio INTEGER,
+	fuel NUMERIC,
+    defusing NUMERIC,
+	power NUMERIC,
+    ratio NUMERIC,
 
     commission NUMERIC,
 

@@ -9,7 +9,7 @@ CREATE TABLE structs.grid (
     object_type     CHARACTER VARYING,
     object_index    INTEGER,
     object_id       CHARACTER VARYING,
-    val             INTEGER,
+    val             NUMERIC,
     updated_at	    TIMESTAMPTZ DEFAULT NOW()
 );
 

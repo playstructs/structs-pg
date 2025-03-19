@@ -30,9 +30,9 @@ BEGIN;
         tag CHARACTER VARYING,
         logo CHARACTER VARYING,
         socials jsonb,
+        denom jsonb,
         website CHARACTER VARYING,
         this_infrastructure bool,
-        denom jsonb,
         status CHARACTER VARYING,
 
         created_at TIMESTAMPTZ DEFAULT NOW(),

@@ -64,7 +64,7 @@ CREATE TABLE structs.player_address (
 
 CREATE TABLE structs.player_address_activity (
     address CHARACTER VARYING PRIMARY KEY,
-    block_height INTEGER,
+    block_height BIGINT,
     block_time TIMESTAMPTZ DEFAULT NOW()
 );
 

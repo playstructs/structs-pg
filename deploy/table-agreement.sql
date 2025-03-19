@@ -8,10 +8,10 @@ CREATE TABLE structs.agreement (
     provider_id CHARACTER VARYING,
     allocation_id CHARACTER VARYING,
 
-    capacity BIGINT,
+    capacity NUMERIC,
 
-    start_block BIGINT,
-    end_block BIGINT,
+    start_block NUMERIC,
+    end_block NUMERIC,
 
     creator CHARACTER VARYING,
     owner CHARACTER VARYING,
