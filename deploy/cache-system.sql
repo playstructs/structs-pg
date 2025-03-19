@@ -145,7 +145,7 @@ BEGIN;
                    NOW()
              ) ON CONFLICT (id) DO UPDATE
                 SET
-                    capacity=EXLCUDED.capacity,
+                    capacity=EXCLUDED.capacity,
                     start_block=EXCLUDED.start_block,
                     end_block=EXCLUDED.end_block,
                     updated_at = NOW();
@@ -349,7 +349,7 @@ BEGIN;
                     NOW()
                 ) ON CONFLICT (id) DO UPDATE
                     SET
-                        access_policy=EXLCUDED.access_policy,
+                        access_policy=EXCLUDED.access_policy,
                         capacity_minimum=EXCLUDED.capacity_minimum,
                         capacity_maximum=EXCLUDED.capacity_maximum,
                         duration_minimum=EXCLUDED.duration_minimum,
