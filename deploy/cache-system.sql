@@ -186,7 +186,7 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventInfusion.infusion' THEN
             body := (NEW.value)::jsonb;
 
-            INSERT INTO structs.infusion
+            INSERT INTO structs.infusion (destination_id, address, destination_type, player_id, fuel_p, defusing_p, power_p, ratio, commission, created_at, updated_at)
                 VALUES (
                     body->>'destinationId',
                     body->>'address',
@@ -194,10 +194,10 @@ BEGIN;
                     body->>'destinationType',
                     body->>'playerId',
 
-                    (body->>'fuel')::INTEGER,
-                    (body->>'defusing')::INTEGER,
-                    (body->>'power')::INTEGER,
-                    (body->>'ratio')::INTEGER,
+                    (body->>'fuel')::NUMERIC,
+                    (body->>'defusing')::NUMERIC,
+                    (body->>'power')::NUMERIC,
+                    (body->>'ratio')::NUMERIC,
 
                     (body->>'commission')::NUMERIC,
 
