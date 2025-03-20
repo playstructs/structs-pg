@@ -205,9 +205,9 @@ BEGIN;
                     NOW()
                 ) ON CONFLICT (destination_id, address) DO UPDATE
                     SET
-                        fuel = EXCLUDED.fuel,
-                        defusing = EXCLUDED.defusing,
-                        power = EXCLUDED.power,
+                        fuel_p = EXCLUDED.fuel_p,
+                        defusing_p = EXCLUDED.defusing_p,
+                        power_p = EXCLUDED.power_p,
                         ratio = EXCLUDED.ratio,
                         commission = EXCLUDED.commission,
                         updated_at = NOW();
