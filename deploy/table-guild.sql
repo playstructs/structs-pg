@@ -31,6 +31,7 @@ BEGIN;
         logo CHARACTER VARYING,
         socials jsonb,
         denom jsonb,
+        services jsonb,
         website CHARACTER VARYING,
         this_infrastructure bool,
         status CHARACTER VARYING,
@@ -53,5 +54,39 @@ BEGIN;
         updated_at TIMESTAMPTZ DEFAULT NOW(),
         PRIMARY KEY (guild_id, player_id)
     );
+
+
+    CREATE OR REPLACE FUNCTION structs.GUILD_METADATA_UPDATE(_guild_id CHARACTER VARYING, _payload JSONB) RETURNS VOID AS
+    $BODY$
+    BEGIN
+        INSERT INTO structs.guild_meta
+            VALUES (
+                   _guild_id,
+                   _paylaod->>'name',
+                   _paylaod->>'description',
+                   _paylaod->>'tag',
+                   _paylaod->>'logo',
+                   _paylaod->'socials',
+                   _paylaod->'denom',
+                   _paylaod->'services',
+                   _paylaod->>'website',
+                   'f',
+                   '',
+                   NOW(),
+                   NOW()
+               ) ON CONFLICT (_guild_id) DO UPDATE
+            SET
+                name = EXCLUDED.name,
+                description = EXCLUDED.description,
+                tag = EXCLUDED.tag,
+                logo = EXCLUDED.logo,
+                socials = EXCLUDED.socials,
+                denom = EXCLUDED.denom,
+                services = EXCLUDED.services,
+                website = EXCLUDED.website,
+                updated_at = EXCLUDED.updated_at;
+    END
+    $BODY$
+    LANGUAGE plpgsql SECURITY DEFINER VOLATILE COST 100;
 
 COMMIT;
