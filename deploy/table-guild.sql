@@ -62,19 +62,19 @@ BEGIN;
         INSERT INTO structs.guild_meta
             VALUES (
                    _guild_id,
-                   _paylaod->>'name',
-                   _paylaod->>'description',
-                   _paylaod->>'tag',
-                   _paylaod->>'logo',
-                   _paylaod->'socials',
-                   _paylaod->'denom',
-                   _paylaod->'services',
-                   _paylaod->>'website',
+                   _payload->'guild'->>'name',
+                   _payload->'guild'->>'description',
+                   _payload->'guild'->>'tag',
+                   _payload->'guild'->>'logo',
+                   _payload->'guild'->'socials',
+                   _payload->'guild'->'denom',
+                   _payload->'guild'->'services',
+                   _payload->'guild'->>'website',
                    'f',
                    '',
                    NOW(),
                    NOW()
-               ) ON CONFLICT (_guild_id) DO UPDATE
+               ) ON CONFLICT (id) DO UPDATE
             SET
                 name = EXCLUDED.name,
                 description = EXCLUDED.description,
