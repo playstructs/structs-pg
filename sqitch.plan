@@ -49,3 +49,4 @@ trigger-grass-planet-activity 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # G
 trigger-grass-player 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Player Updates
 trigger-grass-provider 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Provider Updates
 trigger-grass-agreement 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Agreement Updates
+role-structs-crawler 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Crawler Role
