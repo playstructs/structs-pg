@@ -33,8 +33,7 @@ CREATE OR REPLACE VIEW view.player AS
             player.primary_address,
             player.created_at,
             player.updated_at
-        FROM structs.player, structs.player_meta
-            WHERE player.id = player_meta.id;
+        FROM structs.player LEFT JOIN structs.player_meta ON player.id = player_meta.id;
 
 
     CREATE OR REPLACE VIEW view.address_inventory AS
