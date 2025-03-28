@@ -10,6 +10,10 @@ BEGIN;
         numrows INT;
     BEGIN
 
+        -- TEMPORARY grid insert for last actions.
+        -- Remove after next testnet launch
+        insert into structs.grid values('11-'|| NEW.id, 'lastAction', 'player', NEW.index, NEW.id, 0, now());
+
         DELETE FROM structs.player_pending WHERE player_pending.primary_address = NEW.primary_address RETURNING * INTO pending_data;
 
         get diagnostics numrows = row_count;
