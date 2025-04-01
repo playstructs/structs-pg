@@ -29,3 +29,4 @@ CREATE TABLE structs.provider (
 ); 
 
 COMMIT;
+

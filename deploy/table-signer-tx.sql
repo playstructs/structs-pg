@@ -9,6 +9,14 @@ BEGIN;
         'error'
     );
 
+    CREATE TYPE structs.signer_tx_module AS ENUM(
+        'structs',
+        'bank',
+        'staking',
+        'auth',
+        'authz'
+    );
+
     CREATE TYPE structs.signer_tx_type AS ENUM (
         'address-register',
         'address-revoke',
@@ -77,6 +85,7 @@ BEGIN;
         permission_requirement INTEGER,
         priority INTEGER DEFAULT 10,
         account_id INTEGER,
+        module structs.signer_tx_module NOT NULL,
         command structs.signer_tx_type NOT NULL,
         args JSONB,
         flags JSONB,
@@ -89,6 +98,7 @@ BEGIN;
     CREATE OR REPLACE FUNCTION signer.CREATE_TRANSACTION(
         _object_id CHARACTER VARYING,
         _permission_requirement INTEGER,
+        _module structs.signer_tx_module,
         _command structs.signer_tx_type,
         _args JSONB,
         _flags JSONB
@@ -97,8 +107,8 @@ BEGIN;
     DECLARE
         new_transaction RECORD;
     BEGIN
-        INSERT INTO signer.tx(object_id, permission_requirement, command,  args, flags)
-            VALUES(_object_id, _permission_requirement, _command, _args, _flags)
+        INSERT INTO signer.tx(object_id, permission_requirement, module, command,  args, flags)
+            VALUES(_object_id, _permission_requirement, _module, _command, _args, _flags)
             RETURNING * INTO new_transaction;
 
         RETURN to_jsonb(new_transaction);

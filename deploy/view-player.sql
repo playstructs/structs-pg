@@ -55,3 +55,23 @@ CREATE OR REPLACE VIEW view.player AS
         GROUP BY player_address.player_id, player_address.address, address_inventory.denom;
 
 COMMIT;
+
+
+
+SELECT
+    player.id as player_id,
+    player_meta.username,
+    (select guild_meta.name from structs.guild_meta where guild_meta.id = player.guild_id) as guild_name,
+    player.substation_id,
+    player.planet_id,
+    player.fleet_id,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='ore'),0),'ore') as ore,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='load'),0),'milliwatt') as load,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='structsLoad'),0),'milliwatt') as structs_load,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='capacity'),0),'milliwatt') as capacity,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.substation_id and grid.attribute_type='connectionCapacity'),0),'milliwatt') as connection_capacity,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='load'),0) + COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='structsLoad'),0),'milliwatt') as total_load,
+    structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.id and grid.attribute_type='capacity'),0) + COALESCE((SELECT grid.val FROM structs.grid WHERE grid.object_id=player.substation_id and grid.attribute_type='connectionCapacity'),0),'milliwatt')  as total_capacity,
+    player.primary_address
+FROM structs.player LEFT JOIN structs.player_meta ON player.id = player_meta.id;
+

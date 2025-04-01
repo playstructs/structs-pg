@@ -21,3 +21,6 @@ CREATE TABLE structs.agreement (
 ); 
 
 COMMIT;
+
+
+

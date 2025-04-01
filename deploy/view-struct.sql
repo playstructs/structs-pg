@@ -56,4 +56,3 @@ CREATE OR REPLACE VIEW view.struct AS
 
 
 COMMIT;
-

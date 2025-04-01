@@ -20,3 +20,12 @@ CREATE TABLE structs.allocation (
 ); 
 
 COMMIT;
+
+
+select id,
+       allocation_type,
+       source_id,
+       destination_id,
+       controller,
+       structs.UNIT_DISPLAY_FORMAT(COALESCE((SELECT grid.val FROM structs.grid WHERE grid.id='5-' || allocation.id),0),'milliwatt') as capacity,
+from structs.allocation;

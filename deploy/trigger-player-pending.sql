@@ -73,7 +73,7 @@ BEGIN;
     $BODY$
     BEGIN
         -- 16 represents the Association permission
-        PERFORM signer.CREATE_TRANSACTION(NEW.guild_id,16,'guild-membership-join-proxy',jsonb_build_array(NEW.primary_address,NEW.pubkey,NEW.signature),'{}');
+        PERFORM signer.CREATE_TRANSACTION(NEW.guild_id,16,'structs','guild-membership-join-proxy',jsonb_build_array(NEW.primary_address,NEW.pubkey,NEW.signature),'{}');
         RETURN NEW;
     END
     $BODY$
