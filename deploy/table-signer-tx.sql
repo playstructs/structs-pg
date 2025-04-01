@@ -190,4 +190,75 @@ BEGIN;
 
 
 
+    CREATE OR REPLACE FUNCTION signer.tx_bank_send(
+        _player_id CHARACTER VARYING,
+        _amount NUMERIC,
+        _denom NUMERIC,
+        _destination_player_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    DECLARE
+        _primary_address_sender CHARACTER VARYING;
+        _primary_address_recipient CHARACTER VARYING;
+    BEGIN
+
+        SELECT player.primary_address INTO _primary_address_sender FROM structs.player where player.id = _player_id;
+        SELECT player.primary_address INTO _primary_address_recipient FROM structs.player where player.id = _destination_player_id;
+
+        PERFORM signer.CREATE_TRANSACTION(_player_id,0,'bank','send',jsonb_build_array(_primary_address_sender,_primary_address_sender, _amount || _denom),'{}');
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    --signer.tx_provider_create(player_id, substation_id, rate_denom, rate_amount, access_policy, provider_penalty, consumer_penalty, capacity_min, capacity_max, duration_min, duration_max)
+    CREATE OR REPLACE FUNCTION signer.tx_provider_create(
+        _player_id CHARACTER VARYING,
+        _substation_id CHARACTER VARYING,
+        _rate_denom CHARACTER VARYING,
+        _rate_amount NUMERIC,
+        _access_policy CHARACTER VARYING,
+        _provider_penalty NUMERIC,
+        _consumer_penalty NUMERIC,
+        _capacity_min NUMERIC,
+        _capacity_max NUMERIC,
+        _duration_min NUMERIC,
+        _duration_max NUMERIC
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_substation_id,8,'structs','provider-create',jsonb_build_array(_substation_id, _rate_amount || _rate_denom, _access_policy, _provider_penalty, _consumer_penalty, _capacity_min, _capacity_max, _duration_min, _duration_max),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    --signer.tx_agreement_create(player_id, provider_id, duration, capacity)
+    CREATE OR REPLACE FUNCTION signer.tx_agreement_open(
+        _player_id CHARACTER VARYING,
+        _provider_id CHARACTER VARYING,
+        _duration NUMERIC,
+        _capacity NUMERIC
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,0,'structs','agreement-open',jsonb_build_array(_provider_id, _duration, _capacity),'{}');
+    END
+    $BODY$
+    LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    --signer.tx_substation_allocation_connect(player_id, allocation_id, substation_id)
+    CREATE OR REPLACE FUNCTION signer.tx_substation_allocation_connect(
+        _player_id CHARACTER VARYING,
+        _allocation_id CHARACTER VARYING,
+        _substation_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,0,'structs','substation-allocation-connect',jsonb_build_array(_allocation_id, _substation_id),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+
 COMMIT;
