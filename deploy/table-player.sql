@@ -107,4 +107,19 @@ CREATE UNIQUE INDEX player_address_pending_code_idx ON structs.player_address_pe
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
 
+
+    CREATE OR REPLACE FUNCTION structs.GUILD_SIGNING_AGENT()
+        RETURNS trigger AS
+    $BODY$
+    BEGIN
+        INSERT INTO structs.player_internal_pending(username) VALUES (NEW.guild_id);
+        RETURN NEW;
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+                         COST 100;
+
+    CREATE TRIGGER GUILD_SIGNING_AGENT AFTER INSERT ON structs.guild
+        FOR EACH ROW EXECUTE PROCEDURE structs.GUILD_SIGNING_AGENT();
+
 COMMIT;
