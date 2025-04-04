@@ -98,6 +98,9 @@ BEGIN;
         updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
+
+
+
     CREATE OR REPLACE FUNCTION structs.SET_PLAYER_INTERNAL_PENDING_PROXY(_guild_id CHARACTER VARYING, _address CHARACTER VARYING, _pubkey CHARACTER VARYING, _signature CHARACTER VARYING )
      RETURNS VOID AS
     $BODY$
@@ -121,5 +124,30 @@ BEGIN;
 
     CREATE TRIGGER GUILD_SIGNING_AGENT AFTER INSERT ON structs.guild
         FOR EACH ROW EXECUTE PROCEDURE structs.GUILD_SIGNING_AGENT();
+
+
+    CREATE TABLE structs.player_discord (
+        discord_id TEXT PRIMARY KEY,
+        discord_username TEXT,
+        guild_id CHARACTER VARYING,
+        role_id INTEGER,
+        player_id CHARACTER VARYING
+    );
+
+
+    CREATE OR REPLACE FUNCTION structs.DISCORD_PLAYER_SIGNING_AGENT()
+        RETURNS trigger AS
+    $BODY$
+    BEGIN
+        INSERT INTO structs.player_internal_pending(username, guild_id) VALUES (NEW.discord_username, NEW.guild_id) RETURNING role_id INTO NEW.role_id;
+        RETURN NEW;
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+                         COST 100;
+
+    CREATE TRIGGER DISCORD_PLAYER_SIGNING_AGENT AFTER INSERT ON structs.player_discord
+        FOR EACH ROW EXECUTE PROCEDURE structs.DISCORD_PLAYER_SIGNING_AGENT();
+
 
 COMMIT;

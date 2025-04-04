@@ -22,6 +22,7 @@ BEGIN;
             get diagnostics numrows = row_count;
 
             IF numrows > 0 THEN
+                UPDATE structs.player_discord SET player_id = NEW.id WHERE role_id=pending_data.role_id;
                 UPDATE signer.role SET player_id = NEW.id, status='ready' WHERE id=pending_data.role_id;
             END IF;
         END IF;
