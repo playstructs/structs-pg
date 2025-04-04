@@ -112,7 +112,7 @@ BEGIN;
         RETURNS trigger AS
     $BODY$
     BEGIN
-        INSERT INTO structs.player_internal_pending(username) VALUES (NEW.guild_id);
+        INSERT INTO structs.player_internal_pending(username, guild_id) VALUES (NEW.id, NEW.id);
         RETURN NEW;
     END
     $BODY$
