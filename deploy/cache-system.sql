@@ -383,7 +383,6 @@ BEGIN;
                         default_commission = EXCLUDED.default_commission,
                         updated_at = NOW();
 
-            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventStruct.structure' THEN
             body := (NEW.value)::jsonb;
