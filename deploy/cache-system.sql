@@ -123,6 +123,7 @@ BEGIN;
                         locked = EXCLUDED.locked,
                         updated_at = NOW();
 
+
         ELSIF NEW.composite_key = 'structs.structs.EventAgreement.agreement' THEN
             body := (NEW.value)::jsonb;
 
@@ -139,7 +140,7 @@ BEGIN;
                    (body->>'endBlock')::BIGINT,
 
                    body->>'creator',
-                   body->>'controller',
+                   body->>'owner',
 
                    NOW(),
                    NOW()
@@ -149,6 +150,8 @@ BEGIN;
                     start_block=EXCLUDED.start_block,
                     end_block=EXCLUDED.end_block,
                     updated_at = NOW();
+
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventGuild.guild' THEN
             body := (NEW.value)::jsonb;
@@ -182,6 +185,7 @@ BEGIN;
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
 
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventInfusion.infusion' THEN
             body := (NEW.value)::jsonb;
@@ -253,6 +257,7 @@ BEGIN;
 
                 updated_at = NOW();
 
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventPlanet.planet' THEN
             body := (NEW.value)::jsonb;
@@ -289,6 +294,7 @@ BEGIN;
 
                         updated_at = NOW();
 
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventPlayer.player' THEN
             body := (NEW.value)::jsonb;
@@ -318,6 +324,8 @@ BEGIN;
 
                         updated_at = NOW();
 
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'id') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
+
         ELSIF NEW.composite_key = 'structs.structs.EventProvider.provider' THEN
             body := (NEW.value)::jsonb;
 
@@ -343,7 +351,7 @@ BEGIN;
 
 
                     body->>'creator',
-                    body->>'controller',
+                    body->>'owner',
 
                     NOW(),
                     NOW()
@@ -356,6 +364,7 @@ BEGIN;
                         duration_maximum=EXCLUDED.duration_maximum,
                         updated_at = NOW();
 
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventReactor.reactor' THEN
             body := (NEW.value)::jsonb;
@@ -374,6 +383,7 @@ BEGIN;
                         default_commission = EXCLUDED.default_commission,
                         updated_at = NOW();
 
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventStruct.structure' THEN
             body := (NEW.value)::jsonb;
@@ -402,6 +412,8 @@ BEGIN;
                         operating_ambit = EXCLUDED.operating_ambit,
                         slot = EXCLUDED.slot,
                         updated_at = NOW();
+
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventStructDefender.structDefender' THEN
             body := (NEW.value)::jsonb;
@@ -585,6 +597,8 @@ BEGIN;
                     SET
                         owner = EXCLUDED.owner,
                         updated_at = NOW();
+
+            INSERT INTO structs.player_object(object_id, player_id) VALUES(body->>'id',body->>'owner') ON CONFLICT (object_id) DO UPDATE SET player_id=EXCLUDED.player_id;
 
         ELSIF NEW.composite_key = 'structs.structs.EventGuildMembershipApplication.guildMembershipApplication' THEN
                     body := (NEW.value)::jsonb;

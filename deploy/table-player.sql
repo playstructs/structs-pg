@@ -99,6 +99,10 @@ BEGIN;
     );
 
 
+    CREATE TABLE structs.player_object (
+        object_id CHARACTER VARYING PRIMARY KEY,
+        player_id CHARACTER VARYING
+    );
 
 
     CREATE OR REPLACE FUNCTION structs.SET_PLAYER_INTERNAL_PENDING_PROXY(_guild_id CHARACTER VARYING, _address CHARACTER VARYING, _pubkey CHARACTER VARYING, _signature CHARACTER VARYING )

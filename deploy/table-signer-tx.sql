@@ -132,6 +132,14 @@ BEGIN;
                 signer.account,
                 structs.permission
             WHERE account.address = permission.object_index
+        ), object_owners AS (
+            SELECT
+                base_role.address as address,
+                base_role.permission as permission,
+                player_object.object_id as object_id
+            FROM
+                structs.player_object, base_role
+            WHERE player_object.player_id = base_role.object_id
         ), address_permission AS (
             SELECT
               base_role.address as address,
@@ -140,17 +148,17 @@ BEGIN;
             FROM structs.permission, base_role
             WHERE permission.player_id = base_role.object_id
             UNION
+            SELECT * FROM object_owners
+            UNION
             SELECT * FROM base_role
           ), pending_transaction AS MATERIALIZED (
                 SELECT *
                 FROM signer.tx
                 WHERE
                         status = 'pending'
-                  AND object_id IN (
-                    SELECT address_permission.object_id
-                    FROM address_permission
-                    WHERE (address_permission.permission & tx.permission_requirement) > 0
-                )
+                  AND  object_id IN (SELECT address_permission.object_id
+                                          FROM address_permission
+                                          WHERE (address_permission.permission & tx.permission_requirement) > 0)
                 ORDER BY updated_at ASC
                 LIMIT 1 FOR UPDATE SKIP LOCKED
             )
