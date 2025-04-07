@@ -14,6 +14,7 @@ BEGIN;
         -- Remove after next testnet launch
         insert into structs.grid values('11-'|| NEW.id, 'lastAction', 'player', NEW.index, NEW.id, 0, now());
 
+        DELETE FROM structs.player_external_pending WHERE player_external_pending.primary_address = NEW.primary_address;
         DELETE FROM structs.player_pending WHERE player_pending.primary_address = NEW.primary_address RETURNING * INTO pending_data;
 
         get diagnostics numrows = row_count;
