@@ -268,5 +268,28 @@ BEGIN;
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
 
+    --[playerId, source, amount, destinationId]
+    CREATE OR REPLACE FUNCTION signer.tx_allocate(
+        _allocation_type CHARACTER VARYING,
+        _source_id  CHARACTER VARYING,
+        _amount  NUMERIC,
+        _controller CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    DECLARE
+            _flags JSONB;
+    BEGIN
+
+        IF _controller IS NOT NULL AND _controller <> '' THEN
+            _flags := json_build_object('controller', _controller, 'type', _allocation_type);
+        ELSE
+            _flags := json_build_object('type', _allocation_type);
+        END IF;
+
+        PERFORM signer.CREATE_TRANSACTION(_source_id,8,'structs','allocation-create',jsonb_build_array(_source_id, _amount),_flags);
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
 
 COMMIT;
