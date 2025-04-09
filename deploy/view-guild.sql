@@ -5,7 +5,7 @@ BEGIN;
     CREATE OR REPLACE VIEW view.guild AS
         SELECT
            guild.id as guild_id,
-           guild.enpoint,
+           guild.endpoint,
            guild.primary_reactor_id,
            guild.entry_substation_id,
            guild.owner,
