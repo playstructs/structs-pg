@@ -336,15 +336,15 @@ BEGIN;
 
                     body->>'substationId',
 
-                    (body->>'rateAmount')::BIGINT,
-                    body->>'rateDenom',
+                    (body->'rate'->>'amount')::NUMERIC,
+                    body->'rate'->>'denom',
 
                     body->>'accessPolicy',
 
-                    (body->>'capacityMinimum')::BIGINT,
-                    (body->>'capacityMaximum')::BIGINT,
-                    (body->>'durationMinimum')::BIGINT,
-                    (body->>'durationMaximum')::BIGINT,
+                    (body->>'capacityMinimum')::NUMERIC,
+                    (body->>'capacityMaximum')::NUMERIC,
+                    (body->>'durationMinimum')::NUMERIC,
+                    (body->>'durationMaximum')::NUMERIC,
 
                     (body->>'providerCancellationPenalty')::NUMERIC,
                     (body->>'consumerCancellationPenalty')::NUMERIC,
