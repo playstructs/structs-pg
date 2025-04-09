@@ -1095,6 +1095,16 @@ BEGIN;
                 VALUES( recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'minted', 'credit', denom);
         END LOOP;
 
+        FOR entries IN select event_id from cache.attributes where event_id in (select rowid from cache.events where block_id = (select rowid from cache.blocks where height = (NEW.height - 1))) and composite_key = 'burn.burner' LOOP
+
+            SELECT (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC, (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT INTO amount, denom     FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'burn.amount';
+
+            SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = entries.event_id AND composite_key = 'burn.burner';
+
+            INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
+                VALUES( recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'burned', 'debit', denom);
+        END LOOP;
+
     RETURN NEW;
     END
         $BODY$
