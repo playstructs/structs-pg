@@ -37,7 +37,7 @@ BEGIN;
                                   WHEN 0 THEN 'μg'
                               END;
 
-            format_amount := (_amount / (10^format_exp))::TEXT || format_postfix;
+            format_amount := ROUND((_amount / (10^format_exp))::NUMERIC,2)::TEXT || format_postfix;
 
         ELSIF _denom LIKE 'uguild%' THEN
             current_length := LENGTH(floor(_amount)::CHARACTER VARYING);
@@ -55,7 +55,7 @@ BEGIN;
                                   WHEN 0 THEN COALESCE (format_token_small,_denom)
                                  END;
 
-            format_amount := (_amount / (10^format_exp))::TEXT || format_postfix;
+            format_amount := ROUND((_amount / (10^format_exp))::NUMERIC,2)::TEXT || format_postfix;
 
         ELSIF _denom = 'milliwatt' THEN
 
@@ -78,7 +78,7 @@ BEGIN;
                                   WHEN 0 THEN 'mW'
                 END;
 
-            format_amount := (_amount / (10^format_exp))::TEXT || format_postfix;
+            format_amount := ROUND((_amount / (10^format_exp))::NUMERIC,2)::TEXT || format_postfix;
 
         ELSIF _denom = 'ore' THEN
             current_length := LENGTH(floor(_amount)::CHARACTER VARYING);
@@ -95,7 +95,7 @@ BEGIN;
                                   WHEN 0 THEN 'g'
                 END;
 
-            format_amount := (_amount / (10^format_exp))::TEXT || format_postfix;
+            format_amount := ROUND((_amount / (10^format_exp))::NUMERIC,2)::TEXT || format_postfix;
         END IF;
 
         RETURN format_amount;

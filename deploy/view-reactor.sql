@@ -19,4 +19,21 @@ CREATE OR REPLACE VIEW view.reactor AS
             updated_at
         FROM structs.reactor;
 
+
+    CREATE OR REPLACE VIEW view.leaderboard_reactor AS
+    WITH base AS (select destination_id as id,
+                         sum(fuel_p)  as fuel,
+                         sum(power_p) as power
+                  from structs.infusion
+                  where destination_type = 'reactor'
+                  group by destination_id
+    ) SELECT id,
+             fuel,
+             structs.UNIT_DISPLAY_FORMAT(fuel, 'ualpha') as display_fuel,
+             power,
+             structs.UNIT_DISPLAY_FORMAT(power, 'milliwatt') as display_power
+    FROM base;
+
 COMMIT;
+
+
