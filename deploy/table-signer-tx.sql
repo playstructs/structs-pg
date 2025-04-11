@@ -75,7 +75,8 @@ BEGIN;
         'substation-delete',
         'substation-player-connect',
         'substation-player-disconnect',
-        'substation-player-migrate'
+        'substation-player-migrate',
+        'send'
     );
 
 
@@ -224,7 +225,7 @@ BEGIN;
             _real_amount := _amount * 10^6;
         END IF;
 
-        PERFORM signer.CREATE_TRANSACTION(_player_id,0,'bank','send',jsonb_build_array(_primary_address_sender,_primary_address_sender, _real_amount || _real_denom),'{}');
+        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'bank','send',jsonb_build_array(_primary_address_sender,_primary_address_recipient, _real_amount || _real_denom),'{}');
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
