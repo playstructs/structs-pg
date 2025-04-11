@@ -261,7 +261,7 @@ BEGIN;
     ) RETURNS void AS
     $BODY$
     BEGIN
-        PERFORM signer.CREATE_TRANSACTION(_player_id,0,'structs','agreement-open',jsonb_build_array(_provider_id, _duration, _capacity),'{}');
+        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','agreement-open',jsonb_build_array(_provider_id, _duration, _capacity),'{}');
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
@@ -274,7 +274,7 @@ BEGIN;
     ) RETURNS void AS
     $BODY$
     BEGIN
-        PERFORM signer.CREATE_TRANSACTION(_player_id,0,'structs','substation-allocation-connect',jsonb_build_array(_allocation_id, _substation_id),'{}');
+        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','substation-allocation-connect',jsonb_build_array(_allocation_id, _substation_id),'{}');
     END
     $BODY$
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
