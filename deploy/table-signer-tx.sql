@@ -76,7 +76,8 @@ BEGIN;
         'substation-player-connect',
         'substation-player-disconnect',
         'substation-player-migrate',
-        'send'
+        'send',
+        'delegate'
     );
 
 
@@ -202,7 +203,7 @@ BEGIN;
     CREATE OR REPLACE FUNCTION signer.tx_bank_send(
         _player_id CHARACTER VARYING,
         _amount NUMERIC,
-        _denom NUMERIC,
+        _denom CHARACTER VARYING,
         _destination_player_id CHARACTER VARYING
     ) RETURNS void AS
     $BODY$
@@ -303,5 +304,97 @@ BEGIN;
     $BODY$
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_guild_bank_redeem(
+        _player_id CHARACTER VARYING,
+        _amount NUMERIC,
+        _denom CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    DECLARE
+        _real_denom CHARACTER VARYING;
+        _real_amount NUMERIC;
+    BEGIN
+
+        IF _denom ILIKE 'u%' THEN
+            _real_denom := _denom;
+            _real_amount := _amount;
+        ELSE
+            _real_denom := 'u' || _denom;
+            _real_amount := _amount * 10^6;
+        END IF;
+
+        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','guild-bank-redeem',jsonb_build_array(_real_amount || _real_denom),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_infuse(
+        _player_id CHARACTER VARYING,
+        _destination CHARACTER VARYING,
+        _amount NUMERIC,
+        _denom CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    DECLARE
+        _real_denom CHARACTER VARYING;
+        _real_amount NUMERIC;
+
+        _real_destination CHARACTER VARYING;
+    BEGIN
+
+        IF _denom = 'ualpha' THEN
+            _real_denom := _denom;
+            _real_amount := _amount;
+        ELSIF _denom = 'alpha' THEN
+            _real_denom := 'u' || _denom;
+            _real_amount := _amount * 10^6;
+        ELSE
+            -- Not an acceptable denom
+            RETURN;
+        END IF;
+
+
+        -- guild   = 0;
+        -- reactor = 3;
+        -- struct  = 5;
+        -- structsvaloper
+
+        -- Guild ID
+            -- Lookup Reactor ID
+        IF _destination ILIKE '0-%' THEN
+            SELECT reactor.validator INTO _real_destination FROM structs.reactor WHERE reactor.id IN (SELECT guild.primary_reactor_id FROM structs.guild WHERE guild.id = _destination);
+
+        -- Reactor ID
+        ELSIF _destination ILIKE '3-%' THEN
+            SELECT reactor.validator INTO _real_destination FROM structs.reactor WHERE reactor.id = _destination;
+
+        -- Struct ID
+        ELSIF _destination ILIKE '5-%' THEN
+            -- TODO Make sure it's a generator
+            _real_destination := _destination;
+
+        -- Reactor
+        ELSIF _destination ILIKE 'structsvaloper%' THEN
+            _real_destination := _destination;
+        ELSE
+            RETURN;
+        END IF;
+
+
+        IF _real_destination ILIKE 'structsvaloper%' THEN
+            PERFORM signer.CREATE_TRANSACTION(_player_id,8,'staking','delegate',jsonb_build_array(_real_destination, _real_amount || _real_denom),'{}');
+        ELSIF _real_destination ILIKE '5-%' THEN
+            PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','struct-generator-infuse ',jsonb_build_array(_real_destination, _real_amount || _real_denom),'{}');
+        ELSE
+            RETURN;
+        END IF;
+
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
 COMMIT;
