@@ -384,15 +384,13 @@ BEGIN;
             RETURN;
         END IF;
 
-
         IF _real_destination ILIKE 'structsvaloper%' THEN
             PERFORM signer.CREATE_TRANSACTION(_player_id,8,'staking','delegate',jsonb_build_array(_real_destination, _real_amount || _real_denom),'{}');
         ELSIF _real_destination ILIKE '5-%' THEN
             PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','struct-generator-infuse ',jsonb_build_array(_real_destination, _real_amount || _real_denom),'{}');
-        ELSE
-            RETURN;
         END IF;
 
+        RETURN;
     END
     $BODY$
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
