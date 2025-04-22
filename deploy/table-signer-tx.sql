@@ -25,6 +25,7 @@ BEGIN;
         'allocation-transfer',
         'allocation-update',
         'fleet-move',
+        'guild-bank-redeem',
         'guild-create',
         'guild-membership',
         'guild-membership-invite',
