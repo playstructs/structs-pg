@@ -467,4 +467,99 @@ BEGIN;
     $BODY$
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_build_initiate(
+        _player_id CHARACTER VARYING,
+        _struct_type_id INTEGER,
+        _operate_ambit CHARACTER VARYING,
+        _slot INTEGER
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-build-initiate',jsonb_build_array(_player_id, _struct_type_id, _operate_ambit,_slot ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_build_complete(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING,
+        _proof CHARACTER VARYING,
+        _nonce INTEGER
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-build-complete',jsonb_build_array(_struct_id, _proof, _nonce ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_activate(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-activate',jsonb_build_array(_struct_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_deactivate(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-deactivate',jsonb_build_array(_struct_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_ore_mine_complete(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING,
+        _proof CHARACTER VARYING,
+        _nonce INTEGER
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-ore-mine-complete',jsonb_build_array(_struct_id, _proof, _nonce ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_ore_refine_complete(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING,
+        _proof CHARACTER VARYING,
+        _nonce INTEGER
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-ore-refine-complete',jsonb_build_array(_struct_id, _proof, _nonce ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_attack(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING,
+        _target_struct_id CHARACTER VARYING,
+        _weapon_system CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-attack',jsonb_build_array(_struct_id, _target_struct_id, _weapon_system ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+
 COMMIT;
