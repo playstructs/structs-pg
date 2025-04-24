@@ -956,36 +956,35 @@ BEGIN;
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
-                VALUES( body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'mined', 'credit', 'ore');
-
+                VALUES( body->>'primaryAddress', (body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'mined', 'credit', 'ore');
 
         ELSIF NEW.composite_key = 'structs.structs.EventOreMigrate.eventOreMigrateDetail' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                VALUES( body->>'primaryAddress', body->>'oldPrimaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1),NOW(), 'migrated', 'credit', 'ore');
+                VALUES( body->>'primaryAddress', body->>'oldPrimaryAddress', (body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1),NOW(), 'migrated', 'credit', 'ore');
 
 
             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                VALUES( body->>'oldPrimaryAddress', body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'migrated', 'debit', 'ore');
+                VALUES( body->>'oldPrimaryAddress', body->>'primaryAddress', (body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'migrated', 'debit', 'ore');
 
 
         ELSIF NEW.composite_key = 'structs.structs.EventOreTheft.eventOreTheftDetail' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                VALUES( body->>'thiefPrimaryAddress', body->>'victimPrimaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'seized', 'credit', 'ore');
+                VALUES( body->>'thiefPrimaryAddress', body->>'victimPrimaryAddress', (body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'seized', 'credit', 'ore');
 
 
             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                VALUES( body->>'victimPrimaryAddress', body->>'thiefPrimaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'forfeited', 'debit', 'ore');
+                VALUES( body->>'victimPrimaryAddress', body->>'thiefPrimaryAddress', (body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'forfeited', 'debit', 'ore');
 
 
         ELSIF NEW.composite_key = 'structs.structs.EventAlphaRefine.eventAlphaRefineDetail' THEN
             body := (NEW.value)::jsonb;
 
             INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
-                VALUES( body->>'primaryAddress', body->>'amount', (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'refined', 'debit', 'ore');
+                VALUES( body->>'primaryAddress', (body->>'amount')::NUMERIC, (SELECT current_block.height FROM structs.current_block LIMIT 1), NOW(), 'refined', 'debit', 'ore');
 
 
             INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
