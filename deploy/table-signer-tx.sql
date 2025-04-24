@@ -269,21 +269,44 @@ BEGIN;
     LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
     --signer.tx_substation_allocation_connect(player_id, allocation_id, substation_id)
-    CREATE OR REPLACE FUNCTION signer.tx_substation_allocation_connect(
+    CREATE OR REPLACE FUNCTION signer.tx_allocation_connect(
         _player_id CHARACTER VARYING,
         _allocation_id CHARACTER VARYING,
         _substation_id CHARACTER VARYING
     ) RETURNS void AS
     $BODY$
     BEGIN
-        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','substation-allocation-connect',jsonb_build_array(_allocation_id, _substation_id),'{}');
+        PERFORM signer.CREATE_TRANSACTION(_player_id,32,'structs','substation-allocation-connect',jsonb_build_array(_allocation_id, _substation_id),'{}');
     END
     $BODY$
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
 
+    CREATE OR REPLACE FUNCTION signer.tx_allocation_disconnect(
+        _player_id CHARACTER VARYING,
+        _allocation_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,32,'structs','substation-allocation-disconnect',jsonb_build_array(_allocation_id),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE OR REPLACE FUNCTION signer.tx_allocation_transfer(
+        _player_id CHARACTER VARYING,
+        _allocation_id CHARACTER VARYING,
+        _controller CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','allocation-transfer',jsonb_build_array(_allocation_id, _controller),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
     --[playerId, source, amount, destinationId]
-    CREATE OR REPLACE FUNCTION signer.tx_allocate(
+    CREATE OR REPLACE FUNCTION signer.tx_allocation_create(
         _allocation_type CHARACTER VARYING,
         _source_id  CHARACTER VARYING,
         _amount  NUMERIC,
@@ -397,5 +420,51 @@ BEGIN;
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
 
+
+    CREATE OR REPLACE FUNCTION signer.tx_substation_create(
+        _player_id CHARACTER VARYING,
+        _allocation_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,8,'structs','substation-create',jsonb_build_array(_player_id, _allocation_id),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE OR REPLACE FUNCTION signer.tx_substation_player_connect(
+        _player_id CHARACTER VARYING,
+        _substation_id CHARACTER VARYING,
+        _target_player_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,32,'structs','substation-player-connect',jsonb_build_array(_substation_id, _target_player_id),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_substation_player_disconnect(
+        _player_id CHARACTER VARYING,
+        _target_player_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,32,'structs','substation-player-disconnect',jsonb_build_array(_target_player_id),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_explore(
+        _player_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','planet-explore',jsonb_build_array(_player_id),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
 COMMIT;
