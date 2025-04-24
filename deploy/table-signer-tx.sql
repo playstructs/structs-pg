@@ -562,4 +562,90 @@ BEGIN;
 
 
 
+    CREATE OR REPLACE FUNCTION signer.tx_struct_defense_set(
+        _player_id CHARACTER VARYING,
+        _defender_struct_id CHARACTER VARYING,
+        _protected_struct_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-defense-set',jsonb_build_array(_defender_struct_id, _protected_struct_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_defense_clear(
+        _player_id CHARACTER VARYING,
+        _defender_struct_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-defense-clear',jsonb_build_array(_defender_struct_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_stealth_activate(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-stealth-activate',jsonb_build_array(_struct_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_struct_stealth_deactivate(
+        _player_id CHARACTER VARYING,
+        _struct_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','struct-stealth-deactivate',jsonb_build_array(_struct_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE OR REPLACE FUNCTION signer.tx_fleet_move(
+        _player_id CHARACTER VARYING,
+        _fleet_id CHARACTER VARYING,
+        _destination_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','fleet-move',jsonb_build_array(_fleet_id, _destination_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_planet_raid_complete(
+        _player_id CHARACTER VARYING,
+        _fleet_id CHARACTER VARYING,
+        _proof CHARACTER VARYING,
+        _nonce INTEGER
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','planet-raid-complete',jsonb_build_array(_fleet_id, _proof, _nonce ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+
+
+    CREATE OR REPLACE FUNCTION signer.tx_player_resume(
+        _player_id CHARACTER VARYING
+    ) RETURNS void AS
+    $BODY$
+    BEGIN
+        PERFORM signer.CREATE_TRANSACTION(_player_id,1,'structs','player-resume',jsonb_build_array(_player_id ),'{}');
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
 COMMIT;
