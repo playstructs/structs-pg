@@ -14,6 +14,7 @@ BEGIN;
                         'category', NEW.attribute_type,
                         'object_id', NEW.object_id,
                         'object_type', NEW.object_type,
+                        'attribute_type', NEW.attribute_type,
                         'value', NEW.val,
                         'updated_at', NEW.updated_at)::TEXT;
 
