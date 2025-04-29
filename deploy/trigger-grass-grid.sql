@@ -16,6 +16,7 @@ BEGIN;
                         'object_type', NEW.object_type,
                         'attribute_type', NEW.attribute_type,
                         'value', NEW.val,
+                        'value_old', OLD.val,
                         'updated_at', NEW.updated_at)::TEXT;
 
         PERFORM pg_notify('grass', payload);
