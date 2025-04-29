@@ -7,7 +7,7 @@ BEGIN;
     BEGIN
         PERFORM pg_notify('grass',
                     jsonb_build_object(
-                        'subject','structs.consensus',
+                        'subject','consensus',
                         'category', 'block',
                         'updated_at', NEW.updated_at,
                         'height', NEW.height)::TEXT);
