@@ -25,8 +25,8 @@ BEGIN;
 
         _subject := 'structs.inventory.'
                         || NEW.denom || '.'
-                        || guild_id::TEXT || '.'
-                        || player_id::TEXT || '.'
+                        || _guild_id::TEXT || '.'
+                        || _player_id::TEXT || '.'
                         || NEW.address;
 
 
