@@ -36,18 +36,18 @@ BEGIN;
     );
 
 
-    CREATE OR REPLACE FUNCTION structs.GET_ACTIVITY_LOCATION_ID(struct_id CHARACTER VARYING) RETURNS CHARACTER VARYING AS
+    CREATE OR REPLACE FUNCTION structs.GET_ACTIVITY_LOCATION_ID(_struct_id CHARACTER VARYING) RETURNS CHARACTER VARYING AS
     $BODY$
     DECLARE
-        location_id CHARACTER VARYING;
-        location_type CHARACTER VARYING;
+        _location_id CHARACTER VARYING;
+        _location_type CHARACTER VARYING;
     BEGIN
-        SELECT struct.location_type, struct.location_id INTO location_type, location_id FROM structs.struct where struct.id = struct_id;
-        IF location_type = 'fleet' THEN
-            SELECT fleet.location_id INTO location_id FROM structs.fleet where fleet.id = location_id;
+        SELECT struct.location_type, struct.location_id INTO _location_type, _location_id FROM structs.struct where struct.id = _struct_id;
+        IF _location_type = 'fleet' THEN
+            SELECT fleet.location_id INTO _location_id FROM structs.fleet where fleet.id = _location_id;
         END IF;
 
-        RETURN location_id;
+        RETURN _location_id;
     END;
     $BODY$
     LANGUAGE plpgsql VOLATILE COST 100;
