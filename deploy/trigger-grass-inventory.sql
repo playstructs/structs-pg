@@ -20,7 +20,7 @@ BEGIN;
         _guild_id := (CASE _guild_id WHEN '' THEN 'noGuild' ELSE COALESCE(_guild_id, 'noGuild') END);
         _player_id := (CASE _player_id WHEN '' THEN 'noPlayer' ELSE COALESCE(_player_id, 'noPlayer') END);
 
-        _counterparty_player_id := (CASE _player_id WHEN '' THEN 'noPlayer' ELSE COALESCE(_player_id, 'noPlayer') END);
+        _counterparty_player_id := (CASE _counterparty_player_id WHEN '' THEN 'noPlayer' ELSE COALESCE(_counterparty_player_id, 'noPlayer') END);
         _counterparty_guild_id := (CASE _counterparty_guild_id WHEN '' THEN 'noGuild' ELSE COALESCE(_counterparty_guild_id, 'noGuild') END);
 
         _subject := 'structs.inventory.'
