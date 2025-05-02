@@ -1311,7 +1311,8 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                     INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
                         VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_status',
                             jsonb_build_object( 'struct_id', NEW.object_id,
-                                                'status', NEW.val)
+                                                'status', NEW.val,
+                                                'status_old', OLD.val)
                            );
 
                 WHEN 'health' THEN
