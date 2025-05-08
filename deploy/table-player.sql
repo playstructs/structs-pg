@@ -76,18 +76,26 @@ BEGIN;
     );
 
     CREATE TABLE structs.player_address_pending (
-        address CHARACTER VARYING PRIMARY KEY,
+        code CHARACTER VARYING,
+        address CHARACTER VARYING,
         signature CHARACTER VARYING,
         pubkey CHARACTER VARYING,
-        code CHARACTER VARYING NOT NULL DEFAULT structs.unique_human_random(5, 'player_address_pending', 'code'), -- char(5)
         ip INET,
         user_agent CHARACTER VARYING,
         created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        PRIMARY KEY(code, address)
     );
 
-    CREATE UNIQUE INDEX player_address_pending_code_idx ON structs.player_address_pending (code);
+    CREATE TABLE structs.player_address_activation_code (
+        player_id CHARACTER VARYING,
+        logged_in_address CHARACTER VARYING,
+        code CHARACTER VARYING NOT NULL DEFAULT structs.unique_human_random(5, 'player_address_activation_code', 'code'), -- char(5)
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        PRIMARY KEY (player_id, code)
+    );
 
+    CREATE UNIQUE INDEX player_address_activation_code_idx ON structs.player_address_activation_code (code);
 
     CREATE TABLE structs.player_external_pending (
         guild_id CHARACTER VARYING,
