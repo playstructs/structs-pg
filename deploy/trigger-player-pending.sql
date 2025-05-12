@@ -87,5 +87,20 @@ BEGIN;
 
 
 
+    CREATE OR REPLACE FUNCTION structs.PLAYER_ADDRESS_PENDING_MERGE()
+        RETURNS trigger AS
+    $BODY$
+    BEGIN
+        DELETE FROM structs.player_address_pending WHERE player_address_pending.address = NEW.address;
+        RETURN NEW;
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+                         COST 100;
+
+    CREATE TRIGGER PLAYER_ADDRESS_PENDING_MERGE AFTER INSERT ON structs.player_address
+        FOR EACH ROW EXECUTE PROCEDURE structs.PLAYER_ADDRESS_PENDING_MERGE();
+
+
 COMMIT;
 
