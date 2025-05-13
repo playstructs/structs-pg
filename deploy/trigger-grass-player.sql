@@ -65,7 +65,7 @@ BEGIN;
     DECLARE
         payload TEXT;
     BEGIN
-        payload := (to_jsonb(NEW) || jsonb_build_object('subject','structs.player.' || NEW.guild_id || '.' || NEW.id, 'category', 'player_address'))::TEXT;
+        payload := (to_jsonb(NEW) || jsonb_build_object('subject','structs.player.' || NEW.guild_id || '.' || NEW.player_id, 'category', 'player_address'))::TEXT;
 
         PERFORM pg_notify('grass', payload);
 
