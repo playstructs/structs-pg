@@ -77,4 +77,22 @@ BEGIN;
     CREATE TRIGGER PLAYER_ADDRESS_NOTIFY AFTER INSERT OR UPDATE ON structs.player_address
         FOR EACH ROW EXECUTE PROCEDURE structs.PLAYER_ADDRESS_NOTIFY();
 
+
+    CREATE OR REPLACE FUNCTION structs.PLAYER_ADDRESS_PENDING_NOTIFY() RETURNS trigger AS
+    $BODY$
+    DECLARE
+        payload TEXT;
+    BEGIN
+        payload := (to_jsonb(NEW) || jsonb_build_object('subject','structs.address.register.' || NEW.code, 'category', 'player_address_pending'))::TEXT;
+
+        PERFORM pg_notify('grass', payload);
+
+        RETURN NEW;
+    END
+    $BODY$
+        LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
+
+    CREATE TRIGGER PLAYER_ADDRESS_PENDING_NOTIFY AFTER INSERT OR UPDATE ON structs.player_address_pending
+        FOR EACH ROW EXECUTE PROCEDURE structs.PLAYER_ADDRESS_PENDING_NOTIFY();
+
 COMMIT;
