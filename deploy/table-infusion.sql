@@ -16,7 +16,8 @@ CREATE  TABLE structs.infusion (
 	power NUMERIC  GENERATED ALWAYS AS (structs.UNIT_LEGACY_FORMAT(power_p, 'milliwatt')) STORED,
     power_p NUMERIC,
 
-    ratio NUMERIC,
+    ratio NUMERIC GENERATED ALWAYS AS (ratio_p * 1000) STORED,
+    ratio_p NUMERIC,
 
     commission NUMERIC,
 
