@@ -34,6 +34,7 @@ BEGIN;
         services jsonb,
         domain CHARACTER VARYING,
         website CHARACTER VARYING,
+        base_energy NUMERIC,
         this_infrastructure bool,
         status CHARACTER VARYING,
 
@@ -72,6 +73,7 @@ BEGIN;
                    _payload->'guild'->'services',
                    _payload->'guild'->'domain',
                    _payload->'guild'->>'website',
+                   _payload->'guild'->>'baseEnergy',
                    'f',
                    '',
                    NOW(),
@@ -87,6 +89,7 @@ BEGIN;
                 denom = EXCLUDED.denom,
                 services = EXCLUDED.services,
                 website = EXCLUDED.website,
+                base_energy = EXCLUDED.base_energy,
                 updated_at = EXCLUDED.updated_at;
     END
     $BODY$
