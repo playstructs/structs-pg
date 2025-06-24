@@ -29,7 +29,7 @@ BEGIN;
     CREATE TABLE structs.planet_meta (
         id CHARACTER VARYING,
         guild_id CHARACTER VARYING,
-        name TEXT DEFAULT structs.generate_planet_name(),
+        name TEXT DEFAULT structs.generate_planet_name(5),
 
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW(),
