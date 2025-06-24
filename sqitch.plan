@@ -29,7 +29,10 @@ role-structs-indexer 2023-07-17T18:25:20Z Abstrct <josh@slow.ninja> # The Consen
 role-structs-webapp 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Web Application User
 schema-view 2024-07-13T16:47:52Z Abstrct <josh@slow.ninja> # Add view schema for administrative objects
 view-grid 2024-07-13T18:18:33Z Abstrct <josh@slow.ninja> # An expanded Grid View
+function-generate-planet-name 2025-05-25T18:17:39Z Abstrct <josh@slow.ninja> # Function for generating a planet name
+table-banned-word 2025-05-25T18:18:33Z Abstrct <josh@slow.ninja> # A table for storing banned words
 view-planet 2024-07-13T18:18:33Z Abstrct <josh@slow.ninja> # An expanded Planet View
+trigger-name-planet 2025-05-26T18:18:33Z Abstrct <josh@slow.ninja> # A trigger that sets initial meta names for planets
 view-reactor 2024-07-13T18:19:33Z Abstrct <josh@slow.ninja> # An expanded Reactor View
 view-struct 2024-07-13T18:18:33Z Abstrct <josh@slow.ninja> # An expanded Struct View
 view-substation 2024-07-13T18:20:33Z Abstrct <josh@slow.ninja> # An expanded Substation View
@@ -52,6 +55,3 @@ trigger-grass-player 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Noti
 trigger-grass-provider 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Provider Updates
 trigger-grass-agreement 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Agreement Updates
 role-structs-crawler 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Crawler Role
-function-generate-planet-name 2025-05-25T18:17:39Z Abstrct <josh@slow.ninja> # Function for generating a planet name
-table-banned-word 2025-05-25T18:18:33Z Abstrct <josh@slow.ninja> # A table for storing banned words
-trigger-name-planet 2025-05-26T18:18:33Z Abstrct <josh@slow.ninja> # A trigger that sets initial meta names for planets
