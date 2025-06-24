@@ -73,7 +73,7 @@ BEGIN;
                    _payload->'guild'->'services',
                    _payload->'guild'->'domain',
                    _payload->'guild'->>'website',
-                   _payload->'guild'->>'baseEnergy',
+                   (_payload->'guild'->>'baseEnergy')::NUMERIC,
                    'f',
                    '',
                    NOW(),
