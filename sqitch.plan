@@ -52,3 +52,6 @@ trigger-grass-player 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Noti
 trigger-grass-provider 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Provider Updates
 trigger-grass-agreement 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Agreement Updates
 role-structs-crawler 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Crawler Role
+function-generate-planet-name 2025-05-25T18:17:39Z Abstrct <josh@slow.ninja> # Function for generating a planet name
+table-banned-word 2025-05-25T18:18:33Z Abstrct <josh@slow.ninja> # A table for storing banned words
+trigger-name-planet 2025-05-26T18:18:33Z Abstrct <josh@slow.ninja> # A trigger that sets initial meta names for planets
