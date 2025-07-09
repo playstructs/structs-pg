@@ -1209,7 +1209,7 @@ BEGIN;
                         FROM cache.attributes
                         WHERE
                                 attributes.event_id IN (SELECT events.rowid FROM cache.events WHERE type='message' AND events.tx_id = event.tx_id)
-                            AND composite_key = 'message.sender'
+                            AND composite_key = 'message.sender';
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
