@@ -34,6 +34,16 @@ CREATE OR REPLACE VIEW view.reactor AS
              structs.UNIT_DISPLAY_FORMAT(power, 'milliwatt') as display_power
     FROM base;
 
+    CREATE OR REPLACE VIEW view.reactor_inventory AS
+    select
+        reactor.id,
+        reactor.validator,
+        sum(case when ledger.direction='debit' then ledger.amount*-1 ELSE ledger.amount END) as balance,
+        CASE denom WHEN 'ore' THEN 'ore' ELSE substring(denom, 2, length(denom)-1) END as denom
+    from structs.reactor left join structs.ledger on reactor.validator = ledger.address
+    group by reactor.id, reactor.validator, ledger.denom;
+
+
 COMMIT;
 
 

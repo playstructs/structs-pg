@@ -1213,15 +1213,15 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, _object_id, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'debit', denom||'.infused');
+                            VALUES( sender, _object_id, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'debit', denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( _object_id, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'debit', denom||'.infused');
+                            VALUES( _object_id, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'debit', denom||'.infused');
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, _object_id, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'credit', denom||'.defusing');
+                            VALUES( recipient, _object_id, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( _object_id, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'credit', denom||'.defusing');
+                            VALUES( _object_id, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', denom||'.defusing');
 
                         INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
                                 recipient,
@@ -1250,15 +1250,15 @@ BEGIN;
                         SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'complete_redelegation.delegator';
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'debit', denom||'.defusing');
+                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'debit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'debit', denom||'.defusing');
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'debit', denom||'.defusing');
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'credit', denom||'.infused');
+                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'credit', denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diverted', 'credit', denom||'.infused');
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'credit', denom||'.infused');
 
                     END IF;
 
@@ -1278,14 +1278,14 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'debit', denom||'.infused');
+                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'debit', denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'debit', denom||'.infused');
+                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'debit', denom||'.infused');
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'credit', denom||'.defusing');
+                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'credit', denom||'.defusing');
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
 
                         INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
                                 recipient,
@@ -1314,15 +1314,15 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', denom||'.defusing');
+                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', denom||'.defusing');
+                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
 
 
                         -- TODO fix this bug where this could delete multiple defusions
@@ -1344,12 +1344,12 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'debit', denom||'.defusing');
+                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'debit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'debit', denom||'.defusing');
+                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'debit', denom||'.defusing');
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defused', 'credit', denom);
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'credit', denom);
 
                     END IF;
             END CASE;
