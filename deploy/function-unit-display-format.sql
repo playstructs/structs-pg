@@ -17,8 +17,8 @@ BEGIN;
         format_token_small TEXT;
     BEGIN
 
-        _denom := REPLACE(_denom, '.stable_fuel','');
-        _denom := REPLACE(_denom, '.unstable_fuel','');
+        _denom := REPLACE(_denom, '.infused','');
+        _denom := REPLACE(_denom, '.defusing','');
 
         IF _denom = 'ualpha' THEN
 
@@ -115,8 +115,8 @@ BEGIN;
     DECLARE
         legacy_amount NUMERIC;
     BEGIN
-        denom := REPLACE(denom, '.stable_fuel','');
-        denom := REPLACE(denom, '.unstable_fuel','');
+        denom := REPLACE(denom, '.infused','');
+        denom := REPLACE(denom, '.defusing','');
 
         IF denom = 'ualpha' THEN
             legacy_amount := floor(amount / 1000000);
