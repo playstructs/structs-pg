@@ -14,11 +14,11 @@ BEGIN;
 
             IF TG_OP = 'INSERT' THEN
                 INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
-                INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p, current_block_height, NOW(), 'infused', 'credit', 'ualpha.stable_fuel');
+                INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p, current_block_height, NOW(), 'infused', 'credit', 'ualpha.infused');
             ELSIF TG_OP = 'UPDATE' THEN
                 IF NEW.fuel_p <> OLD.fuel_p THEN
                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
-                    INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'credit', 'ualpha.stable_fuel');
+                    INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'credit', 'ualpha.infused');
                 END IF;
             END IF;
         END IF;
