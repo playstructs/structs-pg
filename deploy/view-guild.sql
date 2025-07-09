@@ -88,12 +88,11 @@ BEGIN;
                        structs.player_address
                   WHERE
                           player_address.address = ledger.address
-                    AND not action in ('infused','defused')
                   group by player_id, ledger.denom
     ), expanded as (
         SELECT base.player_id,
                sum(CASE denom WHEN 'ualpha' THEN base.hard_balance ELSE 0 END) as hard_balance,
-               sum(CASE denom WHEN 'ualpha' THEN base.hard_balance WHEN 'ore' THEN 0 ELSE (SELECT guild_bank.ratio * base.hard_balance FROM view.guild_bank where guild_bank.denom = base.denom) END) as paper_balance
+               sum(CASE denom WHEN 'ualpha' THEN base.hard_balance WHEN 'ualpha.infused' THEN base.hard_balance WHEN 'ualpha.defusing' THEN base.hard_balance WHEN 'ore' THEN 0 ELSE (SELECT guild_bank.ratio * base.hard_balance FROM view.guild_bank where guild_bank.denom = base.denom) END) as paper_balance
         FROM base GROUP BY base.player_id
     )
     select
