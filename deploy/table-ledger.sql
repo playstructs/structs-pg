@@ -11,7 +11,6 @@ CREATE TYPE structs.ledger_action AS ENUM ('genesis','received','sent','migrated
 CREATE TABLE structs.ledger (
     time TIMESTAMPTZ DEFAULT NOW(),
     id BIGSERIAL NOT NULL,
-    object_id CHARACTER VARYING,
     address CHARACTER VARYING,
     counterparty CHARACTER VARYING,
     amount NUMERIC GENERATED ALWAYS AS (structs.UNIT_LEGACY_FORMAT(amount_p, denom)) STORED,

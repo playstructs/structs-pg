@@ -2,29 +2,26 @@
 
 BEGIN;
 
+    -- This only needs to manage the struct infusions
     CREATE OR REPLACE FUNCTION structs.INFUSION_LEDGER_ENTRY()
       RETURNS trigger AS
     $BODY$
     DECLARE
         current_block_height BIGINT;
     BEGIN
+        IF NEW.destination_type = 'struct' THEN
+            SELECT height INTO current_block_height FROM structs.current_block;
 
-        SELECT height INTO current_block_height FROM structs.current_block;
-
-        IF TG_OP = 'INSERT' THEN
-            INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id, NEW.address,NEW.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
-
-        ELSIF TG_OP = 'UPDATE' THEN
-            IF NEW.fuel_p <> OLD.fuel_p THEN
-                INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id, NEW.address, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
+            IF TG_OP = 'INSERT' THEN
+                INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
+                INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p, current_block_height, NOW(), 'infused', 'credit', 'ualpha.stable_fuel');
+            ELSIF TG_OP = 'UPDATE' THEN
+                IF NEW.fuel_p <> OLD.fuel_p THEN
+                    INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
+                    INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom) VALUES( NEW.address, NEW.destination_id, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'credit', 'ualpha.stable_fuel');
+                END IF;
             END IF;
-
-            IF NEW.defusing_p <> OLD.defusing_p THEN
-                INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id, NEW.address, NEW.defusing_p - OLD.defusing_p, current_block_height, NOW(), 'defused', 'credit', 'ualpha');
-            END IF;
-
         END IF;
-
         RETURN NEW;
     END
     $BODY$
