@@ -1093,7 +1093,7 @@ BEGIN;
 
         SELECT rowid INTO _block_id FROM cache.blocks WHERE height = (NEW.height - 1);
 
-        FOR event IN select events.type, events.rowid as event_id, events.tx_id from cache.events where block_id = _block_id) and events.type IN (
+        FOR event IN select events.type, events.rowid as event_id, events.tx_id from cache.events where block_id = _block_id and events.type IN (
             'transfer',
             'coinbase',
             'burn',
