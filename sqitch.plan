@@ -24,6 +24,7 @@ table-fleet 2024-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Fleet table
 table-player 2023-07-17T18:19:00Z Abstrct <josh@slow.ninja> # The Player table
 table-struct-type 2023-07-17T18:19:20Z Abstrct <josh@slow.ninja> # The Struct Type table
 table-infusion 2023-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Infusions
+table-defusion 2025-07-17T18:20:20Z Abstrct <josh@slow.ninja> # The Defusion list
 table-ledger 2024-07-17T18:20:20Z Abstrct <josh@slow.ninja> # A ledger attempt
 table-provider 2025-02-17T18:20:20Z Abstrct <josh@slow.ninja> # A Provider table
 table-agreement 2025-02-17T18:20:20Z Abstrct <josh@slow.ninja> # An Agreement

@@ -12,15 +12,15 @@ BEGIN;
         SELECT height INTO current_block_height FROM structs.current_block;
 
         IF TG_OP = 'INSERT' THEN
-            INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id || '-' || NEW.address, NEW.address,NEW.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
+            INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id, NEW.address,NEW.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
 
         ELSIF TG_OP = 'UPDATE' THEN
             IF NEW.fuel_p <> OLD.fuel_p THEN
-                INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id || '-' || NEW.address, NEW.address, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
+                INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id, NEW.address, NEW.fuel_p - OLD.fuel_p, current_block_height, NOW(), 'infused', 'debit', 'ualpha');
             END IF;
 
             IF NEW.defusing_p <> OLD.defusing_p THEN
-                INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id || '-' || NEW.address, NEW.address, NEW.defusing_p - OLD.defusing_p, current_block_height, NOW(), 'defused', 'credit', 'ualpha');
+                INSERT INTO structs.ledger(object_id, address, amount_p, block_height, time, action, direction, denom) VALUES(NEW.destination_id, NEW.address, NEW.defusing_p - OLD.defusing_p, current_block_height, NOW(), 'defused', 'credit', 'ualpha');
             END IF;
 
         END IF;
