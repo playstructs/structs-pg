@@ -68,6 +68,7 @@ BEGIN;
     );
 
     CREATE INDEX events_block ON cache.events(block_id);
+    CREATE INDEX events_tx_type ON cache.events(type, tx_id);
 
     -- The attributes table records event attributes.
     CREATE UNLOGGED TABLE cache.attributes (
@@ -1204,7 +1205,7 @@ BEGIN;
                             attributes.value INTO _object_id
                         FROM cache.attributes
                         WHERE
-                                attributes.event_id IN (SELECT events.rowid FROM cache.events WHERE events.tx_id = event.tx_id AND type='message')
+                                attributes.event_id IN (SELECT events.rowid FROM cache.events WHERE type='message' AND events.tx_id = event.tx_id)
                             AND composite_key = 'message.sender'
 
 
