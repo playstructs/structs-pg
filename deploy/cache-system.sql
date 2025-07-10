@@ -1232,7 +1232,7 @@ BEGIN;
                             'r',
                             amount::NUMERIC,
                             denom,
-                            (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.completion_time'),
+                            (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.completion_time')::TIMESTAMPTZ,
                             NOW()
                         );
                     END IF;
@@ -1295,7 +1295,7 @@ BEGIN;
                             'u',
                             amount::NUMERIC,
                             denom,
-                            (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.completion_time'),
+                            (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.completion_time')::TIMESTAMPTZ,
                             NOW()
                         );
 
