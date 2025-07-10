@@ -1090,6 +1090,7 @@ BEGIN;
         --  withdraw_rewards
         --  delegate
         --  cancel_unbond
+        -- create_validator
 
         SELECT rowid INTO _block_id FROM cache.blocks WHERE height = (NEW.height - 1);
 
@@ -1102,7 +1103,8 @@ BEGIN;
             'complete_redelegation',
             'unbond',
             'cancel_unbond',
-            'complete_unbonding'
+            'complete_unbonding',
+            'create_validator'
             --'withdraw_rewards'
         ) LOOP
 
@@ -1329,6 +1331,37 @@ BEGIN;
                             VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'credit', denom);
 
                     END IF;
+
+                WHEN 'create_validator' THEN
+                    amount_populated := false;
+                    SELECT
+                        (attributes.value <> ''),
+                        (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
+                                            (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
+                    INTO amount_populated, amount, denom
+                    FROM cache.attributes
+                    WHERE attributes.event_id = event.event_id AND composite_key = 'create_validator.amount';
+
+                    IF amount_populated THEN
+                        SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'create_validator.validator';
+
+                        SELECT
+                            attributes.value INTO sender
+                        FROM cache.attributes
+                        WHERE
+                                attributes.event_id IN (SELECT events.rowid FROM cache.events WHERE type='coin_spent' AND events.tx_id = event.tx_id)
+                          AND composite_key = 'coin_spent.spender';
+
+                        INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', denom);
+
+                        INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
+                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                        INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
+                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+
+                    END IF;
+
             END CASE;
 
         END LOOP;
