@@ -1208,8 +1208,9 @@ BEGIN;
                             attributes.value INTO _object_id
                         FROM cache.attributes
                         WHERE
-                                attributes.event_id IN (SELECT events.rowid FROM cache.events WHERE type='message' AND events.tx_id = event.tx_id)
-                            AND composite_key = 'message.sender';
+                                attributes.event_id IN (SELECT events.rowid FROM cache.events WHERE type='withdraw_rewards' AND events.tx_id = event.tx_id)
+                            AND composite_key = 'withdraw_rewards.delegator';
+
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
@@ -1223,15 +1224,6 @@ BEGIN;
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES( _object_id, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', denom||'.defusing');
 
-                        INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
-                                recipient,
-                                _object_id,
-                                'r',
-                                amount::NUMERIC,
-                                denom,
-                                (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.completion_time'),
-                                NOW()
-                        );
 
                     END IF;
                 WHEN 'complete_redelegation' THEN
@@ -1267,7 +1259,7 @@ BEGIN;
                     SELECT
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
-                                            (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
+                        (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
                     INTO amount_populated, amount, denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.amount';
@@ -1287,16 +1279,6 @@ BEGIN;
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
 
-                        INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
-                                recipient,
-                                sender,
-                                'u',
-                                amount::NUMERIC,
-                                denom,
-                                (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.completion_time'),
-                                NOW()
-                        );
-
                     END IF;
                 WHEN 'cancel_unbond' THEN
                     amount_populated := false;
@@ -1312,22 +1294,17 @@ BEGIN;
                         SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'cancel_unbond.validator';
                         SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'cancel_unbond.delegator';
 
-
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
-
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
 
-
-                        -- TODO fix this bug where this could delete multiple defusions
-                        -- DELETE FROM structs.defusion WHERE defusion.validator_address = recipient and defusion.delegator_address = sender and defusion.amount_p = amount::NUMERIC;
-                    END IF;
+                   END IF;
                 WHEN 'complete_unbonding' THEN
                     amount_populated := false;
                     SELECT
