@@ -1226,7 +1226,15 @@ BEGIN;
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES( _object_id, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', denom||'.defusing');
 
-
+                        INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
+                            recipient,
+                            _object_id,
+                            'r',
+                            amount::NUMERIC,
+                            denom,
+                            (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.completion_time'),
+                            NOW()
+                        );
                     END IF;
                 WHEN 'complete_redelegation' THEN
 
@@ -1280,6 +1288,16 @@ BEGIN;
                             VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
                             VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
+
+                        INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
+                            recipient,
+                            sender,
+                            'u',
+                            amount::NUMERIC,
+                            denom,
+                            (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.completion_time'),
+                            NOW()
+                        );
 
                     END IF;
                 WHEN 'cancel_unbond' THEN
