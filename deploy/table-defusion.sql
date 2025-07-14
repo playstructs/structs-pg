@@ -13,4 +13,15 @@ BEGIN;
         created_at        TIMESTAMPTZ DEFAULT NOW()
     );
 
+
+    SELECT cron.schedule('defusion_cleaner', '5 minutes', 'CALL structs.CLEAN_DEFUSION();');
+
+    CREATE OR REPLACE PROCEDURE structs.CLEAN_DEFUSION()
+    AS
+    $BODY$
+    BEGIN
+        DELETE FROM structs.defusion WHERE completed_at < NOW();
+    END
+    $BODY$ LANGUAGE plpgsql SECURITY DEFINER;
+
 COMMIT;
