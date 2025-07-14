@@ -1074,9 +1074,9 @@ BEGIN;
         sender CHARACTER VARYING;
 
 
-        amount CHARACTER VARYING;
+        _amount CHARACTER VARYING;
         amount_populated BOOL;
-        denom TEXT;
+        _denom TEXT;
     BEGIN
 
         -- Events
@@ -1115,7 +1115,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'transfer.amount';
 
@@ -1127,10 +1127,10 @@ BEGIN;
                         -- If you need that detail, you can join the table with player_address
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'sent', 'debit', denom);
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'sent', 'debit', _denom);
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'received', 'credit', denom);
+                            VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'received', 'credit', _denom);
                     END IF;
 
                 WHEN 'coinbase' THEN
@@ -1139,7 +1139,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'coinbase.amount';
 
@@ -1147,7 +1147,7 @@ BEGIN;
                         SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'coinbase.minter';
 
                         INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'minted', 'credit', denom);
+                            VALUES( recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'minted', 'credit', _denom);
                     END IF;
 
                 WHEN 'burn' THEN
@@ -1156,7 +1156,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'burn.amount';
 
@@ -1164,7 +1164,7 @@ BEGIN;
                         SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'burn.burner';
 
                         INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'burned', 'debit', denom);
+                            VALUES( recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'burned', 'debit', _denom);
                     END IF;
 
                 WHEN 'delegate' THEN
@@ -1173,7 +1173,7 @@ BEGIN;
                             (attributes.value <> ''),
                             (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                             (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                        INTO amount_populated, amount, denom
+                        INTO amount_populated, _amount, _denom
                         FROM cache.attributes
                         WHERE attributes.event_id = event.event_id AND composite_key = 'delegate.amount';
 
@@ -1182,13 +1182,13 @@ BEGIN;
                             SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'delegate.delegator';
 
                             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', denom);
+                                VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', _denom);
 
                             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                                VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', _denom||'.infused');
 
                             INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                                VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', _denom||'.infused');
                         END IF;
 
 
@@ -1198,7 +1198,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.amount';
 
@@ -1216,22 +1216,22 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, _object_id, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'debit', denom||'.infused');
+                            VALUES( sender, _object_id, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'debit', _denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( _object_id, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'debit', denom||'.infused');
+                            VALUES( _object_id, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'debit', _denom||'.infused');
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, _object_id, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', denom||'.defusing');
+                            VALUES( recipient, _object_id, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', _denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( _object_id, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', denom||'.defusing');
+                            VALUES( _object_id, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_started', 'credit', _denom||'.defusing');
 
                         INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
                             recipient,
                             _object_id,
                             'r',
-                            amount::NUMERIC,
-                            denom,
+                            _amount::NUMERIC,
+                            _denom,
                             (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.completion_time')::TIMESTAMPTZ,
                             NOW()
                         );
@@ -1243,7 +1243,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                             (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'complete_redelegation.amount';
 
@@ -1252,15 +1252,15 @@ BEGIN;
                         SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'complete_redelegation.delegator';
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'debit', denom||'.defusing');
+                            VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'debit', _denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'debit', denom||'.defusing');
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'debit', _denom||'.defusing');
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'credit', denom||'.infused');
+                            VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'credit', _denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'credit', denom||'.infused');
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'diversion_completed', 'credit', _denom||'.infused');
 
                     END IF;
 
@@ -1270,7 +1270,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.amount';
 
@@ -1280,21 +1280,21 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'debit', denom||'.infused');
+                            VALUES(recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'debit', _denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'debit', denom||'.infused');
+                            VALUES(sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'debit', _denom||'.infused');
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
+                            VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', _denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', denom||'.defusing');
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_started', 'credit', _denom||'.defusing');
 
                         INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
                             recipient,
                             sender,
                             'u',
-                            amount::NUMERIC,
-                            denom,
+                            _amount::NUMERIC,
+                            _denom,
                             (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.completion_time')::TIMESTAMPTZ,
                             NOW()
                         );
@@ -1306,7 +1306,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'cancel_unbond.amount';
 
@@ -1315,14 +1315,14 @@ BEGIN;
                         SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'cancel_unbond.delegator';
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
+                            VALUES(recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', _denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
+                            VALUES(sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'debit', _denom||'.defusing');
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
+                            VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', _denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_cancelled', 'credit', _denom||'.infused');
 
                    END IF;
                 WHEN 'complete_unbonding' THEN
@@ -1331,7 +1331,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'complete_unbonding.amount';
 
@@ -1341,12 +1341,12 @@ BEGIN;
 
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'debit', denom||'.defusing');
+                            VALUES(recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'debit', _denom||'.defusing');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES(sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'debit', denom||'.defusing');
+                            VALUES(sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'debit', _denom||'.defusing');
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'credit', denom);
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'defusion_completed', 'credit', _denom);
 
                     END IF;
 
@@ -1356,7 +1356,7 @@ BEGIN;
                         (attributes.value <> ''),
                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                             (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                    INTO amount_populated, amount, denom
+                    INTO amount_populated, _amount, _denom
                     FROM cache.attributes
                     WHERE attributes.event_id = event.event_id AND composite_key = 'create_validator.amount';
 
@@ -1371,12 +1371,12 @@ BEGIN;
                           AND composite_key = 'coin_spent.spender';
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', denom);
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'debit', _denom);
 
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( recipient, sender, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                            VALUES( recipient, sender, _amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', _denom||'.infused');
                         INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                            VALUES( sender, recipient, amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', denom||'.infused');
+                            VALUES( sender, recipient, _amount::NUMERIC, (NEW.height -1), NOW(), 'infused', 'credit', _denom||'.infused');
 
                     END IF;
 
@@ -1649,9 +1649,9 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
             sender CHARACTER VARYING;
 
 
-            amount CHARACTER VARYING;
+            _amount CHARACTER VARYING;
             amount_populated BOOL;
-            denom TEXT;
+            _denom TEXT;
     BEGIN
 
             -- Events
@@ -1687,26 +1687,23 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                         CASE event.type
                             WHEN 'transfer' THEN
                                 amount_populated := false;
-                                   SELECT
-                                    (attributes.value <> ''),
-                                    (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
-                                                        (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
-                                FROM cache.attributes
-                                WHERE attributes.event_id = event.event_id AND composite_key = 'transfer.amount';
+                                       SELECT
+                                        (attributes.value <> ''),
+                                        (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
+                                        (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
+                                    INTO amount_populated, _amount, _denom
+                                    FROM cache.attributes
+                                    WHERE attributes.event_id = event.event_id AND composite_key = 'transfer.amount';
 
                                 IF amount_populated THEN
                                     SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'transfer.recipient';
                                     SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'transfer.sender';
 
-                                    -- We don't  lookup the player ID and add them as object_id since player_id can change over time, leaving these records stale.
-                                    -- If you need that detail, you can join the table with player_address
+                                    INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
+                                        VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'sent', 'debit', _denom);
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'sent', 'debit', denom);
-
-                                    INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'received', 'credit', denom);
+                                        VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'received', 'credit', _denom);
                                 END IF;
 
                             WHEN 'coinbase' THEN
@@ -1715,7 +1712,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'coinbase.amount';
 
@@ -1723,7 +1720,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'coinbase.minter';
 
                                     INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, amount::NUMERIC, block.height, NOW(), 'minted', 'credit', denom);
+                                    VALUES( recipient, _amount::NUMERIC, block.height, NOW(), 'minted', 'credit', _denom);
                                 END IF;
 
                           WHEN 'burn' THEN
@@ -1732,7 +1729,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'burn.amount';
 
@@ -1740,7 +1737,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     SELECT attributes.value INTO recipient  FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'burn.burner';
 
                                     INSERT INTO structs.ledger(address, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, amount::NUMERIC, block.height, NOW(), 'burned', 'debit', denom);
+                                    VALUES( recipient, _amount::NUMERIC, block.height, NOW(), 'burned', 'debit', _denom);
                                 END IF;
 
                         WHEN 'delegate' THEN
@@ -1749,7 +1746,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                             (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'delegate.amount';
 
@@ -1758,13 +1755,13 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'delegate.delegator';
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'infused', 'debit', denom);
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'infused', 'debit', _denom);
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'infused', 'credit', denom||'.infused');
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'infused', 'credit', _denom||'.infused');
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'infused', 'credit', denom||'.infused');
+                                    VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'infused', 'credit', _denom||'.infused');
                                 END IF;
 
 
@@ -1774,7 +1771,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.amount';
 
@@ -1792,22 +1789,22 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, _object_id, amount::NUMERIC, block.height, NOW(), 'diversion_started', 'debit', denom||'.infused');
+                                    VALUES( sender, _object_id, _amount::NUMERIC, block.height, NOW(), 'diversion_started', 'debit', _denom||'.infused');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( _object_id, sender, amount::NUMERIC, block.height, NOW(), 'diversion_started', 'debit', denom||'.infused');
+                                    VALUES( _object_id, sender, _amount::NUMERIC, block.height, NOW(), 'diversion_started', 'debit', _denom||'.infused');
 
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, _object_id, amount::NUMERIC, block.height, NOW(), 'diversion_started', 'credit', denom||'.defusing');
+                                    VALUES( recipient, _object_id, _amount::NUMERIC, block.height, NOW(), 'diversion_started', 'credit', _denom||'.defusing');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( _object_id, recipient, amount::NUMERIC, block.height, NOW(), 'diversion_started', 'credit', denom||'.defusing');
+                                    VALUES( _object_id, recipient, _amount::NUMERIC, block.height, NOW(), 'diversion_started', 'credit', _denom||'.defusing');
 
                                     INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
                                         recipient,
                                         _object_id,
                                         'r',
-                                        amount::NUMERIC,
-                                        denom,
+                                        _amount::NUMERIC,
+                                        _denom,
                                         (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'redelegate.completion_time')::TIMESTAMPTZ,
                                         NOW()
                                     );
@@ -1819,7 +1816,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                                             (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'complete_redelegation.amount';
 
@@ -1828,15 +1825,15 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'complete_redelegation.delegator';
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'debit', denom||'.defusing');
+                                    VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'debit', _denom||'.defusing');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'debit', denom||'.defusing');
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'debit', _denom||'.defusing');
 
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'credit', denom||'.infused');
+                                    VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'credit', _denom||'.infused');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'credit', denom||'.infused');
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'diversion_completed', 'credit', _denom||'.infused');
 
                                 END IF;
 
@@ -1846,7 +1843,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.amount';
 
@@ -1856,21 +1853,21 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES(recipient, sender, amount::NUMERIC, block.height, NOW(), 'defusion_started', 'debit', denom||'.infused');
+                                    VALUES(recipient, sender, _amount::NUMERIC, block.height, NOW(), 'defusion_started', 'debit', _denom||'.infused');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES(sender, recipient, amount::NUMERIC, block.height, NOW(), 'defusion_started', 'debit', denom||'.infused');
+                                    VALUES(sender, recipient, _amount::NUMERIC, block.height, NOW(), 'defusion_started', 'debit', _denom||'.infused');
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'defusion_started', 'credit', denom||'.defusing');
+                                    VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'defusion_started', 'credit', _denom||'.defusing');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'defusion_started', 'credit', denom||'.defusing');
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'defusion_started', 'credit', _denom||'.defusing');
 
                                     INSERT INTO structs.defusion(validator_address, delegator_address, defusion_type, amount_p, denom, completed_at, created_at) VALUES (
                                         recipient,
                                         sender,
                                         'u',
-                                        amount::NUMERIC,
-                                        denom,
+                                        _amount::NUMERIC,
+                                        _denom,
                                         (SELECT attributes.value FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'unbond.completion_time')::TIMESTAMPTZ,
                                         NOW()
                                     );
@@ -1882,7 +1879,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'cancel_unbond.amount';
 
@@ -1891,14 +1888,14 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     SELECT attributes.value INTO sender     FROM cache.attributes WHERE attributes.event_id = event.event_id AND composite_key = 'cancel_unbond.delegator';
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES(recipient, sender, amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
+                                    VALUES(recipient, sender, _amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'debit', _denom||'.defusing');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES(sender, recipient, amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'debit', denom||'.defusing');
+                                    VALUES(sender, recipient, _amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'debit', _denom||'.defusing');
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
+                                    VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'credit', _denom||'.infused');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'credit', denom||'.infused');
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'defusion_cancelled', 'credit', _denom||'.infused');
 
                                 END IF;
                         WHEN 'complete_unbonding' THEN
@@ -1907,7 +1904,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                     (attributes.value <> ''),
                                     (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                                INTO amount_populated, amount, denom
+                                INTO amount_populated, _amount, _denom
                                 FROM cache.attributes
                                 WHERE attributes.event_id = event.event_id AND composite_key = 'complete_unbonding.amount';
 
@@ -1917,12 +1914,12 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
 
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES(recipient, sender, amount::NUMERIC, block.height, NOW(), 'defusion_completed', 'debit', denom||'.defusing');
+                                    VALUES(recipient, sender, _amount::NUMERIC, block.height, NOW(), 'defusion_completed', 'debit', _denom||'.defusing');
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES(sender, recipient, amount::NUMERIC, block.height, NOW(), 'defusion_completed', 'debit', denom||'.defusing');
+                                    VALUES(sender, recipient, _amount::NUMERIC, block.height, NOW(), 'defusion_completed', 'debit', _denom||'.defusing');
 
                                     INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                    VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'defusion_completed', 'credit', denom);
+                                    VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'defusion_completed', 'credit', _denom);
 
                                 END IF;
 
@@ -1932,7 +1929,7 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                 (attributes.value <> ''),
                                 (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[1]::NUMERIC,
                                                                         (regexp_matches(attributes.value, '(^[0-9\.]+)([a-zA-Z0-9\.-]+)'))[2]::TEXT
-                            INTO amount_populated, amount, denom
+                            INTO amount_populated, _amount, _denom
                             FROM cache.attributes
                             WHERE attributes.event_id = event.event_id AND composite_key = 'create_validator.amount';
 
@@ -1947,12 +1944,12 @@ CREATE OR REPLACE FUNCTION cache.PLANET_ACTIVITY_STRUCT_ATTRIBUTE() RETURNS trig
                                   AND composite_key = 'coin_spent.spender';
 
                                 INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'infused', 'debit', denom);
+                                VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'infused', 'debit', _denom);
 
                                 INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                VALUES( recipient, sender, amount::NUMERIC, block.height, NOW(), 'infused', 'credit', denom||'.infused');
+                                VALUES( recipient, sender, _amount::NUMERIC, block.height, NOW(), 'infused', 'credit', _denom||'.infused');
                                 INSERT INTO structs.ledger(address, counterparty, amount_p, block_height, time, action, direction, denom)
-                                VALUES( sender, recipient, amount::NUMERIC, block.height, NOW(), 'infused', 'credit', denom||'.infused');
+                                VALUES( sender, recipient, _amount::NUMERIC, block.height, NOW(), 'infused', 'credit', _denom||'.infused');
 
                             END IF;
                      END CASE;
