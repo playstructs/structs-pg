@@ -22,5 +22,5 @@ BEGIN;
     END
     $BODY$ LANGUAGE plpgsql SECURITY DEFINER;
 
-    SELECT cron.schedule('defusion_cleaner', '300 seconds', 'CALL structs.CLEAN_DEFUSION();');
+    SELECT cron.schedule('defusion_cleaner', '59 seconds', 'CALL structs.CLEAN_DEFUSION();');
 COMMIT;
