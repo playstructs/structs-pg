@@ -14,8 +14,6 @@ BEGIN;
     );
 
 
-    SELECT cron.schedule('defusion_cleaner', '5 minutes', 'CALL structs.CLEAN_DEFUSION();');
-
     CREATE OR REPLACE PROCEDURE structs.CLEAN_DEFUSION()
     AS
     $BODY$
@@ -24,4 +22,5 @@ BEGIN;
     END
     $BODY$ LANGUAGE plpgsql SECURITY DEFINER;
 
+    SELECT cron.schedule('defusion_cleaner', '300 seconds', 'CALL structs.CLEAN_DEFUSION();');
 COMMIT;
