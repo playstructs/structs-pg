@@ -68,6 +68,7 @@ BEGIN;
         block_height BIGINT,
         block_time TIMESTAMPTZ DEFAULT NOW()
     );
+    CREATE UNIQUE INDEX player_address_activity_player_id_idx ON structs.player_address_activity (player_id);
 
     CREATE TABLE structs.player_address_meta (
         address CHARACTER VARYING PRIMARY KEY,
