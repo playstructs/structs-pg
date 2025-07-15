@@ -64,6 +64,7 @@ BEGIN;
 
     CREATE TABLE structs.player_address_activity (
         address CHARACTER VARYING PRIMARY KEY,
+        player_id CHARACTER VARYING,
         block_height BIGINT,
         block_time TIMESTAMPTZ DEFAULT NOW()
     );

@@ -628,6 +628,7 @@ BEGIN;
             INSERT INTO structs.player_address_activity
             VALUES (
                            body->>'address',
+                           (select player_address.player_id from structs.player_address where player_address.address = body->>'address'),
                            (body->>'blockHeight')::INTEGER,
                            (body->>'blockTime')::TIMESTAMPTZ
                    ) ON CONFLICT (address) DO UPDATE
