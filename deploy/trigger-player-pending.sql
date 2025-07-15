@@ -102,5 +102,15 @@ BEGIN;
         FOR EACH ROW EXECUTE PROCEDURE structs.PLAYER_ADDRESS_PENDING_MERGE();
 
 
+    CREATE OR REPLACE PROCEDURE structs.CLEAN_ACTIVATION_CODE()
+    AS
+    $BODY$
+    BEGIN
+        DELETE FROM structs.player_address_activation_code WHERE created_at+'1 hour'::interval < NOW();
+    END
+    $BODY$ LANGUAGE plpgsql SECURITY DEFINER;
+
+    SELECT cron.schedule('activation_code_cleaner', '59 seconds', 'CALL structs.CLEAN_ACTIVATION_CODE();');
+
 COMMIT;
 
