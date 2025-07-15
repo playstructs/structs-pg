@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.current_block;
+DROP TABLE IF EXISTS structs.current_block CASCADE;
 
 COMMIT;

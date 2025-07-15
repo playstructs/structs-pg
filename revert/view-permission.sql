@@ -2,8 +2,7 @@
 
 BEGIN;
 
-DROP VIEW view.permission_address;
-
-DROP VIEW view.permission_player;
+DROP VIEW IF EXISTS view.permission_player CASCADE;
+DROP VIEW IF EXISTS view.permission_address CASCADE;
 
 COMMIT;

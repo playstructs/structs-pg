@@ -2,6 +2,10 @@
 
 BEGIN;
 
-DROP VIEW view.guild;
+DROP VIEW IF EXISTS view.leaderboard_player CASCADE;
+DROP VIEW IF EXISTS view.leaderboard_guild CASCADE;
+DROP VIEW IF EXISTS view.guild_bank CASCADE;
+DROP VIEW IF EXISTS view.guild_inventory CASCADE;
+DROP VIEW IF EXISTS view.guild CASCADE;
 
 COMMIT;

@@ -2,6 +2,7 @@
 
 BEGIN;
 
-DROP VIEW view.substation;
+DROP VIEW IF EXISTS view.leaderboard_substation CASCADE;
+DROP VIEW IF EXISTS view.substation CASCADE;
 
 COMMIT;

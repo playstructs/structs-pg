@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.banned_word;
+DROP TABLE IF EXISTS structs.banned_word CASCADE;
 
 COMMIT;

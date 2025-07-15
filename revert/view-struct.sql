@@ -2,6 +2,7 @@
 
 BEGIN;
 
-DROP VIEW view.struct;
+DROP VIEW IF EXISTS view.struct_status CASCADE;
+DROP VIEW IF EXISTS view.struct CASCADE;
 
 COMMIT;

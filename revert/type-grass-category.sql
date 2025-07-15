@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TYPE structs.grass_category;
+DROP TYPE IF EXISTS structs.grass_category;
 
 COMMIT;

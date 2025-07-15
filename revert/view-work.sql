@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP VIEW view.work;
+DROP VIEW IF EXISTS view.work CASCADE;
 
 COMMIT;

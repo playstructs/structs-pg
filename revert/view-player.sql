@@ -2,6 +2,8 @@
 
 BEGIN;
 
-DROP VIEW view.player;
+DROP VIEW IF EXISTS view.player_inventory CASCADE;
+DROP VIEW IF EXISTS view.address_inventory CASCADE;
+DROP VIEW IF EXISTS view.player CASCADE;
 
 COMMIT;

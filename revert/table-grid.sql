@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.grid;
+DROP TABLE IF EXISTS structs.grid CASCADE;
 
 COMMIT;

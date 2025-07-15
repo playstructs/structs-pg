@@ -2,6 +2,8 @@
 
 BEGIN;
 
-DROP TABLE structs.defusion;
+DROP TABLE IF EXISTS structs.defusion CASCADE;
+DROP PROCEDURE IF EXISTS structs.CLEAN_DEFUSION();
+SELECT cron.unschedule('defusion_cleaner');
 
 COMMIT;

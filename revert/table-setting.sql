@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.setting;
+DROP TABLE IF EXISTS structs.setting CASCADE;
 
 COMMIT;

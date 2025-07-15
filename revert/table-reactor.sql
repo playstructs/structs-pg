@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.reactor; 
+DROP TABLE IF EXISTS structs.reactor CASCADE;
 
 COMMIT;

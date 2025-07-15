@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.provider;
+DROP TABLE IF EXISTS structs.provider CASCADE;
 
 COMMIT;

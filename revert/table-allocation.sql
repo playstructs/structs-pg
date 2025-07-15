@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.allocation;
+DROP TABLE IF EXISTS structs.allocation CASCADE;
 
 COMMIT;

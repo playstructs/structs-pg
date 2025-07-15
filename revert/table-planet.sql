@@ -2,11 +2,12 @@
 
 BEGIN;
 
-DROP TABLE structs.planet;
-
-DROP TABLE structs.planet_attribute;
-DROP TABLE structs.planet_meta;
-
-DROP TABLE structs.planet_raid;
+DROP TABLE IF EXISTS structs.planet_activity CASCADE;
+DROP TABLE IF EXISTS structs.planet_activity_sequence CASCADE;
+DROP TABLE IF EXISTS structs.planet_raid CASCADE;
+DROP TABLE IF EXISTS structs.planet_attribute CASCADE;
+DROP TABLE IF EXISTS structs.planet_meta CASCADE;
+DROP TABLE IF EXISTS structs.planet CASCADE;
+DROP FUNCTION IF EXISTS structs.GET_PLANET_ACTIVITY_SEQUENCE(character varying);
 
 COMMIT;

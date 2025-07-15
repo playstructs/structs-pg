@@ -2,6 +2,7 @@
 
 BEGIN;
 
-DROP VIEW view.grid;
+DROP VIEW IF EXISTS view.leaderboard_provider CASCADE;
+DROP VIEW IF EXISTS view.grid CASCADE;
 
 COMMIT;

@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP VIEW view.planet;
+DROP VIEW IF EXISTS view.planet CASCADE;
 
 COMMIT;

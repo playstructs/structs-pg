@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.infusion;
+DROP TABLE IF EXISTS structs.infusion CASCADE;
 
 COMMIT;

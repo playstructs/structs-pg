@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.agreement;
+DROP TABLE IF EXISTS structs.agreement CASCADE;
 
 COMMIT;

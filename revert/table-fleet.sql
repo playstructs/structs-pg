@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.fleet;
+DROP TABLE IF EXISTS structs.fleet CASCADE;
 
 COMMIT;

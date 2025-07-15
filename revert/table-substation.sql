@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.substation;
+DROP TABLE IF EXISTS structs.substation CASCADE;
 
 COMMIT;

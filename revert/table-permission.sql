@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE structs.permission;
+DROP TABLE IF EXISTS structs.permission CASCADE;
 
 COMMIT;

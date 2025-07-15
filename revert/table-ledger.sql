@@ -2,6 +2,8 @@
 
 BEGIN;
 
-DROP TABLE structs.ledger;
+DROP TABLE IF EXISTS structs.ledger CASCADE;
+DROP TYPE IF EXISTS structs.ledger_direction;
+DROP TYPE IF EXISTS structs.ledger_action;
 
 COMMIT;
