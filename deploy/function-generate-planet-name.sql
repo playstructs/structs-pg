@@ -43,7 +43,7 @@ BEGIN;
         selected_ngram TEXT;
         random_val NUMERIC;
 
-        is_banned BOOLEAN;
+        is_banned BOOLEAN := FALSE;
         generate BOOLEAN := TRUE;
         insert_pos INTEGER;
 
@@ -188,3 +188,6 @@ BEGIN;
     $$ LANGUAGE plpgsql;
 
 COMMIT;
+
+
+
