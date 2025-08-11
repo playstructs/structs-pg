@@ -1117,8 +1117,10 @@ BEGIN;
     BEGIN
         INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
             VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.planet_id), NEW.planet_id, 'raid_status',
-                jsonb_build_object( 'fleet_id', NEW.fleet_id,
-                                'status', NEW.status)
+                jsonb_build_object( 'id',NEW.id,
+                                    'planet_id', NEW.planet_id,
+                                    'fleet_id', NEW.fleet_id,
+                                    'status', NEW.status)
         );
         RETURN NEW;
     END
@@ -1156,6 +1158,18 @@ BEGIN;
                 )
                 SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || old_move_detail INTO old_move_detail FROM r_fleets;
 
+                -- TODO: Clean up after next testnet launch. This code block will not be needed.
+                IF OLD.location_list_forward == '' OR OLD.location_list_forward is null THEN
+                    IF (SELECT player.planet_id FROM structs.player WHERE player.id = OLD.owner) != OLD.location_id THEN
+                               INSERT INTO structs.planet_raid (fleet_id, planet_id, status, created_at)
+                                VALUES (
+                                           OLD.id,
+                                           OLD.location_id,
+                                           'attackerRetreated',
+                                           NOW()
+                                       );
+                    END IF;
+                END IF;
             END IF;
 
             INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
@@ -1182,7 +1196,6 @@ BEGIN;
 
             INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
                 VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.location_id), NEW.location_id, 'fleet_arrive', new_move_detail);
-
 
         END IF;
 
