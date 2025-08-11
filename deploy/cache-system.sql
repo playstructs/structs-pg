@@ -1159,7 +1159,7 @@ BEGIN;
                 SELECT jsonb_build_object('fleet_list', array_to_json(array_agg(id))) || old_move_detail INTO old_move_detail FROM r_fleets;
 
                 -- TODO: Clean up after next testnet launch. This code block will not be needed.
-                IF OLD.location_list_forward == '' OR OLD.location_list_forward is null THEN
+                IF OLD.location_list_forward = '' OR OLD.location_list_forward is null THEN
                     IF (SELECT player.planet_id FROM structs.player WHERE player.id = OLD.owner) != OLD.location_id THEN
                                INSERT INTO structs.planet_raid (fleet_id, planet_id, status, created_at)
                                 VALUES (
