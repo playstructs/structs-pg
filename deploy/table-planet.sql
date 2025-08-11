@@ -47,12 +47,10 @@ BEGIN;
 
 
     CREATE TABLE structs.planet_raid (
-        id SERIAL PRIMARY KEY,
+        planet_id CHARACTER VARYING PRIMARY KEY,
         fleet_id CHARACTER VARYING,
-        planet_id CHARACTER VARYING,
         status CHARACTER VARYING,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-
+        updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE structs.planet_activity_sequence (

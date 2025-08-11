@@ -995,14 +995,17 @@ BEGIN;
         ELSIF NEW.composite_key = 'structs.structs.EventRaid.eventRaidDetail' THEN
             body := (NEW.value)::jsonb;
 
-
-            INSERT INTO structs.planet_raid (fleet_id, planet_id, status, created_at)
+            INSERT INTO structs.planet_raid (fleet_id, planet_id, status, updated_at)
             VALUES (
                        body->>'fleetId',
                        body->>'planetId',
                        body->>'status',
                        NOW()
-                   );
+                   ) ON CONFLICT (planet_id) DO UPDATE
+                    SET
+                        fleet_id = EXCLUDED.fleet_id,
+                        status = EXCLUDED.status,
+                        updated_at = EXCLUDED.updated_at;
 
         ELSIF NEW.composite_key = 'structs.structs.EventTime.eventTimeDetail' THEN
             body := (NEW.value)::jsonb;
@@ -1117,8 +1120,7 @@ BEGIN;
     BEGIN
         INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
             VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(NEW.planet_id), NEW.planet_id, 'raid_status',
-                jsonb_build_object( 'id',NEW.id,
-                                    'planet_id', NEW.planet_id,
+                jsonb_build_object( 'planet_id', NEW.planet_id,
                                     'fleet_id', NEW.fleet_id,
                                     'status', NEW.status)
         );
@@ -1161,13 +1163,17 @@ BEGIN;
                 -- TODO: Clean up after next testnet launch. This code block will not be needed.
                 IF OLD.location_list_forward = '' OR OLD.location_list_forward is null THEN
                     IF (SELECT player.planet_id FROM structs.player WHERE player.id = OLD.owner) != OLD.location_id THEN
-                               INSERT INTO structs.planet_raid (fleet_id, planet_id, status, created_at)
+                               INSERT INTO structs.planet_raid (fleet_id, planet_id, status, updated_at)
                                 VALUES (
                                            OLD.id,
                                            OLD.location_id,
                                            'attackerRetreated',
                                            NOW()
-                                       );
+                                       ) ON CONFLICT (planet_id) DO UPDATE
+                                        SET
+                                           fleet_id = EXCLUDED.fleet_id,
+                                            status = EXCLUDED.status,
+                                            updated_at = EXCLUDED.updated_at;
                     END IF;
                 END IF;
             END IF;
