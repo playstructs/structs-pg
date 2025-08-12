@@ -57,3 +57,4 @@ trigger-grass-provider 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS No
 trigger-grass-agreement 2024-11-27T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Agreement Updates
 trigger-grass-infusion 2025-07-01T18:19:33Z Abstrct <josh@slow.ninja> # GRASS Notifications for Infusion Updates
 role-structs-crawler 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Crawler Role
+table-tmp-try 2025-08-12T11:30:20Z Abstrct <josh@slow.ninja> # The first attempt with auto migrate
