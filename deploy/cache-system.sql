@@ -1013,6 +1013,68 @@ BEGIN;
             INSERT INTO structs.current_block VALUES ('testnet', (body->>'blockHeight')::BIGINT, (body->>'blockTime')::TIMESTAMPTZ)
                 ON CONFLICT (chain) DO UPDATE SET height = EXCLUDED.height, updated_at = EXCLUDED.updated_at;
 
+
+        ELSIF NEW.composite_key = 'structs.structs.EventProviderAddress.eventProviderAddressDetail' THEN
+                body := (NEW.value)::jsonb;
+
+                INSERT INTO structs.address_tag (address, label, entry, updated_at, created_at)
+                VALUES (
+                               body->>'collateralPool',
+                               'Type',
+                               'Provider Collateral Pool',
+                               NOW(),
+                               NOW()
+                       ),
+                       (
+                               body->>'collateralPool',
+                               'ProviderId',
+                               body->>'providerId',
+                               NOW(),
+                               NOW()
+                       ),
+                       (
+                               body->>'earningPool',
+                               'Type',
+                               'Provider Earning Pool',
+                               NOW(),
+                               NOW()
+                       ),
+                       (
+                               body->>'earningPool',
+                               'ProviderId',
+                               body->>'providerId',
+                               NOW(),
+                               NOW()
+                       )
+                ON CONFLICT (address, label) DO UPDATE
+                SET
+                    entry = EXCLUDED.entry,
+                    updated_at = EXCLUDED.updated_at;
+
+
+        ELSIF NEW.composite_key = 'structs.structs.EventGuildBankAddress.eventGuildBankAddressDetail' THEN
+                body := (NEW.value)::jsonb;
+
+                INSERT INTO structs.address_tag (address, label, entry, updated_at, created_at)
+                VALUES (
+                           body->>'bankCollateralPool',
+                           'Type',
+                           'Bank Collateral Pool',
+                           NOW(),
+                           NOW()
+                   ),
+                   (
+                           body->>'bankCollateralPool',
+                           'GuildId',
+                           body->>'guildId',
+                           NOW(),
+                           NOW()
+                   )
+                ON CONFLICT (address, label) DO UPDATE
+                    SET
+                        entry = EXCLUDED.entry,
+                        updated_at = EXCLUDED.updated_at;
+
         END IF;
         RETURN NEW;
     END
