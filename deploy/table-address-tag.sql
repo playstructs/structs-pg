@@ -3,7 +3,7 @@
 BEGIN;
 
 CREATE TABLE structs.address_tag (
-	address CHARACTER VARYING PRIMARY KEY,
+	address CHARACTER VARYING,
     label CHARACTER VARYING,
     entry CHARACTER VARYING,
 
