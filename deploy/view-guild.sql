@@ -45,39 +45,6 @@ BEGIN;
     WHERE player_address.address = address_inventory.address
     GROUP BY player_address.guild_id, address_inventory.denom;
 
-    CREATE OR REPLACE VIEW view.guild_bank AS
-        WITH list AS (SELECT address_tag.address FROM structs.address_tag WHERE address_tag.label = 'Type' and address_tag.entry = 'Bank Collateral Pool'),
-            base AS (
-                SELECT
-                    addres_tag.entry as guild_id,
-                    'uguild.' || address_tag.entry as denom,
-                    (SELECT SUM(case when ledger.direction = 'debit' then ledger.amount_p * -1 ELSE ledger.amount_p END) as balance
-                     FROM structs.ledger
-                     WHERE action IN ('minted', 'burned') AND ledger.denom = 'uguild.' || address_tag.entry
-                    ) as minted_supply,
-                    (SELECT SUM(case when ledger.direction='debit' then ledger.amount_p*-1 ELSE ledger.amount_p END) as balance
-                     FROM structs.ledger where ledger.address = list.address
-                    ) as collateral_balance
-                FROM list
-                         LEFT JOIN structs.address_tag on address_tag.address = list.address AND address_tag.label = 'GuildId'
-            ) SELECT base.*, base.collateral_balance / base.minted_supply as ratio FROM base;
-
-
-    CREATE OR REPLACE VIEW view.leaderboard_guild AS
-        select
-            guild_meta.id,
-            guild_meta.name,
-            guild_meta.tag,
-            (select count(1) from structs.player where player.guild_id = guild_meta.id) as player_count,
-            guild_bank.collateral_balance,
-            structs.UNIT_DISPLAY_FORMAT(guild_bank.collateral_balance, 'ualpha') as display_collateral_balance,
-            guild_bank.ratio,
-            ROUND(guild_bank.ratio * 100, 2) || '%' as display_ratio
-        from guild_meta
-                 left join view.guild_bank on guild_meta.id = guild_bank.id;
-
-
-
     CREATE OR REPLACE VIEW view.leaderboard_player AS
     WITH base AS (select player_address.player_id,
                          sum(case

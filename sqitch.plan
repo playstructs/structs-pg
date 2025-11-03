@@ -59,3 +59,5 @@ trigger-grass-infusion 2025-07-01T18:19:33Z Abstrct <josh@slow.ninja> # GRASS No
 role-structs-crawler 2023-07-17T18:30:20Z Abstrct <josh@slow.ninja> # The Crawler Role
 table-address-tag 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # The Address Tag table
 table-address-tag-idx-label-entry 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # An Address Tag Index for reverse lookups
+view-guild-bank 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # A Guild Bank summary View
+view-leaderboard-guild 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # A Leaderboard for the Guild
