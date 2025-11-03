@@ -2,7 +2,6 @@
 
 BEGIN;
 
-DROP TABLE IF EXISTS structs.guild_bank CASCADE;
 DROP TABLE IF EXISTS structs.guild_membership_application CASCADE;
 DROP TABLE IF EXISTS structs.guild_meta CASCADE;
 DROP TABLE IF EXISTS structs.guild CASCADE;

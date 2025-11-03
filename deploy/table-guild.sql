@@ -95,13 +95,4 @@ BEGIN;
     $BODY$
     LANGUAGE plpgsql SECURITY DEFINER VOLATILE COST 100;
 
-
-    CREATE TABLE structs.guild_bank (
-        id CHARACTER VARYING PRIMARY KEY,
-        denom CHARACTER VARYING GENERATED ALWAYS AS ('uguild.'|| id) STORED,
-        collateral_address CHARACTER VARYING,
-        mint_address CHARACTER VARYING
-    );
-
-
 COMMIT;
