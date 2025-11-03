@@ -6,7 +6,7 @@ BEGIN;
         WITH list AS (SELECT address_tag.address FROM structs.address_tag WHERE address_tag.label = 'Type' and address_tag.entry = 'Bank Collateral Pool'),
             base AS (
                 SELECT
-                    addres_tag.entry as guild_id,
+                    address_tag.entry as guild_id,
                     'uguild.' || address_tag.entry as denom,
                     (SELECT SUM(case when ledger.direction = 'debit' then ledger.amount_p * -1 ELSE ledger.amount_p END) as balance
                      FROM structs.ledger
