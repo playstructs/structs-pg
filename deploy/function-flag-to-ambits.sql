@@ -3,7 +3,7 @@
 BEGIN;
 
     CREATE OR REPLACE FUNCTION structs.flag_to_ambits(flag_value INTEGER)
-        RETURNS JSON AS $$
+        RETURNS JSONB AS $$
     DECLARE
         result TEXT[] := ARRAY[]::TEXT[];
     BEGIN
@@ -32,7 +32,7 @@ BEGIN;
             result := array_append(result, 'water');
         END IF;
 
-        RETURN to_json(result);
+        RETURN to_jsonb(result);
     END;
     $$ LANGUAGE plpgsql IMMUTABLE;
 

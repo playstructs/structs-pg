@@ -63,3 +63,4 @@ view-guild-bank 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # A Guild Bank su
 view-leaderboard-guild 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # A Leaderboard for the Guild
 view-leaderboard-player 2025-11-02T10:19:00Z Abstrct <josh@slow.ninja> # A Leaderboard for the Player
 function-flag-to-ambits 2025-11-13T10:19:00Z Abstrct <josh@slow.ninja> # A helper for converting ambit flags to an array
+table-struct-type-20251113-add-possible-ambit-array 2025-11-13T10:19:00Z Abstrct <josh@slow.ninja> # Add new possible_ambit_array column to struct_type
