@@ -68,6 +68,16 @@ CREATE  TABLE struct_type (
     guided_defensive_success_rate_denominator INTEGER,
     trigger_raid_defeat_by_destruction boolean,
     updated_at TIMESTAMPTZ DEFAULT NOW()
+
+    -- Added table-struct-type-20251113-add-possible-ambit-array
+    --, possible_ambit_array jsonb GENERATED ALWAYS AS (structs.flag_to_ambits(possible_ambit)::jsonb) STORED
+
+    -- Added table-struct-type-20251116-add-new-descriptors
+    -- ,class CHARACTER VARYING
+    -- ,class_abbreviation CHARACTER VARYING
+    -- ,default_cosmetic_model_number CHARACTER VARYING
+    -- ,default_cosmetic_name CHARACTER VARYING
+
 );
 
 CREATE TABLE structs.struct_type_meta (
@@ -77,6 +87,9 @@ CREATE TABLE structs.struct_type_meta (
     description TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
+
+    -- Added table-struct-type-meta-20251116-add-new-descriptors
+    -- ,model_number CHARACTER VARYING
 );
 
 
