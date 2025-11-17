@@ -67,3 +67,4 @@ table-struct-type-20251113-add-possible-ambit-array 2025-11-13T10:19:00Z Abstrct
 table-struct-type-20251116-add-new-descriptors 2025-11-16T10:19:00Z Abstrct <josh@slow.ninja> # Add new descriptor columns to struct_type
 table-struct-type-meta-20251116-add-new-descriptors 2025-11-16T10:19:00Z Abstrct <josh@slow.ninja> # Add new descriptor columns to struct_type_meta
 view-struct-20251116-expand-struct-type 2025-11-16T10:19:00Z Abstrct <josh@slow.ninja> # Add new struct_type descriptor columns to struct view
+view-work-20251117-add-difficulty-target 2025-11-17T10:19:00Z Abstrct <josh@slow.ninja> # Add difficulty target to view.work
