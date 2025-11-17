@@ -1,4 +1,4 @@
--- Revert structs-pg:view-work-20251117-add-difficulty-target from pg
+-- Revert structs-pg:view-work-20251117-add-player-id from pg
 
 BEGIN;
 

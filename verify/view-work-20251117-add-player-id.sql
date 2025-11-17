@@ -1,4 +1,4 @@
--- Verify structs-pg:view-work-20251117-add-difficulty-target on pg
+-- Verify structs-pg:view-work-20251117-add-player-id on pg
 
 BEGIN;
 

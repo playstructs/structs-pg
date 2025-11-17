@@ -1,4 +1,4 @@
--- Deploy structs-pg:view-work-20251117-add-difficulty-target to pg
+-- Deploy structs-pg:view-work-20251117-add-player-id to pg
 
 BEGIN;
 
