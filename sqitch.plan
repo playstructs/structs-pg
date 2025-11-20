@@ -74,3 +74,4 @@ cache-trigger-add-queue-20251117-fix-fleet-update-handling 2025-11-17T10:19:00Z 
 table-struct-type-20251120-add-energy-precision 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
 view-struct-20251120-add-energy-precision-to-struct-type 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
 cache-trigger-add-queue-20251120-add-energy-precision-to-struct-type 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
+table-struct-type-20251120-fix-energy-precision 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type but like better fixed it
