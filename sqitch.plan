@@ -71,3 +71,6 @@ view-work-20251117-add-difficulty-target 2025-11-17T10:19:00Z Abstrct <josh@slow
 view-work-20251117-add-player-id 2025-11-17T10:19:00Z Abstrct <josh@slow.ninja> # Add player_id to view.work
 view-work-20251117-improved-job-logic 2025-11-17T10:19:00Z Abstrct <josh@slow.ninja> # Improved logic for the work view query
 cache-trigger-add-queue-20251117-fix-fleet-update-handling 2025-11-17T10:19:00Z Abstrct <josh@slow.ninja> # Fixed fleet table update bug involving command_struct
+table-struct-type-20251120-add-energy-precision 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
+view-struct-20251120-add-energy-precision-to-struct-type 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
+cache-trigger-add-queue-20251120-add-energy-precision-to-struct-type 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type

@@ -8,9 +8,9 @@ CREATE  TABLE struct_type (
     category CHARACTER VARYING,
     build_limit INTEGER,
     build_difficulty INTEGER,
-    build_draw NUMERIC,
+    build_draw NUMERIC, -- table-struct-type-meta-20251120-add-energy-precision updated this to build_draw_p
     max_health INTEGER,
-    passive_draw NUMERIC,
+    passive_draw NUMERIC, -- table-struct-type-meta-20251120-add-energy-precision updated this to passive_draw_p
     possible_ambit INTEGER,
     movable boolean,
     slot_bound boolean,
@@ -77,6 +77,10 @@ CREATE  TABLE struct_type (
     -- ,class_abbreviation CHARACTER VARYING
     -- ,default_cosmetic_model_number CHARACTER VARYING
     -- ,default_cosmetic_name CHARACTER VARYING
+
+    -- Added table-struct-type-meta-20251120-add-energy-precision
+    -- build_draw NUMERIC
+    -- passive_draw NUMERIC
 
 );
 
