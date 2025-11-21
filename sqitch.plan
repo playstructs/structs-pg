@@ -75,3 +75,6 @@ table-struct-type-20251120-add-energy-precision 2025-11-20T10:19:00Z Abstrct <jo
 view-struct-20251120-add-energy-precision-to-struct-type 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
 cache-trigger-add-queue-20251120-add-energy-precision-to-struct-type 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type
 table-struct-type-20251120-fix-energy-precision 2025-11-20T10:19:00Z Abstrct <josh@slow.ninja> # Fixed precision columns on struct_type but like better fixed it
+table-struct-type-20251121-add-is-command 2025-11-21T10:19:00Z Abstrct <josh@slow.ninja> # add is_command on struct_type
+cache-trigger-add-queue-20251121-add-is-command-to-struct-type 2025-11-21T10:19:00Z Abstrct <josh@slow.ninja> # add is_command on struct_type
+view-struct-20251121-add-is-command-to-struct-type 2025-11-21T10:19:00Z Abstrct <josh@slow.ninja> # add is_command on struct_type

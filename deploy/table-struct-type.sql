@@ -78,10 +78,12 @@ CREATE  TABLE struct_type (
     -- ,default_cosmetic_model_number CHARACTER VARYING
     -- ,default_cosmetic_name CHARACTER VARYING
 
-    -- Added table-struct-type-meta-20251120-add-energy-precision
-    -- build_draw NUMERIC
-    -- passive_draw NUMERIC
+    -- Added table-struct-type-20251120-add-energy-precision
+    -- ,build_draw NUMERIC
+    -- ,passive_draw NUMERIC
 
+    -- Added table-struct-type-20251121-add-is-command
+    -- ,is_command boolean
 );
 
 CREATE TABLE structs.struct_type_meta (
