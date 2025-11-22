@@ -78,3 +78,9 @@ table-struct-type-20251120-fix-energy-precision 2025-11-20T10:19:00Z Abstrct <jo
 table-struct-type-20251121-add-is-command 2025-11-21T10:19:00Z Abstrct <josh@slow.ninja> # add is_command on struct_type
 cache-trigger-add-queue-20251121-add-is-command-to-struct-type 2025-11-21T10:19:00Z Abstrct <josh@slow.ninja> # add is_command on struct_type
 view-struct-20251121-add-is-command-to-struct-type 2025-11-21T10:19:00Z Abstrct <josh@slow.ninja> # add is_command on struct_type
+function-signer-tx-bank 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103
+function-signer-tx-energy 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103
+function-signer-tx-guild 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103
+function-signer-tx-permissions 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103
+function-signer-tx-play 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103
+function-signer-tx-player 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103

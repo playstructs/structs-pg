@@ -7,3 +7,4 @@ DROP FUNCTION IF EXISTS structs.random_human_string(int);
 DROP FUNCTION IF EXISTS structs.gen_random_bytes(int);
 
 COMMIT;
+
