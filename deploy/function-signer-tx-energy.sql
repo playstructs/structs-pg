@@ -298,6 +298,7 @@ BEGIN;
         LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
 
 
+    DROP FUNCTION signer.tx_substation_player_disconnect(character varying,character varying);
     CREATE OR REPLACE FUNCTION signer.tx_substation_player_disconnect(
         _substation_id CHARACTER VARYING,
         _target_player_id CHARACTER VARYING
