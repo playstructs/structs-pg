@@ -86,3 +86,4 @@ function-signer-tx-play 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest 
 function-signer-tx-player 2025-11-22T10:19:00Z Abstrct <josh@slow.ninja> # latest messages for testnet 103
 table-struct-type-20251129-add-cheatsheet-details 2025-11-29T10:19:00Z Abstrct <josh@slow.ninja> # Added cheatsheet details to struct_type
 table-struct-type-20251129-add-cheatsheet-details_data 2025-11-29T10:19:00Z Abstrct <josh@slow.ninja> # Added cheatsheet details to struct_type
+table-struct-type-20251202-add-cheatsheet-extended-details 2025-12-02T10:19:00Z Abstrct <josh@slow.ninja> # Added extended cheatsheet details to struct_type
