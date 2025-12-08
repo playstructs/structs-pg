@@ -88,3 +88,6 @@ table-struct-type-20251129-add-cheatsheet-details 2025-11-29T10:19:00Z Abstrct <
 table-struct-type-20251129-add-cheatsheet-details_data 2025-11-29T10:19:00Z Abstrct <josh@slow.ninja> # Added cheatsheet details to struct_type
 table-struct-type-20251202-add-cheatsheet-extended-details 2025-12-02T10:19:00Z Abstrct <josh@slow.ninja> # Added extended cheatsheet details to struct_type
 table-struct-type-20251203-update-cheatsheet 2025-12-03T10:19:00Z Abstrct <josh@slow.ninja> # Updating extended cheatsheet details to struct_type
+table-struct-type-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
+cache-trigger-add-queue-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
+view-struct-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
