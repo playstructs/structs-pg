@@ -2,7 +2,7 @@
 
 BEGIN;
 
-    DROP VIEW view.struct;
+    DROP VIEW IF EXISTS view.struct;
 
     ALTER TABLE structs.struct_type DROP COLUMN ore_mining_charge;
     ALTER TABLE structs.struct_type DROP COLUMN ore_refining_charge;
