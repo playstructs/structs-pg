@@ -2,7 +2,7 @@
 
 BEGIN;
 
-    DROP VIEW view.struct;
+    DROP VIEW IF EXISTS view.struct;
 
     CREATE OR REPLACE VIEW view.struct AS
         SELECT
