@@ -91,3 +91,4 @@ table-struct-type-20251203-update-cheatsheet 2025-12-03T10:19:00Z Abstrct <josh@
 table-struct-type-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
 cache-trigger-add-queue-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
 view-struct-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
+view-work-20251213-fixed-raid-logic  2025-12-13T10:19:00Z Abstrct <josh@slow.ninja> # Fixed raid logic in view.work
