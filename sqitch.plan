@@ -92,3 +92,4 @@ table-struct-type-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z
 cache-trigger-add-queue-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
 view-struct-20251208-remove-deprecated-charge-columns 2025-12-08T10:19:00Z Abstrct <josh@slow.ninja> # Removing deprecated Charge Bar columns for mine and refine
 view-work-20251213-fixed-raid-logic  2025-12-13T10:19:00Z Abstrct <josh@slow.ninja> # Fixed raid logic in view.work
+table-signer-tx-20251215-tx-function-complete-input-changes  2025-12-15T10:19:00Z Abstrct <josh@slow.ninja> # Hash Complete nonces were INTEGER instead of CHARACTER VARYING
