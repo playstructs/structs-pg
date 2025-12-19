@@ -9,8 +9,6 @@ BEGIN;
     ALTER TYPE structs.signer_tx_type ADD VALUE 'agreement-open';
     ALTER TYPE structs.signer_tx_type ADD VALUE 'guild-bank-confiscate-and-burn';
     ALTER TYPE structs.signer_tx_type ADD VALUE 'guild-bank-mint';
-    ALTER TYPE structs.signer_tx_type ADD VALUE 'guild-bank-redeem';
-    ALTER TYPE structs.signer_tx_type ADD VALUE 'guild-create';
     ALTER TYPE structs.signer_tx_type ADD VALUE 'player-resume';
     ALTER TYPE structs.signer_tx_type ADD VALUE 'player-send';
     ALTER TYPE structs.signer_tx_type ADD VALUE 'provider-create';
