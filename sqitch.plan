@@ -99,3 +99,4 @@ table-signer-tx-20251218-add_tx_types 2025-12-18T10:19:00Z Abstrct <josh@slow.ni
 cache-trigger-add-queue-20251218-struct-type-fix 2025-12-18T10:19:00Z Abstrct <josh@slow.ninja> # Fix to Struct Type cache commit
 trigger-grass-grid-20251219-p-values 2025-12-19T10:19:00Z Abstrct <josh@slow.ninja> # Fixed grass grid p values
 view-work-20251227-fixed-exclusion-logic 2025-12-27T10:19:00Z Abstrct <josh@slow.ninja> # Improved view.work logic to exclude impossible tasks
+view-work-20251227-greatly-fixed-exclusion-logic 2025-12-27T10:19:00Z Abstrct <josh@slow.ninja> # Improved view.work logic to exclude impossible tasks, but better
