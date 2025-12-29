@@ -100,3 +100,5 @@ cache-trigger-add-queue-20251218-struct-type-fix 2025-12-18T10:19:00Z Abstrct <j
 trigger-grass-grid-20251219-p-values 2025-12-19T10:19:00Z Abstrct <josh@slow.ninja> # Fixed grass grid p values
 view-work-20251227-fixed-exclusion-logic 2025-12-27T10:19:00Z Abstrct <josh@slow.ninja> # Improved view.work logic to exclude impossible tasks
 view-work-20251227-greatly-fixed-exclusion-logic 2025-12-27T10:19:00Z Abstrct <josh@slow.ninja> # Improved view.work logic to exclude impossible tasks, but better
+table-struct-20251229-add-destroyed 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> # New destroyed column on struct
+cache-trigger-add-queue-20251229-add-destroyed 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> # New destroyed column on struct
