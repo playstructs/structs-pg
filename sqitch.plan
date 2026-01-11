@@ -104,3 +104,4 @@ table-struct-20251229-add-destroyed 2025-12-29T10:19:00Z Abstrct <josh@slow.ninj
 cache-trigger-add-queue-20251229-add-destroyed 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> # New destroyed column on struct
 function-signer-account-20251229 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> # Resolved bug in the signer
 table-player-address-pending-20251229-add-permissions 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> # permissions column was missing for device adding
+cache-trigger-add-queue-20260111-fix-defenders 2026-01-11T10:19:00Z Abstrct <josh@slow.ninja> # Fixing an issue with defenders
