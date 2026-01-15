@@ -106,3 +106,5 @@ function-signer-account-20251229 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> 
 table-player-address-pending-20251229-add-permissions 2025-12-29T10:19:00Z Abstrct <josh@slow.ninja> # permissions column was missing for device adding
 cache-trigger-add-queue-20260111-fix-defenders 2026-01-11T10:19:00Z Abstrct <josh@slow.ninja> # Fixing an issue with defenders
 cache-trigger-add-queue-20260111-fix-defender-clear 2026-01-11T10:20:00Z Abstrct <josh@slow.ninja> # Adding Defensive Clear event processing
+cache-trigger-planet-activity-struct-attribute-20260115-add-health 2026-01-15T10:20:00Z Abstrct <josh@slow.ninja> # Adding health changes to planetary activity
+type-grass-category-20260115-add-struct-health 2026-01-15T10:20:00Z Abstrct <josh@slow.ninja> # Adding health changes to planetary activity
