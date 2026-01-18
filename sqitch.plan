@@ -108,3 +108,4 @@ cache-trigger-add-queue-20260111-fix-defenders 2026-01-11T10:19:00Z Abstrct <jos
 cache-trigger-add-queue-20260111-fix-defender-clear 2026-01-11T10:20:00Z Abstrct <josh@slow.ninja> # Adding Defensive Clear event processing
 cache-trigger-planet-activity-struct-attribute-20260115-add-health 2026-01-15T10:20:00Z Abstrct <josh@slow.ninja> # Adding health changes to planetary activity
 type-grass-category-20260115-add-struct-health 2026-01-15T10:20:00Z Abstrct <josh@slow.ninja> # Adding health changes to planetary activity
+cache-trigger-planet-activity-struct-attribute-20260118-fix-bad-location 2026-01-18T10:20:00Z Abstrct <josh@slow.ninja> # Fixing an import issue on stale struct attributes
