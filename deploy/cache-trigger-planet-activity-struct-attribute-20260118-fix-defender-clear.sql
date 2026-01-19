@@ -1,4 +1,4 @@
--- Deploy structs-pg:cache-trigger-planet-activity-struct-attribute-20260118-fix-defender-clear to pg
+-- Deploy structs-pg:cache-trigger-planet-activity-struct-attribute-20260118-fix-bad-location to pg
 
 BEGIN;
 
@@ -9,7 +9,7 @@ BEGIN;
     BEGIN
 
         IF TG_OP = 'DELETE' THEN
-            CASE NEW.attribute_type
+            CASE OLD.attribute_type
                 WHEN 'typeCount' THEN
                 -- Nothing to do here
 
@@ -22,10 +22,10 @@ BEGIN;
 
                     IF COALESCE(OLD.val,0) > 0 THEN
                         SELECT structs.GET_ACTIVITY_LOCATION_ID('5-' || OLD.val) INTO location_id;
-                        IF location_is IS NOT NULL THEN
+                        IF location_id IS NOT NULL THEN
                             INSERT INTO structs.planet_activity(time, seq, planet_id, category, detail)
                             VALUES (NOW(), structs.GET_PLANET_ACTIVITY_SEQUENCE(location_id), location_id, 'struct_defense_remove',
-                                    jsonb_build_object( 'defender_struct_id', NEW.object_id,
+                                    jsonb_build_object( 'defender_struct_id', OLD.object_id,
                                                         'protected_struct_id', '5-' || OLD.val)
                                    );
                         END IF;
