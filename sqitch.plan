@@ -111,3 +111,4 @@ type-grass-category-20260115-add-struct-health 2026-01-15T10:20:00Z Abstrct <jos
 cache-trigger-planet-activity-struct-attribute-20260118-fix-bad-location 2026-01-18T10:20:00Z Abstrct <josh@slow.ninja> # Fixing an import issue on stale struct attributes
 cache-trigger-add-queue-20260118-fix-defender-clear 2026-01-18T21:20:00Z Abstrct <josh@slow.ninja> # Fix Defender Clear caching
 cache-trigger-planet-activity-struct-attribute-20260118-fix-defender-clear 2026-01-18T21:20:00Z Abstrct <josh@slow.ninja> # Fix Defender Clear caching
+view-work-20260119-fixed-migration-issue-with-zero 2026-01-19T21:20:00Z Abstrct <josh@slow.ninja> # Work issue post-migration because of zero blocks
