@@ -2,7 +2,7 @@
 
 BEGIN;
 
-    DROP TABLE cache.event_handlers;
+    DROP TABLE IF EXISTS cache.event_handlers;
     CREATE TABLE IF NOT EXISTS cache.event_handlers (
         composite_key text PRIMARY KEY,
         handler regproc NOT NULL,
@@ -10,7 +10,7 @@ BEGIN;
         created_at timestamptz NOT NULL DEFAULT now(),
         updated_at timestamptz NOT NULL DEFAULT now()
     );
-    DROP TABLE cache.handler_error_log;
+    DROP TABLE IF EXISTS cache.handler_error_log;
     CREATE TABLE IF NOT EXISTS cache.handler_error_log (
         id bigserial PRIMARY KEY,
         occurred_at timestamptz NOT NULL DEFAULT now(),
