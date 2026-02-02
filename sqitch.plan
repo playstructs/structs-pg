@@ -114,3 +114,4 @@ cache-trigger-planet-activity-struct-attribute-20260118-fix-defender-clear 2026-
 view-work-20260119-fixed-migration-issue-with-zero 2026-01-19T21:20:00Z Abstrct <josh@slow.ninja> # Work issue post-migration because of zero blocks
 cache-trigger-add-queue-20260121-bigly-refactor 2026-01-21T21:20:00Z Abstrct <josh@slow.ninja> # Refactoring the cache system
 table-player-address-activity-20260121-fix-index 2026-01-21T21:21:00Z Abstrct <josh@slow.ninja> # Fixing an index
+table-player-20260123-fix-internal-player-trigger 2026-01-23T21:21:00Z Abstrct <josh@slow.ninja> # Fixing a player insert trigger on guild
