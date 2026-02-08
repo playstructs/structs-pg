@@ -116,3 +116,5 @@ cache-trigger-add-queue-20260121-bigly-refactor 2026-01-21T21:20:00Z Abstrct <jo
 table-player-address-activity-20260121-fix-index 2026-01-21T21:21:00Z Abstrct <josh@slow.ninja> # Fixing an index
 table-player-20260123-fix-internal-player-trigger 2026-01-23T21:21:00Z Abstrct <josh@slow.ninja> # Fixing a player insert trigger on guild
 cache-trigger-add-queue-20260203-add-new-events 2026-02-03T21:21:00Z Abstrct <josh@slow.ninja> # Updating Struct and Planet attribute handlers to delete on zero
+table-struct-20260207-add-destroyed-block 2026-02-07T21:21:00Z Abstrct <josh@slow.ninja> # Updating Struct table to include destroyed_block
+cache-trigger-add-queue-20260207-add-destroyed-block 2026-02-07T21:21:00Z Abstrct <josh@slow.ninja> # Updating Struct table to include destroyed_block
