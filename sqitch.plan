@@ -118,3 +118,6 @@ table-player-20260123-fix-internal-player-trigger 2026-01-23T21:21:00Z Abstrct <
 cache-trigger-add-queue-20260203-add-new-events 2026-02-03T21:21:00Z Abstrct <josh@slow.ninja> # Updating Struct and Planet attribute handlers to delete on zero
 table-struct-20260207-add-destroyed-block 2026-02-07T21:21:00Z Abstrct <josh@slow.ninja> # Updating Struct table to include destroyed_block
 cache-trigger-add-queue-20260207-add-destroyed-block 2026-02-07T21:21:00Z Abstrct <josh@slow.ninja> # Updating Struct table to include destroyed_block
+table-planet-20260221-add-seized-ore 2026-02-21T21:21:00Z Abstrct <josh@slow.ninja> # Adding seized ore to raid changes to make victories easier to handle
+cache-trigger-add-queue-20260221-add-seized-ore 2026-02-21T21:21:00Z Abstrct <josh@slow.ninja> # Adding seized ore to raid changes to make victories easier to handle
+trigger-player-address-cascade 2026-02-23T21:21:00Z Abstrct <josh@slow.ninja> # Fixing onboarding
