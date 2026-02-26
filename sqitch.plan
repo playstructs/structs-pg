@@ -123,3 +123,4 @@ cache-trigger-add-queue-20260221-add-seized-ore 2026-02-21T21:21:00Z Abstrct <jo
 trigger-player-address-cascade 2026-02-23T21:21:00Z Abstrct <josh@slow.ninja> # Fixing onboarding
 trigger-player-20260223-address-cascade 2026-02-23T21:22:00Z Abstrct <josh@slow.ninja> # Fixing onboarding
 cache-trigger-add-queue-20260223-add-player-address 2026-02-23T21:23:00Z Abstrct <josh@slow.ninja> # Fixing onboarding
+cache-trigger-add-queue-20260226-add-seized-ore-better 2026-02-26T21:23:00Z Abstrct <josh@slow.ninja> # Fixing seized ore grass
