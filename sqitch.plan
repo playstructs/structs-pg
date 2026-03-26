@@ -124,3 +124,13 @@ trigger-player-address-cascade 2026-02-23T21:21:00Z Abstrct <josh@slow.ninja> # 
 trigger-player-20260223-address-cascade 2026-02-23T21:22:00Z Abstrct <josh@slow.ninja> # Fixing onboarding
 cache-trigger-add-queue-20260223-add-player-address 2026-02-23T21:23:00Z Abstrct <josh@slow.ninja> # Fixing onboarding
 cache-trigger-add-queue-20260226-add-seized-ore-better 2026-02-26T21:23:00Z Abstrct <josh@slow.ninja> # Fixing seized ore grass
+table-guild-20260325-add-entry-rank 2026-03-25T00:00:00Z Abstrct <josh@slow.ninja> # Add entry_rank column to guild table
+table-player-20260325-add-guild-rank 2026-03-25T00:01:00Z Abstrct <josh@slow.ninja> # Add guild_rank column to player table
+table-reactor-20260325-add-owner 2026-03-25T00:02:00Z Abstrct <josh@slow.ninja> # Add owner column to reactor table
+table-permission-guild-rank 2026-03-25T00:03:00Z Abstrct <josh@slow.ninja> # New permission_guild_rank table for guild rank permissions
+table-signer-tx-20260325-add-tx-types 2026-03-25T00:04:00Z Abstrct <josh@slow.ninja> # Add new signer tx type enum values for 110b
+view-permission-20260325-new-permission-system 2026-03-25T00:05:00Z Abstrct <josh@slow.ninja> # Recreate permission views with 24-bit permission columns
+cache-trigger-add-queue-20260325-110b-schema-update 2026-03-25T00:06:00Z Abstrct <josh@slow.ninja> # Update cache event handlers for 110b schema changes
+table-allocation-20260325-drop-locked 2026-03-25T00:07:00Z Abstrct <josh@slow.ninja> # Drop locked column from allocation table
+function-signer-tx-20260325-permission-overhaul 2026-03-25T00:08:00Z Abstrct <josh@slow.ninja> # Update all signer tx functions for 24-bit permission system
+role-structs-webapp-20260325-permission-guild-rank 2026-03-25T00:09:00Z Abstrct <josh@slow.ninja> # Grant webapp role access to permission_guild_rank table
