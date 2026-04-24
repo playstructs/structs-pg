@@ -134,3 +134,4 @@ cache-trigger-add-queue-20260325-110b-schema-update 2026-03-25T00:06:00Z Abstrct
 table-allocation-20260325-drop-locked 2026-03-25T00:07:00Z Abstrct <josh@slow.ninja> # Drop locked column from allocation table
 function-signer-tx-20260325-permission-overhaul 2026-03-25T00:08:00Z Abstrct <josh@slow.ninja> # Update all signer tx functions for 24-bit permission system
 role-structs-webapp-20260325-permission-guild-rank 2026-03-25T00:09:00Z Abstrct <josh@slow.ninja> # Grant webapp role access to permission_guild_rank table
+cache-trigger-add-queue-20260424-player-update 2026-04-24T00:09:00Z Abstrct <josh@slow.ninja> # fix to player import
