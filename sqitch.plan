@@ -135,3 +135,10 @@ table-allocation-20260325-drop-locked 2026-03-25T00:07:00Z Abstrct <josh@slow.ni
 function-signer-tx-20260325-permission-overhaul 2026-03-25T00:08:00Z Abstrct <josh@slow.ninja> # Update all signer tx functions for 24-bit permission system
 role-structs-webapp-20260325-permission-guild-rank 2026-03-25T00:09:00Z Abstrct <josh@slow.ninja> # Grant webapp role access to permission_guild_rank table
 cache-trigger-add-queue-20260424-player-update 2026-04-24T00:09:00Z Abstrct <josh@slow.ninja> # fix to player import
+table-signer-tx-20260427-add-tx-types [table-signer-tx] 2026-04-27T00:00:00Z Abstrct <josh@slow.ninja> # New signer tx types for v0.16.0 UGC overhaul
+table-substation-20260427-add-name-pfp [table-substation] 2026-04-27T00:01:00Z Abstrct <josh@slow.ninja> # Add name/pfp columns to substation for chain UGC
+table-guild-meta-20260427-add-pfp [table-guild] 2026-04-27T00:02:00Z Abstrct <josh@slow.ninja> # Add pfp column to guild_meta for chain UGC
+table-player-meta-20260427-collapse-pk [table-player] 2026-04-27T00:03:00Z Abstrct <josh@slow.ninja> # Collapse player_meta to one row per player; PK (id, guild_id) -> (id)
+cache-trigger-add-queue-20260427-ugc-fields [cache-trigger-add-queue-20260424-player-update table-substation-20260427-add-name-pfp table-guild-meta-20260427-add-pfp table-player-meta-20260427-collapse-pk] 2026-04-27T00:04:00Z Abstrct <josh@slow.ninja> # Cache event handlers extract chain UGC into meta tables
+trigger-player-pending-20260427-ugc-inclusion [trigger-player-pending cache-trigger-add-queue-20260427-ugc-fields] 2026-04-27T00:05:00Z Abstrct <josh@slow.ninja> # PLAYER_PENDING_JOIN_PROXY threads ugc; PLAYER_PENDING_MERGE drops player_meta insert
+function-signer-tx-20260427-ugc-overhaul [table-signer-tx-20260427-add-tx-types function-signer-tx-20260325-permission-overhaul] 2026-04-27T00:06:00Z Abstrct <josh@slow.ninja> # 12 new tx_* wrappers (self-service + guild moderation); bump PermAll to 33554431
