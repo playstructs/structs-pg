@@ -4,7 +4,11 @@
 
 BEGIN;
 
-    CREATE OR REPLACE VIEW view.guild AS
+    DROP VIEW IF EXISTS view.leaderboard_guild CASCADE;
+    DROP VIEW IF EXISTS view.guild_inventory CASCADE;
+    DROP VIEW IF EXISTS view.guild CASCADE;
+
+    CREATE VIEW view.guild AS
         SELECT
            guild.id as guild_id,
            guild.endpoint,
@@ -23,7 +27,7 @@ BEGIN;
         FROM structs.guild LEFT JOIN structs.guild_meta ON guild.id = guild_meta.id;
 
 
-    CREATE OR REPLACE VIEW view.guild_inventory AS
+    CREATE VIEW view.guild_inventory AS
     select
         player_address.guild_id,
         sum(address_inventory.balance) as balance,
@@ -35,7 +39,7 @@ BEGIN;
     GROUP BY player_address.guild_id, address_inventory.denom;
 
 
-    CREATE OR REPLACE VIEW view.leaderboard_guild AS
+    CREATE VIEW view.leaderboard_guild AS
         select
             guild_meta.id,
             guild_meta.name,

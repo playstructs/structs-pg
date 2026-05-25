@@ -2,7 +2,9 @@
 
 BEGIN;
 
-CREATE OR REPLACE VIEW view.planet AS
+    DROP VIEW IF EXISTS view.planet CASCADE;
+
+    CREATE VIEW view.planet AS
         SELECT
             id as planet_id,
             name,

@@ -4,7 +4,10 @@
 
 BEGIN;
 
-CREATE OR REPLACE VIEW view.player AS
+    DROP VIEW IF EXISTS view.player_inventory CASCADE;
+    DROP VIEW IF EXISTS view.player CASCADE;
+
+    CREATE VIEW view.player AS
         SELECT
             player.id as player_id,
             player.username,
@@ -46,7 +49,7 @@ CREATE OR REPLACE VIEW view.player AS
                 CASE denom WHEN 'ore' THEN 'ore' ELSE substring(denom, 2, length(denom)-1) END as denom
         from structs.ledger group by ledger.address, ledger.denom;
 
-    CREATE OR REPLACE VIEW view.player_inventory AS
+    CREATE VIEW view.player_inventory AS
         select
             player_address.player_id,
             sum(address_inventory.balance) as balance,
