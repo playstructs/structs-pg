@@ -150,3 +150,12 @@ table-stat-20260522-add-block-height [table-stat] 2026-05-22T00:03:00Z Abstrct <
 role-structs-webapp-20260522-drop-cache-queue-grant [role-structs-webapp] 2026-05-22T00:04:00Z Abstrct <josh@slow.ninja> # REVOKE orphan cache.queue grant before cache schema retirement
 role-structs-indexer-20260522-drop-cache-tx-results-grant [role-structs-indexer] 2026-05-22T00:05:00Z Abstrct <josh@slow.ninja> # REVOKE cache.tx_results grant; update-cache being decommissioned
 retire-cache-20260522 [schema-sync-state-20260522 role-structs-webapp-20260522-drop-cache-queue-grant role-structs-indexer-20260522-drop-cache-tx-results-grant cache-trigger-add-queue-20260427-ugc-fields] 2026-05-22T00:06:00Z Abstrct <josh@slow.ninja> # Drop cache schema + cache-era triggers; recreate cache.* as compat views over sync_state.raw_*
+table-player-20260525-add-username-pfp [table-player retire-cache-20260522] 2026-05-25T00:00:00Z Abstrct <josh@slow.ninja> # Move username/pfp to player; drop player_meta
+table-guild-20260525-add-name-pfp [table-guild retire-cache-20260522] 2026-05-25T00:01:00Z Abstrct <josh@slow.ninja> # Add chain UGC name/pfp columns to guild
+table-guild-meta-20260525-drop-pfp [table-guild-20260525-add-name-pfp table-guild-meta-20260427-add-pfp] 2026-05-25T00:02:00Z Abstrct <josh@slow.ninja> # Drop pfp from guild_meta; chain UGC lives on guild
+table-planet-20260525-add-name [table-planet retire-cache-20260522] 2026-05-25T00:03:00Z Abstrct <josh@slow.ninja> # Move name to planet; drop planet_meta
+view-player-20260525-inline-ugc [view-player table-player-20260525-add-username-pfp] 2026-05-25T00:04:00Z Abstrct <josh@slow.ninja> # view.player reads username/pfp from structs.player
+view-planet-20260525-add-name [view-planet table-planet-20260525-add-name] 2026-05-25T00:05:00Z Abstrct <josh@slow.ninja> # view.planet exposes planet.name
+view-guild-20260525-add-chain-ugc [view-guild view-leaderboard-guild table-guild-meta-20260525-drop-pfp] 2026-05-25T00:06:00Z Abstrct <josh@slow.ninja> # view.guild/leaderboard_guild expose onchain name/pfp from guild
+trigger-grass-player-20260525-drop-meta-notify [trigger-grass-player table-player-20260525-add-username-pfp] 2026-05-25T00:07:00Z Abstrct <josh@slow.ninja> # Drop PLAYER_META_NOTIFY; UGC via player_consensus
+trigger-struct-type-20260525-sync-cheatsheet [table-struct-type-20251202-add-cheatsheet-extended-details] 2026-05-25T00:08:00Z Abstrct <josh@slow.ninja> # Sync struct_type cheatsheet columns from struct_type_cs on insert/update
