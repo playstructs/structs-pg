@@ -181,3 +181,7 @@ cache-trigger-add-queue-20260810-armour-piercing-default-false [cache-trigger-ad
 table-struct-type-20260810-armour-piercing-default-false [table-struct-type-20260612-add-armour-piercing cache-trigger-add-queue-20260810-armour-piercing-default-false] 2026-08-10T00:01:00Z Abstrct <josh@slow.ninja> # Weapon armour piercing columns default false and NOT NULL
 table-struct-type-20260810-cheatsheet-command-ablative-copy [table-struct-type-20260615-cheatsheet-armour-battleship-secondary] 2026-08-10T00:02:00Z Abstrct <josh@slow.ninja> # Fix Command Ship Chimera Counter copy and Ablative Armour unit-defense description
 table-struct-defender-20260810-add-is-planetary [table-struct] 2026-08-10T00:03:00Z Abstrct <josh@slow.ninja> # Add is_planetary to struct_defender; backfill from protected struct location_type
+table-grid-20260810-idx-object-id-attribute-type [table-grid] 2026-08-10T00:04:00Z Abstrct <josh@slow.ninja> # Index grid (object_id, attribute_type) for view.player and fuel lookups
+table-struct-20260810-idx-owner [table-struct] 2026-08-10T00:05:00Z Abstrct <josh@slow.ninja> # Index struct.owner for getStructsByPlayerId
+table-struct-defender-20260810-idx-protected-struct-id [table-struct] 2026-08-10T00:06:00Z Abstrct <josh@slow.ninja> # Index struct_defender (protected_struct_id, defending_struct_id) for defending_struct_ids subquery
+table-struct-attribute-20260810-idx-object-id-attribute-type [table-struct] 2026-08-10T00:07:00Z Abstrct <josh@slow.ninja> # Index struct_attribute (object_id, attribute_type) for health/status joins
