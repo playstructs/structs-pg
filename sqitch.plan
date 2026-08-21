@@ -185,3 +185,14 @@ table-grid-20260810-idx-object-id-attribute-type [table-grid] 2026-08-10T00:04:0
 table-struct-20260810-idx-owner [table-struct] 2026-08-10T00:05:00Z Abstrct <josh@slow.ninja> # Index struct.owner for getStructsByPlayerId
 table-struct-defender-20260810-idx-protected-struct-id [table-struct] 2026-08-10T00:06:00Z Abstrct <josh@slow.ninja> # Index struct_defender (protected_struct_id, defending_struct_id) for defending_struct_ids subquery
 table-struct-attribute-20260810-idx-object-id-attribute-type [table-struct] 2026-08-10T00:07:00Z Abstrct <josh@slow.ninja> # Index struct_attribute (object_id, attribute_type) for health/status joins
+table-ledger-20260820-api-read-indexes [table-ledger] 2026-08-20T23:14:00Z Abstrct <josh@slow.ninja> # Add deterministic ledger cursor and API filter indexes
+table-ledger-20260820-api-cursor-unique [table-ledger-20260820-api-read-indexes] 2026-08-20T23:15:00Z Abstrct <josh@slow.ninja> # Enforce the unique ledger cursor
+table-planet-activity-20260820-api-read-indexes [table-planet-activity-20260522-add-block-height] 2026-08-20T23:16:00Z Abstrct <josh@slow.ninja> # Add deterministic global, planet, and category activity cursor indexes
+table-planet-activity-20260820-api-cursor-unique [table-planet-activity-20260820-api-read-indexes] 2026-08-20T23:17:00Z Abstrct <josh@slow.ninja> # Enforce the unique planet activity cursor key
+table-grid-20260820-api-read-indexes [table-grid-20260810-idx-object-id-attribute-type] 2026-08-20T23:18:00Z Abstrct <josh@slow.ninja> # Add active-player count indexes
+table-stat-20260820-api-read-indexes [table-stat-20260522-add-block-height] 2026-08-20T23:19:00Z Abstrct <josh@slow.ninja> # Add LOCF seed and range indexes to stat hypertables
+table-api-read-support-20260820-indexes [table-agreement table-planet table-player-20260525-add-username-pfp table-guild-20260525-add-name-pfp] 2026-08-20T23:20:00Z Abstrct <josh@slow.ninja> # Add agreement, raid, inventory, guild, and resolver support indexes
+table-structs-api-read-20260820-current-state [table-stat] 2026-08-20T23:21:00Z Abstrct <josh@slow.ninja> # Add current-state leaderboard, inventory, and guild-bank read models
+role-structs-indexer-20260820-api-read [role-structs-indexer table-structs-api-read-20260820-current-state] 2026-08-20T23:22:00Z Abstrct <josh@slow.ninja> # Allow sync-state to maintain API read models
+role-structs-webapp-20260820-api-read [role-structs-webapp table-structs-api-read-20260820-current-state] 2026-08-20T23:23:00Z Abstrct <josh@slow.ninja> # Grant the webapp read-only API model access
+table-struct-type-20260820-add-can-defend [table-struct-type-20260810-armour-piercing-default-false] 2026-08-20T23:24:00Z Abstrct <josh@slow.ninja> # Add the off-chain can_defend struct type flag
