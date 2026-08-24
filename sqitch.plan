@@ -199,3 +199,4 @@ table-struct-type-20260820-add-can-defend [table-struct-type-20260810-armour-pie
 view-work-20260824-planet-ore-clocks [view-work-20260119-fixed-migration-issue-with-zero table-planet] 2026-08-24T20:00:00Z Abstrct <josh@slow.ninja> # view.work MINE/REFINE read planet ore clocks (attrs 12/13)
 view-planet-20260824-ore-clocks [view-planet-20260525-add-name] 2026-08-24T20:01:00Z Abstrct <josh@slow.ninja> # view.planet exposes planet attrs 11-15 (ore clocks and raid pause)
 view-struct-20260824-planet-ore-clocks [table-struct-type-20260612-add-armour-piercing] 2026-08-24T20:02:00Z Abstrct <josh@slow.ninja> # view.struct ore clocks read planet attrs 12/13 via location_id
+table-planet-attribute-20260824-copy-ore-clocks-from-struct [view-work-20260824-planet-ore-clocks view-planet-20260824-ore-clocks view-struct-20260824-planet-ore-clocks] 2026-08-24T20:03:00Z Abstrct <josh@slow.ninja> # Copy leftover struct ore clocks/quantities onto planet_attribute (12-15)
