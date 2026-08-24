@@ -196,3 +196,6 @@ table-structs-api-read-20260820-current-state [table-stat] 2026-08-20T23:21:00Z 
 role-structs-indexer-20260820-api-read [role-structs-indexer table-structs-api-read-20260820-current-state] 2026-08-20T23:22:00Z Abstrct <josh@slow.ninja> # Allow sync-state to maintain API read models
 role-structs-webapp-20260820-api-read [role-structs-webapp table-structs-api-read-20260820-current-state] 2026-08-20T23:23:00Z Abstrct <josh@slow.ninja> # Grant the webapp read-only API model access
 table-struct-type-20260820-add-can-defend [table-struct-type-20260810-armour-piercing-default-false] 2026-08-20T23:24:00Z Abstrct <josh@slow.ninja> # Add the off-chain can_defend struct type flag
+view-work-20260824-planet-ore-clocks [view-work-20260119-fixed-migration-issue-with-zero table-planet] 2026-08-24T20:00:00Z Abstrct <josh@slow.ninja> # view.work MINE/REFINE read planet ore clocks (attrs 12/13)
+view-planet-20260824-ore-clocks [view-planet-20260525-add-name] 2026-08-24T20:01:00Z Abstrct <josh@slow.ninja> # view.planet exposes planet attrs 11-15 (ore clocks and raid pause)
+view-struct-20260824-planet-ore-clocks [table-struct-type-20260612-add-armour-piercing] 2026-08-24T20:02:00Z Abstrct <josh@slow.ninja> # view.struct ore clocks read planet attrs 12/13 via location_id
