@@ -204,3 +204,6 @@ table-signer-tx-20260825-add-v021-tx-types [table-signer-tx-20260612-add-pfp-cr-
 function-signer-tx-20260825-v021-messages [table-signer-tx-20260825-add-v021-tx-types function-signer-tx-20260325-permission-overhaul function-signer-tx-20260612-pfp-cr-attributes] 2026-08-25T00:01:00Z Abstrct <josh@slow.ninja> # v0.21.0 tx wrappers: convert/restart/charter create; update redeem/mint/confiscate/rank args
 table-oidc-20260826-provider [table-player] 2026-08-26T00:00:00Z Abstrct <josh@slow.ninja> # OIDC provider tables for Matrix authentication
 role-structs-webapp-20260826-oidc [role-structs-webapp table-oidc-20260826-provider] 2026-08-26T00:01:00Z Abstrct <josh@slow.ninja> # Grant the webapp OIDC provider table access
+view-player-20260901-fix-total-load-capacity [view-player-20260612-add-pfp-cr-attributes] 2026-09-01T00:00:00Z Abstrct <josh@slow.ninja> # Fix total_load/total_capacity operator-precedence bug
+view-player-inventory-20260901-group-by-player-denom [view-player-20260525-inline-ugc] 2026-09-01T00:01:00Z Abstrct <josh@slow.ninja> # Roll up player_inventory by player_id and denom only
+comment-units-20260901-api-and-stat [table-structs-api-read-20260820-current-state table-stat] 2026-09-01T00:02:00Z Abstrct <josh@slow.ninja> # Document precision units on api_* and stat_* columns
