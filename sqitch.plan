@@ -207,3 +207,7 @@ role-structs-webapp-20260826-oidc [role-structs-webapp table-oidc-20260826-provi
 view-player-20260901-fix-total-load-capacity [view-player-20260612-add-pfp-cr-attributes] 2026-09-01T00:00:00Z Abstrct <josh@slow.ninja> # Fix total_load/total_capacity operator-precedence bug
 view-player-inventory-20260901-group-by-player-denom [view-player-20260525-inline-ugc] 2026-09-01T00:01:00Z Abstrct <josh@slow.ninja> # Roll up player_inventory by player_id and denom only
 comment-units-20260901-api-and-stat [table-structs-api-read-20260820-current-state table-stat] 2026-09-01T00:02:00Z Abstrct <josh@slow.ninja> # Document precision units on api_* and stat_* columns
+table-planet-attribute-20260904-repair-ore-clock-labels [table-planet-attribute-20260824-copy-ore-clocks-from-struct] 2026-09-04T00:00:00Z Abstrct <josh@slow.ninja> # Label unnamed planet_attribute rows for prefixes 11-15
+table-attribute-type-20260904-not-null [table-planet-attribute-20260904-repair-ore-clock-labels table-grid table-struct] 2026-09-04T00:01:00Z Abstrct <josh@slow.ninja> # Require attribute_type NOT NULL on planet/struct attrs and grid
+view-struct-20260904-add-state-columns [view-struct-20260824-planet-ore-clocks table-struct-20251229-add-destroyed] 2026-09-04T00:02:00Z Abstrct <josh@slow.ninja> # Expose is_built/is_online/is_destroyed/protected_struct_id on view.struct
+view-work-20260904-add-location [view-work-20260824-planet-ore-clocks] 2026-09-04T00:03:00Z Abstrct <josh@slow.ninja> # Add location_type/location_id/planet_id to view.work
