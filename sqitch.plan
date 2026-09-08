@@ -211,3 +211,4 @@ table-planet-attribute-20260904-repair-ore-clock-labels [table-planet-attribute-
 table-attribute-type-20260904-not-null [table-planet-attribute-20260904-repair-ore-clock-labels table-grid table-struct] 2026-09-04T00:01:00Z Abstrct <josh@slow.ninja> # Require attribute_type NOT NULL on planet/struct attrs and grid
 view-struct-20260904-add-state-columns [view-struct-20260824-planet-ore-clocks table-struct-20251229-add-destroyed] 2026-09-04T00:02:00Z Abstrct <josh@slow.ninja> # Expose is_built/is_online/is_destroyed/protected_struct_id on view.struct
 view-work-20260904-add-location [view-work-20260824-planet-ore-clocks] 2026-09-04T00:03:00Z Abstrct <josh@slow.ninja> # Add location_type/location_id/planet_id to view.work
+table-planet-activity-20260908-api-attacker-player-index [table-planet-activity-20260820-api-read-indexes] 2026-09-08T00:00:00Z Abstrct <josh@slow.ninja> # Index planet_activity by detail attackerPlayerId for player activity feeds
