@@ -472,6 +472,14 @@ repairs any drift, so no manual repair is needed.
 
 Found during the review; listed so they are not lost. Owners in brackets.
 
+Update 2026-09-15: the second review (planet activity attribution, game
+stats, stat series, ledger paging, connection churn) has its own handoffs.
+The docker / image items below are repeated with additions in
+`docs/sync-state-activity-stats-handoff.md` §5; the webapp items are
+superseded by `docs/webapp-activity-stats-handoff.md`, which replaces "add a
+time predicate to the player activity query" with a side table that makes
+the query an index-ordered `LIMIT`.
+
 - [docker-structs-guild] The `structs-pg` service runs with Docker's default
   64 MB `/dev/shm`. Parallel hash joins allocate dynamic shared memory there
   and fail with `could not resize shared memory segment ... No space left on
