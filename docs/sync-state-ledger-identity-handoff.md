@@ -17,20 +17,33 @@ Numbers are from `pg_stat_*` counters since the 2026-08-25 stats reset unless
 stated otherwise. `pg_stat_statements` is not loaded on the server, so these
 are table/index counters plus live sampling, not per-statement stats.
 
-### 1.1 Struct delete events are all being skipped
+### 1.1 Handler errors: every struct delete since 2026-08-24 is skipped
 
-`sync_state.handler_error_log` holds 106,491 unresolved rows, growing by
-2–6k per day. Almost all are:
+`sync_state.handler_error_log` holds 106,507 rows, none resolved. By
+composite key and severity:
 
 ```
-composite_key = structs.structs.EventDelete.objectId   severity = warn
-skip with warn: delete: objecttype.Parse: "\"5-251942\"" bad type id:
-  strconv.Atoi: parsing "\"5": invalid syntax
+composite_key                                               severity  rows     first        last
+structs.structs.EventDelete.objectId                        warn      106,393  2026-08-24   2026-09-14 (ongoing)
+structs.structs.EventPlanetAttribute.planetAttributeRecord  error          88  2026-09-04   2026-09-04
+structs.structs.EventStructType.structType                  error          22  2026-06-15   2026-06-15
+structs.structs.EventGrid.gridRecord                        warn            4  2026-05-27   2026-06-15
 ```
 
-The `objectId` attribute value arrives JSON-string-encoded (`"\"5-251942\""`,
-quotes included) and the parser receives the quoted form. Every struct delete
-since at least late May has been dropped. Consequences visible in the schema:
+**EventDelete.objectId (warn, ongoing, 2–6k per day).** First failure at
+height 2,275,051 on 2026-08-24 13:45 UTC, i.e. with the v0.21 chain upgrade.
+Sample row (`tx_index` and `msg_index` are NULL: these are end-block events):
+
+```
+height=2614299 event_index=54
+payload: "\"5-262312\""
+error:   skip with warn: delete: objecttype.Parse: "\"5-262312\"" bad type id:
+         strconv.Atoi: parsing "\"5": invalid syntax
+```
+
+Since v0.21 the `objectId` attribute value arrives JSON-string-encoded
+(quotes included) and the handler passes the quoted form to
+`objecttype.Parse`, so every struct delete is dropped. Visible consequences:
 
 - `structs.struct` has 282,854 rows; 225,867 (80%) have `is_destroyed = true`.
 - `view.work` scans `structs.struct` three times per read (BUILD, MINE and
@@ -38,14 +51,60 @@ since at least late May has been dropped. Consequences visible in the schema:
 - `deploy/view-work-20260203-exclude-destroyed.sql` exists in the working tree
   as a workaround for symptoms of this bug.
 
-Ask: fix the attribute decoding (strip the JSON string encoding before
-`objecttype.Parse`, or decode the attribute as JSON), then replay the delete
-events so the affected rows are removed. Confirm with the webapp team whether
-destroyed structs are expected to be deleted or retained as tombstones; the
-current state is "retained by accident", which neither side chose.
+Ask: decode the attribute as a JSON string before `objecttype.Parse` (check
+whether other v0.21 attributes changed encoding the same way), then replay
+from height 2,275,051 so the deletes apply. Confirm with the webapp team
+whether destroyed structs should be deleted or kept as tombstones; today they
+are retained by accident.
 
-Also present, low volume: four `EventGrid.gridRecord` warns from June with
-`attributeId "2-"` (an empty object id). Worth a look while in that code.
+**EventPlanetAttribute.planetAttributeRecord (error, 88 events, heights
+2,470,392–2,470,599, 2026-09-04).** Sample payload
+`{"attributeId": "12-2-28571", "value": "2470392"}`; error
+`planet_attribute upsert id=12-2-28571: null value in column "attribute_type"
+violates not-null constraint`. This is the window right after
+`table-attribute-type-20260904-not-null` was deployed, before the handler
+set `attribute_type` on upserts. Severity `error` means those 88 planet
+mine-clock (`12-`) writes were lost, not skipped-with-fallback. The handler
+is fixed (no recurrence), but the rows were never re-applied. Ask: replay
+heights 2,470,392–2,470,599, or recompute the `12-*` and `13-*` planet
+attributes for the affected planets.
+
+**EventStructType.structType (error, 22 events, height 1,173,255,
+2026-06-15).** `struct_type upsert id=N: column "generating_rate_p" of
+relation "struct_type" does not exist`. A handler ahead of the schema for one
+block; every struct type at that height was rejected. Long since superseded
+by later struct-type events, but confirm `structs.struct_type` matches chain
+state for all 22 ids (the sample payload has `id: "1"`, Command Ship).
+
+**EventGrid.gridRecord (warn, 4 events, May–June).** Payload
+`{"attributeId": "2-", "value": "0"}`: an attribute id with an empty object
+id, rejected correctly. Likely a chain-side artefact; worth a look while in
+that code, no data impact.
+
+All 106,507 rows carry a full `stack` text, which is why the table is 47 MB.
+Consider not storing the stack for `warn` rows once a key has been seen, or
+resolving rows in bulk after each fix:
+
+```sql
+UPDATE sync_state.handler_error_log
+   SET resolved_at = now(), resolved_by = 'sync-state/<ticket>'
+ WHERE composite_key = 'structs.structs.EventDelete.objectId'
+   AND resolved_at IS NULL;
+```
+
+Queries used above, for re-running after fixes:
+
+```sql
+SELECT composite_key, severity, count(*), min(created_at)::date, max(created_at)::date
+  FROM sync_state.handler_error_log
+ WHERE resolved_at IS NULL
+ GROUP BY 1, 2 ORDER BY 3 DESC;
+
+SELECT id, height, tx_index, msg_index, event_index, payload, error
+  FROM sync_state.handler_error_log
+ WHERE composite_key = 'structs.structs.EventDelete.objectId'
+ ORDER BY created_at DESC LIMIT 5;
+```
 
 ### 1.2 The inventory recompute is proportional to address history
 
@@ -89,8 +148,26 @@ column that every update increments. Autovacuum has run 74k times on this
 600 kB table. The index had zero scans, so it has been dropped
 (`index-sync-state-20260914-drop-unknown-event-count-idx`).
 
-Ask: remove the matching `CREATE INDEX IF NOT EXISTS unknown_event_log_count_idx`
-from sync-state's `bootstrap.sql` so the doctor probe does not flag it.
+Nearly all of the churn comes from five Cosmos SDK distribution attributes
+that appear in every block and will never be handled:
+
+```
+composite_key         count       first_seen_height  last_seen_height
+commission.validator  17,993,553  258,301            2,614,462
+rewards.validator     17,993,553  258,301            2,614,462
+rewards.mode          17,993,553  258,301            2,614,462
+commission.mode       17,993,553  258,301            2,614,462
+rewards.amount        17,993,553  258,301            2,614,462
+```
+
+Asks:
+
+- Remove the matching `CREATE INDEX IF NOT EXISTS unknown_event_log_count_idx`
+  from sync-state's `bootstrap.sql` so the doctor probe does not flag it.
+- Add an ignore list for known-irrelevant SDK event types (`commission`,
+  `rewards`, and whatever else in the table is `cosmos.*`/`ibc.*`) so they
+  never reach `unknown_event_log`, or batch the counter update once per block
+  instead of once per attribute. Either removes ~5 row updates per block.
 
 ## 2. Ledger source-event identity
 
