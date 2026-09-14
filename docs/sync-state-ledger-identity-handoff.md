@@ -395,6 +395,15 @@ SELECT inserted, updated, deleted
 - `structs_indexer` has `EXECUTE` on it and DML on `api_work`. Nothing else
   is needed.
 
+**If you already shipped the dirty-key delete/re-insert from the earlier
+draft of this section** (production shows `api_work` being written that way
+since height 2615836): replace it with the single call above and stop
+writing `api_refresh_state.work` yourself. The dirty-key path is correct
+for events it knows about but cannot repair rows whose inputs never change
+again; the 8 destroyed structs backfilled from the old view definition are
+the current example (`SELECT * FROM structs.api_work_reconcile(false)`
+lists them as `extra`). The first `api_work_refresh()` call removes them.
+
 What the function does, for reference: computes `view.work_live` once,
 deletes `api_work` rows whose key is no longer in the list, upserts the rest
 with an `IS DISTINCT FROM` guard so unchanged rows are not rewritten, and
