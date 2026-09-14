@@ -347,59 +347,83 @@ Asks:
 
 Changes: `table-api-work-20260914-current-state`,
 `role-structs-indexer-20260914-api-work-and-drift`,
-`role-structs-webapp-20260914-api-work`.
+`role-structs-webapp-20260914-api-work`,
+`table-planet-attribute-20260914-idx-object-id-attribute-type`,
+`view-work-live-20260914-specification`,
+`function-api-work-20260914-refresh`,
+`table-api-work-20260914-reconciliation`.
 
 `view.work` (BUILD / MINE / REFINE / RAID list) is rebuilt from `struct`,
 `struct_attribute`, `struct_type`, `grid`, `planet`, `planet_attribute` and
-`fleet` on every read. `SELECT count(*) FROM view.work` costs ~180 ms and
+`fleet` on every read. `SELECT count(*) FROM view.work` costs ~130-180 ms and
 ~145k buffer hits and the webapp calls it several times a minute; it is the
 largest steady-state CPU consumer on the server right now.
 
 `structs.api_work` has exactly the `view.work` columns and types plus
 `source_height` and `updated_at`, primary key `(category, object_id, target_id)`,
-and indexes by `player_id`, `planet_id` and `category`. It is empty until
-sync-state backfills it. `view.work` keeps its live definition until then; a
-later `structs-pg` change re-points the view at the table, as
+and indexes by `player_id`, `planet_id` and `category`. `view.work` keeps
+its live definition until sync-state is refreshing the table every block; a
+later `structs-pg` change then re-points the view at the table, as
 `view-inventory-20260914-read-api-current-state` did for inventory, so the
 webapp does not change.
 
-### 5.1 Semantics
+### 5.1 What sync-state has to do
 
-`view.work` is the specification. Use it directly:
-
-- Backfill: `INSERT INTO structs.api_work (object_id, player_id, target_id,
-  category, block_start, difficulty_target, location_type, location_id,
-  planet_id, source_height) SELECT *, $height FROM view.work;`
-- Per block: collect dirty struct ids and dirty planet ids, then within the
-  block transaction delete their rows and re-insert from the view:
+The work-list logic stays in the database. sync-state does not reimplement
+the view, track dirty keys, or write to `api_work` directly. It calls one
+function:
 
 ```sql
-DELETE FROM structs.api_work
- WHERE object_id = ANY($structs) OR planet_id = ANY($planets)
-    OR target_id = ANY($planets);
-INSERT INTO structs.api_work (object_id, player_id, target_id, category,
-    block_start, difficulty_target, location_type, location_id, planet_id, source_height)
-SELECT w.*, $height
-  FROM view.work w
- WHERE w.object_id = ANY($structs) OR w.planet_id = ANY($planets)
-    OR w.target_id = ANY($planets);
+SELECT inserted, updated, deleted
+  FROM structs.api_work_refresh($height, $block_time);
 ```
 
-`view-work-20260914-filterable-unions` made every branch of the view start
-from `struct` (or `planet`) so those predicates push down and each call
-touches only the dirty rows.
+- Call it **once per block, at the end of the block transaction, after
+  every authoritative write for that block** (struct, struct_attribute,
+  planet_attribute, grid, planet, fleet, struct_type). If it runs before
+  those writes it sees the previous block's state and the table lags by one
+  block until the next call.
+- Backfill is the same call, once, before the first live block. There is no
+  separate backfill statement.
+- It is idempotent: a second call for the same height returns `(0, 0, 0)`.
+  Re-running a block after a crash is safe.
+- It updates `structs.api_refresh_state` for model `work` itself; do not
+  write that row from sync-state.
+- Cost on today's data: ~210 ms per call, single-threaded, ~4.2k rows in
+  the list. Log the returned counts at debug level; they are also the
+  cheapest signal that the call is wired in.
+- `structs_indexer` has `EXECUTE` on it and DML on `api_work`. Nothing else
+  is needed.
 
-Inputs that dirty a struct: its creation or deletion, any change to its
-`status` attribute (`struct_attribute` id `1-<struct>`), its build clock
-(`2-<struct>`), its `owner`, `type`, `location_type` or `location_id`, and a
-`struct_type` change (dirty every struct of that type). Inputs that dirty a
-planet: `planet_attribute` shield `0-<planet>`, raid clock `10-<planet>`,
-mine clock `12-<planet>`, refine clock `13-<planet>`, `grid` `0-<planet>`
-(planet ore), `planet.location_list_start`, and `fleet.owner` for the fleet
-at `location_list_start`. `grid` `0-<player>` (player ore, used by the
-REFINE branch) dirties every struct owned by that player.
+What the function does, for reference: computes `view.work_live` once,
+deletes `api_work` rows whose key is no longer in the list, upserts the rest
+with an `IS DISTINCT FROM` guard so unchanged rows are not rewritten, and
+records the height. A row's `source_height` is the height at which it last
+changed; `api_refresh_state.source_height` for `work` is the height last
+refreshed to.
 
-Add a `work` row to `structs.api_refresh_state` and update it last.
+### 5.2 `view.work_live` and `view.work`
+
+`view.work_live` is the specification: today's `view.work` joined on
+`(object_id, attribute_type)` instead of `'<prefix>-' || id` so it uses the
+attribute indexes (`planet_attribute` gained one for this), with one
+semantic change: structs with `struct.is_destroyed` are excluded from
+BUILD, MINE and REFINE. The status bitmask was supposed to cover that, but
+8 destroyed structs on production had a status without bit 32 and were
+being offered as BUILD work. Verified on production: the new view differs
+from the old one by exactly those 8 rows. `view.work` currently reads
+`view.work_live`; after the re-point it reads `structs.api_work`. Do not
+read `view.work_live` on request paths.
+
+### 5.3 Reconciliation
+
+`structs.api_work_reconcile(p_log)` compares `api_work` with `view.work_live`
+and returns every key that is `missing`, `extra` or `stale`, logging to
+`structs.api_work_drift` when `p_log` (cron `api_work_reconciler`, 03:23
+daily, 90-day retention). Because the refresh logic is in the database, drift
+means the refresh was not called, was called before the block's writes, or
+rolled back. It is not expected to fire; the next `api_work_refresh()` call
+repairs any drift, so no manual repair is needed.
 
 ## 6. Rollout order
 
@@ -420,11 +444,15 @@ Add a `work` row to `structs.api_refresh_state` and update it last.
    until §1.4 lands; harmless, but it undoes that fix.
 2. sync-state: §1.1 delete fix and replay; §1.4 bootstrap.sql index removal.
 3. sync-state: §2 identity writes, §3 running balance with backfill, §4 drift
-   consumption, §5 `api_work` backfill and maintenance. These can ship in any
+   consumption, §5 `api_work_refresh()` call per block. These can ship in any
    order but §3 depends on §2.
-4. `structs-pg`, after sync-state confirms `api_work` is backfilled and the
-   reconciler has been clean for a few nights:
-   - re-point `view.work` at `structs.api_work`;
+4. `structs-pg`, after sync-state confirms `api_work_refresh()` runs every
+   block and the reconciler has been clean for a few nights:
+   - re-point `view.work` at `structs.api_work`. The change is already
+     written (`view-work-20260914-read-api-current-state`, held on the
+     `phase-2-work-repoint` branch). Its deploy refuses to run unless
+     `api_refresh_state.work` was refreshed within the last 5 minutes, so it
+     cannot cut the webapp over to a stale table;
    - `SET NOT NULL` on the identity columns (see §2.2);
    - add a compression policy on `structs.ledger`
      (`segmentby address, denom`, compress after 30 days). This is
@@ -478,14 +506,12 @@ SELECT * FROM structs.api_inventory_reconcile(false);
 SELECT checked_at, count(*) FROM structs.api_inventory_drift
  GROUP BY 1 ORDER BY 1 DESC LIMIT 14;
 
--- api_work matches view.work while both exist
-SELECT count(*) FROM (
-    SELECT object_id, player_id, target_id, category, block_start,
-           difficulty_target, location_type, location_id, planet_id FROM view.work
-    EXCEPT
-    SELECT object_id, player_id, target_id, category, block_start,
-           difficulty_target, location_type, location_id, planet_id FROM structs.api_work
-) d;
+-- api_work is being refreshed every block (refreshed_at should track the tip)
+SELECT model, source_height, source_time, refreshed_at, now() - refreshed_at AS age
+  FROM structs.api_refresh_state WHERE model = 'work';
+
+-- api_work matches the specification (expect 0 rows; missing/extra/stale otherwise)
+SELECT * FROM structs.api_work_reconcile(false);
 
 -- delete handler is fixed: no new EventDelete warns
 SELECT count(*) FROM sync_state.handler_error_log
