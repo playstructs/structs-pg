@@ -5,14 +5,14 @@
 -- (it needs detail @>); a btree on the extracted key can, and the cursor
 -- suffix matches the existing planet/category/global keyset indexes.
 -- Partial: most planet_activity rows are not attacks and have no attacker.
--- TimescaleDB builds each index one chunk at a time to reduce write blocking.
+-- Do not use timescaledb.transaction_per_chunk: Timescale 2.29+ rejects it
+-- inside a transaction, and Sqitch plus this script both wrap in BEGIN.
 
 BEGIN;
 
     CREATE INDEX planet_activity_attacker_player_block_time_planet_seq_idx
         ON structs.planet_activity
         ((detail->>'attackerPlayerId'), block_height DESC NULLS LAST, time DESC, planet_id DESC, seq DESC)
-        WITH (timescaledb.transaction_per_chunk)
         WHERE (detail->>'attackerPlayerId') IS NOT NULL;
 
 COMMIT;

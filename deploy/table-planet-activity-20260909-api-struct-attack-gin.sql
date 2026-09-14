@@ -11,8 +11,9 @@
 --
 -- jsonb_path_ops (not default GIN): this query only uses @>, and path_ops
 -- is smaller/faster for that. Partial on category = 'struct_attack' (~2,721
--- rows). Timescale builds one chunk at a time; CONCURRENTLY is not used
--- because hypertables reject it and Sqitch runs inside a transaction.
+-- rows). CONCURRENTLY is not used because hypertables reject it and Sqitch
+-- runs inside a transaction. Do not use timescaledb.transaction_per_chunk:
+-- Timescale 2.29+ rejects it inside a transaction.
 --
 -- handle_event_attack stores the EventAttack payload as detail. Attacker
 -- id is top-level attackerPlayerId; targetPlayerId moved onto each
@@ -28,7 +29,6 @@ BEGIN;
     CREATE INDEX planet_activity_detail_gin
         ON structs.planet_activity
         USING gin (detail jsonb_path_ops)
-        WITH (timescaledb.transaction_per_chunk)
         WHERE category = 'struct_attack';
 
 COMMIT;
