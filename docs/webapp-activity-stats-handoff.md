@@ -131,10 +131,10 @@ Once `planetActivityByPlayer()` no longer reads `detail` predicates:
 
 - `planetActivityPlayerBranches()` and the five `*Predicate()` helpers.
 - In the database (phase-2 branch, merged after you confirm):
-  `planet_activity_detail_gin` (GIN, ~60 MB) and
-  `planet_activity_block_time_planet_seq_idx`, which only serve this query;
-  and compression of `planet_activity` chunks older than 30 days, which is
-  blocked today by the GIN index's write pattern.
+  `planet_activity_detail_gin` (partial on `struct_attack`, 0 scans since
+  creation) and `planet_activity_block_time_planet_seq_idx` (~200 MB across
+  chunks, 4 scans per chunk), which only serve this query; and compression
+  of `planet_activity` chunks older than 30 days.
 
 ## 2. Activity stats
 
