@@ -404,9 +404,20 @@ Add a `work` row to `structs.api_refresh_state` and update it last.
 ## 6. Rollout order
 
 1. `structs-pg` deploys the 20260914 changes (auto-migrate picks them up from
-   `main`). Nothing sync-state does today breaks. The reconciler will start
-   logging drift nightly; until §3 ships it acts as a check on the current
-   recompute path, which is useful on its own.
+   `main`). This is a hard prerequisite for step 3, not a preference: without
+   `ledger_source_event_uidx` every `INSERT ... ON CONFLICT (time, chain_id,
+   tx_index, msg_index, event_index)` fails with "no unique or exclusion
+   constraint matching the ON CONFLICT specification", and writes to
+   `api_work` or reads of `api_inventory_drift` fail on missing relations.
+   Confirm with `SELECT to_regclass('structs.ledger_source_event_uidx'),
+   to_regclass('structs.api_work');` before enabling the new code path.
+
+   The reverse is safe: nothing sync-state does today breaks once these are
+   deployed. The reconciler will start logging drift nightly; until §3 ships
+   it acts as a check on the current recompute path, which is useful on its
+   own. If `Bootstrap()` still executes `bootstrap.sql` rather than only
+   probing it, a sync-state restart will recreate `unknown_event_log_count_idx`
+   until §1.4 lands; harmless, but it undoes that fix.
 2. sync-state: §1.1 delete fix and replay; §1.4 bootstrap.sql index removal.
 3. sync-state: §2 identity writes, §3 running balance with backfill, §4 drift
    consumption, §5 `api_work` backfill and maintenance. These can ship in any
