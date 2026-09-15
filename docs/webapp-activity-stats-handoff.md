@@ -21,7 +21,7 @@ webapp's statements against production (read-only):
 | `GET /api/planet-activity/stats` (30 d / day) | 580 ms, scans 30 days of rows | sums ~3k rows of a continuous aggregate |
 | `GET /api/stat/{metric}/aggregate/range` (7 d / hour) | 301 ms, 108k buffers; the `seed` CTE scans all history before the window | range scan of `stat_rollup` (~170 rows) |
 | `view.permission_player WHERE player_id = …` | seq scan, 236k rows | 0.27 ms |
-| Ledger list endpoints, deep pages | 21 MB temp spill per page (`ORDER BY time DESC, id` vs index `(time DESC, id DESC)`) | see §4 |
+| Ledger list endpoints, deep pages | whole history read + top-N sort per page via the `player_address` join; 22 MB temp spill past `OFFSET` ~80k | see §4 |
 | Connections | ~1,110 new sessions/min, ~5 statements each, `SET NAMES` on every connect | see §5 |
 
 The per-player feed is 12% of sampled activity and its cost grows linearly
@@ -271,20 +271,59 @@ range on `(object_index, time)`.
 
 ## 4. Ledger list endpoints
 
-Not part of the new relations, but measured in the same review. The three
-`ledgerList*()` methods order by `time DESC, id` while the indexes
-(`ledger_time_id_idx`, `ledger_address_time_id_idx`) are `(…, time DESC, id
-DESC)`. The mixed direction defeats the index order, so each page sorts the
-whole candidate set: 21 MB of temp file per page for a player with a long
-history, and deep `OFFSET` pages read everything before them.
+Not part of the new relations, but measured in the same review, and after
+the 2026-09-15 catalog indexes these are the only `structs_webapp` statements
+that still write temporary files. The player-scoped ledger page is:
 
-1. Change the order to `time DESC, id DESC` (a pure direction flip; the
-   response is still deterministic). This alone removes the sort and the
-   temp spill.
+```sql
+SELECT l.time, l.id, l.address, ... FROM structs.ledger l
+INNER JOIN structs.player_address pa
+        ON pa.address = l.address AND pa.player_id = :player
+ORDER BY l.time DESC, l.id DESC LIMIT :limit OFFSET :offset;
+```
+
+The sort direction already matches `ledger_address_time_id_idx (address,
+time DESC, id DESC)`. The problem is the join: a player has several
+addresses, and the planner cannot produce `time DESC` order across them from
+a per-address index, so every page reads the player's entire history and
+top-N sorts it. Measured for player `1-194` (136k rows, 2 addresses):
+page 1 reads 14,398 buffers in 79 ms; the top-N heap reaches 28 MB at
+`OFFSET 100000`, past `work_mem`, which is the 22 MB temp file logged per
+page when someone pages to the tail of a long history. The planner also
+estimates 561 rows for this join (actual 136k), so it never considers a
+better plan.
+
+1. Bound each address's scan before merging, with `LATERAL`:
+
+   ```sql
+   SELECT x.*
+     FROM structs.player_address pa
+    CROSS JOIN LATERAL (
+          SELECT l.time, l.id, l.address, l.counterparty, l.amount, l.amount_p,
+                 l.block_height, l.action::text AS action,
+                 l.direction::text AS direction, l.denom
+            FROM structs.ledger l
+           WHERE l.address = pa.address
+           ORDER BY l.time DESC, l.id DESC
+           LIMIT :limit + :offset) x
+    WHERE pa.player_id = :player
+    ORDER BY x.time DESC, x.id DESC
+    LIMIT :limit OFFSET :offset;
+   ```
+
+   Same rows, same order. Each address contributes at most
+   `limit + offset` rows straight from the index, so the outer sort is
+   bounded and never spills. Measured on the same player: page 1 1.2 ms /
+   73 buffers (was 79 ms / 14,398); `OFFSET 5000` 8.9 ms (was 43 ms).
+   The address-scoped `ledgerList*()` variants have the same shape with a
+   single address and only need the `ORDER BY time DESC, id DESC` they
+   already have.
 2. Offer a keyset cursor instead of page numbers for deep history:
    `WHERE (time, id) < (:before_time, :before_id) ORDER BY time DESC, id DESC
-   LIMIT 100`, and cap `page` (e.g. 50) for the OFFSET form, the same way the
-   planet-activity endpoints already use `KEYSET_SEQ`.
+   LIMIT 100` (inside the `LATERAL` for the player form), and cap `page`
+   (e.g. 50) for the OFFSET form, the same way the planet-activity
+   endpoints already use `KEYSET_SEQ`. Even with (1), `OFFSET 100000` still
+   reads 100k index entries per address.
 
 ## 5. Connections
 
