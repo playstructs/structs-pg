@@ -32,9 +32,14 @@
 -- chunks compressed and rolled back: a page whose rows land in a compressed
 -- chunk 68 -> 104 ms, the whole 7,953-row history of the busiest player
 -- 280 -> 342 ms, a 100-row page unchanged at ~11 ms, 24 chunks excluded at
--- runtime in every case. So: refuse unless pg_stat_statements shows the LATERAL shape from
--- structs_webapp and shows the plain JOIN shape has stopped (no calls in a
--- 20 s window, which covers several feed requests at current traffic).
+-- runtime in every case. So: refuse on positive evidence that the old shape
+-- is what this host's webapp runs, i.e. pg_stat_statements (counters since
+-- server start) shows the plain JOIN and never the LATERAL form, or shows
+-- both and the JOIN is still being called (20 s window). A host with no
+-- webapp feed traffic at all since it started has nothing to protect and
+-- must not block every later change in the plan; it deploys with a NOTICE.
+-- Production (crew) deployed 2026-09-15 20:47 under the strict form of this
+-- guard: LATERAL 53 calls, JOIN 378 and unchanged.
 
 BEGIN;
 
@@ -64,14 +69,20 @@ BEGIN;
          WHERE r.rolname = 'structs_webapp'
            AND s.query ILIKE '%planet_activity_player%'
            AND s.query ILIKE '%LATERAL%planet_activity a%';
-        IF v_lateral = 0 THEN
-            RAISE EXCEPTION 'planet_activity compression refused: structs_webapp has not issued the LATERAL feed query (handoff §1.2); compressed chunks would be fully decompressed for deep feed pages';
-        END IF;
-
         SELECT COALESCE(SUM(s.calls), 0) INTO v_join_before
           FROM pg_stat_statements s JOIN pg_roles r ON r.oid = s.userid
          WHERE r.rolname = 'structs_webapp'
            AND s.query ILIKE '%FROM structs.planet_activity_player p JOIN structs.planet_activity a%';
+
+        IF v_lateral = 0 AND v_join_before = 0 THEN
+            RAISE NOTICE 'planet_activity compression: structs_webapp has issued no player feed query since this server started (neither shape); nothing to verify, proceeding';
+            RETURN;
+        END IF;
+
+        IF v_lateral = 0 THEN
+            RAISE EXCEPTION 'planet_activity compression refused: structs_webapp runs the plain JOIN feed query (% calls) and has never issued the LATERAL form (handoff §1.2); compressed chunks would be fully decompressed for deep feed pages', v_join_before;
+        END IF;
+
         PERFORM pg_sleep(20);
         PERFORM pg_stat_clear_snapshot();
         SELECT COALESCE(SUM(s.calls), 0) INTO v_join_after
