@@ -389,9 +389,17 @@ SELECT inserted, updated, deleted
   Re-running a block after a crash is safe.
 - It updates `structs.api_refresh_state` for model `work` itself; do not
   write that row from sync-state.
-- Cost on today's data: ~210 ms per call, single-threaded, ~4.2k rows in
-  the list. Log the returned counts at debug level; they are also the
-  cheapest signal that the call is wired in.
+- Cost on today's data (since `function-api-work-20260915-incremental-refresh`):
+  ~1-2 ms per call when the block changed nothing the work list reads
+  (three blocks in four), ~5-10 ms otherwise. Before that change it was a
+  full recompute at ~170 ms every block. Log the returned counts at debug
+  level; they are also the cheapest signal that the call is wired in.
+- The call must stay **in the same transaction as the block's writes, or
+  after they commit**. The refresh drains a queue that triggers on the
+  source tables fill as sync-state writes; keys written by a transaction
+  that has not committed yet are picked up by the next block's call, so a
+  call issued from a separate connection mid-block lags one block. Same
+  rule as before, now with a mechanism behind it.
 - `structs_indexer` has `EXECUTE` on it and DML on `api_work`. Nothing else
   is needed.
 
@@ -404,12 +412,22 @@ again; the 8 destroyed structs backfilled from the old view definition are
 the current example (`SELECT * FROM structs.api_work_reconcile(false)`
 lists them as `extra`). The first `api_work_refresh()` call removes them.
 
-What the function does, for reference: computes `view.work_live` once,
-deletes `api_work` rows whose key is no longer in the list, upserts the rest
-with an `IS DISTINCT FROM` guard so unchanged rows are not rewritten, and
-records the height. A row's `source_height` is the height at which it last
-changed; `api_refresh_state.source_height` for `work` is the height last
-refreshed to.
+What the function does, for reference: row triggers on `struct`,
+`struct_attribute` (`status`, `blockStartBuild`), `planet_attribute` (the
+three clocks and `planetaryShield`), `grid` (`ore` crossing zero), `planet`
+(`location_list_start`) and `fleet` (`owner`) enqueue the affected
+struct/planet/player/fleet key into `structs.api_work_dirty` when, and only
+when, a value the work list reads changes. `api_work_refresh()` drains that
+queue, expands planet/player/fleet keys to the structs and planets they
+influence, recomputes just those targets through `view.work_live`, deletes
+rows that vanished and upserts the rest with an `IS DISTINCT FROM` guard,
+then records the height. `structs.api_work_refresh_full()` is the previous
+whole-list pass; pg_cron runs it hourly (`api-work-refresh-full-hourly`) and
+it logs any correction it had to make into `api_work_drift`, so a dependency
+the triggers miss shows up there instead of as silent staleness. A row's
+`source_height` is the height at which it last changed;
+`api_refresh_state.source_height` for `work` is the height last refreshed
+to. Nothing in sync-state changes for this: same call, same signature.
 
 ### 5.2 `view.work_live` and `view.work`
 
@@ -431,8 +449,12 @@ and returns every key that is `missing`, `extra` or `stale`, logging to
 `structs.api_work_drift` when `p_log` (cron `api_work_reconciler`, 03:23
 daily, 90-day retention). Because the refresh logic is in the database, drift
 means the refresh was not called, was called before the block's writes, or
-rolled back. It is not expected to fire; the next `api_work_refresh()` call
-repairs any drift, so no manual repair is needed.
+rolled back, or (since the incremental refresh) that a source of the work
+list changed without a trigger noticing. It is not expected to fire; the
+hourly `api_work_refresh_full()` repairs any drift within the hour and logs
+what it repaired to the same table, so no manual repair is needed. Rows in
+`api_work_drift` with `checked_at` at minute 07 come from that hourly pass;
+if they recur, tell structs-pg which table/attribute produced them.
 
 ## 6. Rollout order
 
