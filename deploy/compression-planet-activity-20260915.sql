@@ -44,9 +44,20 @@ BEGIN;
         v_join_before  BIGINT;
         v_join_after   BIGINT;
     BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements') THEN
-            RAISE EXCEPTION 'planet_activity compression refused: pg_stat_statements is not installed, cannot verify the webapp feed shape';
-        END IF;
+            -- extension-pg-stat-statements-20260914 was a no-op on hosts whose
+            -- image did not yet preload the library. It does now, so create
+            -- the extension here if it is still missing; the counters have
+            -- been accumulating in shared memory since the server started.
+            IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements') THEN
+                IF 'pg_stat_statements' = ANY (
+                    string_to_array(replace(current_setting('shared_preload_libraries'), ' ', ''), ',')
+                ) THEN
+                    CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+                    RAISE NOTICE 'planet_activity compression: created pg_stat_statements (missing since extension-pg-stat-statements-20260914 ran before the library was preloaded)';
+                ELSE
+                    RAISE EXCEPTION 'planet_activity compression refused: pg_stat_statements is not in shared_preload_libraries, cannot verify the webapp feed shape';
+                END IF;
+            END IF;
 
         SELECT COALESCE(SUM(s.calls), 0) INTO v_lateral
           FROM pg_stat_statements s JOIN pg_roles r ON r.oid = s.userid
