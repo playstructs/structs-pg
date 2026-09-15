@@ -156,6 +156,21 @@ and the same 6–9 ms with a compressed chunk in the path (`Chunks excluded
 during runtime: 24`). Once `pg_stat_statements` shows this shape from
 `structs_webapp`, we enable compression on `planet_activity` (branch
 `phase-2-activity-compression`; its deploy guard checks for exactly that).
+
+**Seen live 2026-09-15 20:40 — your `LATERAL` query is deployed and correct
+(same text as above), and it unblocked compression
+(`compression-planet-activity-20260915` is on `main`).** One observation
+on page size: `pg_stat_statements` shows the query returning ~1,800 rows
+per call (mean 73 ms, max 342 ms), not 100. Cost is linear in returned
+rows at ~37 µs each (measured: 100 rows 12 ms, 1,800 rows 65–72 ms, the
+whole 7,953-row history of the busiest player 290 ms), and buffers per
+call fell 240k → 6k versus the old `JOIN`, so the query is doing what it
+should; it is just being asked for a lot of rows. If those calls are
+paginating in PHP or fetching the full history to count, `LIMIT 100`
+pages (or `planet_activity_player_daily` for counts) would bring the
+endpoint to ~12 ms. With chunks older than 30 days compressed, a page
+whose rows land in a compressed chunk costs ~50% more (68 → 104 ms at
+1,800 rows; unchanged at 100 rows).
 - New capability for the API if wanted: `role` filter
   (`attacker|target|owner|planet_owner|defender|protected|fleet_owner`), and
   "attacks on me" = `category = 'struct_attack' AND role = 'target'`.
@@ -172,8 +187,10 @@ Once `planetActivityByPlayer()` no longer reads `detail` predicates:
   each since 09-14 against 26M on the unique index) are dropped by
   `index-planet-activity-20260915-drop-feed-indexes` on `main`, now that
   your cutover is visible in `pg_stat_statements`. Compression of
-  `planet_activity` chunks older than 30 days waits for the `LATERAL` feed
-  shape in §1.2.
+  `planet_activity` chunks older than 30 days
+  (`compression-planet-activity-20260915`, segment by `planet_id`, order
+  `time DESC, seq DESC`, background policy) shipped once the `LATERAL`
+  feed shape in §1.2 was live.
 
 ## 2. Activity stats
 
