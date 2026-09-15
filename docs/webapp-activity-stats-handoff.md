@@ -119,6 +119,43 @@ Notes:
 - The join back to `planet_activity` is on its unique
   `(time, planet_id, seq)` index; the measured plan is a nested loop of 100
   index lookups.
+
+**Update 2026-09-15, after your cutover shipped — please switch the join to
+`LATERAL`.** The shape above works (page 1 for the busiest player: 3 ms) but
+the planner probes every `planet_activity` chunk for every side row (25
+chunks × rows, no chunk exclusion), and deep pages get expensive (offset
+2400: 147 ms). It also blocks compressing `planet_activity` history: on a
+compressed chunk that plan decompresses the whole chunk (1,000 ms for the
+same page, measured on a rolled-back `compress_chunk`). Pick the page keys
+first, then fetch each parent row with a `LATERAL` subquery; Timescale then
+excludes chunks at runtime:
+
+```sql
+SELECT a.time, a.seq, a.planet_id, a.block_height, a.category::text AS category, a.detail
+  FROM (
+        SELECT p.block_height, p.time, p.planet_id, p.seq
+          FROM structs.planet_activity_player p
+         WHERE p.player_id = :player_id
+           -- optional: AND p.category = ..., AND p.role = ..., AND p.block_height > ...
+         GROUP BY p.block_height, p.time, p.planet_id, p.seq      -- replaces DISTINCT ON
+         ORDER BY p.block_height DESC NULLS LAST, p.time DESC, p.planet_id DESC, p.seq DESC
+         LIMIT 100 OFFSET :offset
+       ) k
+ CROSS JOIN LATERAL (
+        SELECT a.*
+          FROM structs.planet_activity a
+         WHERE a.time = k.time AND a.planet_id = k.planet_id AND a.seq = k.seq
+         LIMIT 1
+       ) a
+ ORDER BY k.block_height DESC NULLS LAST, k.time DESC, k.planet_id DESC, k.seq DESC;
+```
+
+Same rows as the `DISTINCT ON` form (verified row-for-row on production).
+Measured for the same player: page 1, offset 2400 and offset 4000 all 6–9 ms,
+and the same 6–9 ms with a compressed chunk in the path (`Chunks excluded
+during runtime: 24`). Once `pg_stat_statements` shows this shape from
+`structs_webapp`, we enable compression on `planet_activity` (branch
+`phase-2-activity-compression`; its deploy guard checks for exactly that).
 - New capability for the API if wanted: `role` filter
   (`attacker|target|owner|planet_owner|defender|protected|fleet_owner`), and
   "attacks on me" = `category = 'struct_attack' AND role = 'target'`.
@@ -130,11 +167,13 @@ Notes:
 Once `planetActivityByPlayer()` no longer reads `detail` predicates:
 
 - `planetActivityPlayerBranches()` and the five `*Predicate()` helpers.
-- In the database (phase-2 branch, merged after you confirm):
-  `planet_activity_detail_gin` (partial on `struct_attack`, 0 scans since
-  creation) and `planet_activity_block_time_planet_seq_idx` (~200 MB across
-  chunks, 4 scans per chunk), which only serve this query; and compression
-  of `planet_activity` chunks older than 30 days.
+- In the database: `planet_activity_detail_gin` and
+  `planet_activity_block_time_planet_seq_idx` (160 MB together, ~100 scans
+  each since 09-14 against 26M on the unique index) are dropped by
+  `index-planet-activity-20260915-drop-feed-indexes` on `main`, now that
+  your cutover is visible in `pg_stat_statements`. Compression of
+  `planet_activity` chunks older than 30 days waits for the `LATERAL` feed
+  shape in §1.2.
 
 ## 2. Activity stats
 
@@ -352,10 +391,12 @@ sampled comes close.
 2. Repoint, in any order, one endpoint per release if you like:
    `planetActivityByPlayer` (§1), `planetActivityStats` (§2), `getStatAggregate` (§3).
    Ledger ordering (§4) and connections (§5) are independent.
-3. Tell structs-pg when `planetActivityByPlayer` no longer reads `detail`
-   predicates. The `phase-2-activity-compression` branch then drops the GIN
-   and `block_time_planet_seq_idx` indexes and enables compression of
-   `planet_activity` chunks older than 30 days.
+3. Done 2026-09-15: `planetActivityByPlayer` reads `planet_activity_player`,
+   and the GIN / `block_time_planet_seq_idx` drop is on `main`. Remaining:
+   switch the feed join to the `LATERAL` form in §1.2 and the ledger paging
+   in §4. Compression of `planet_activity` follows the `LATERAL` change
+   automatically (its deploy guard looks for that statement shape from
+   `structs_webapp`).
 
 Verification queries (run as `structs`; `structs_webapp` can run all but the
 last one):
