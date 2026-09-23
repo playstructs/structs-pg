@@ -21,6 +21,12 @@
 --      is planet_activity_player JOIN planet_activity on the unique
 --      (time, planet_id, seq) index; neither dropped index appears in its
 --      plan.)
+--
+-- A fresh database has neither table populated and no webapp traffic, so
+-- there is no feed for these indexes to protect. Refusing there blocks
+-- every later change. That case deploys with a NOTICE. Still refused: the
+-- raw activity table has rows while attribution is empty, attribution is
+-- stale, or the webapp has never read planet_activity_player.
 
 BEGIN;
 
@@ -30,7 +36,15 @@ BEGIN;
         v_calls  BIGINT;
     BEGIN
         SELECT max(time) INTO v_latest FROM structs.planet_activity_player;
-        IF v_latest IS NULL OR v_latest < now() - INTERVAL '10 minutes' THEN
+        IF v_latest IS NULL THEN
+            IF EXISTS (SELECT 1 FROM structs.planet_activity) THEN
+                RAISE EXCEPTION 'structs.planet_activity_player is empty but structs.planet_activity has rows; refusing to drop the feed indexes';
+            END IF;
+            RAISE NOTICE 'drop feed indexes: planet_activity and planet_activity_player are empty; nothing to protect on a fresh database';
+            RETURN;
+        END IF;
+
+        IF v_latest < now() - INTERVAL '10 minutes' THEN
             RAISE EXCEPTION 'structs.planet_activity_player is not live (latest row: %); refusing to drop the feed indexes', v_latest;
         END IF;
 
