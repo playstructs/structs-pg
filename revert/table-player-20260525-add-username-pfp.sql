@@ -68,6 +68,13 @@ BEGIN;
             player.updated_at
         FROM structs.player LEFT JOIN structs.player_meta ON player.id = player_meta.id;
 
+    -- Deploy dropped this trigger with the table (DROP TABLE ... CASCADE).
+    -- PLAYER_META_NOTIFY() is already back: reverting
+    -- trigger-grass-player-20260525-drop-meta-notify runs first, and that
+    -- revert only restores the function because the table does not exist yet.
+    CREATE TRIGGER PLAYER_META_NOTIFY AFTER INSERT OR UPDATE ON structs.player_meta
+        FOR EACH ROW EXECUTE PROCEDURE structs.PLAYER_META_NOTIFY();
+
     CREATE VIEW view.player_inventory AS
         select
             player_address.player_id,

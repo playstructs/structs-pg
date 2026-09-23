@@ -20,6 +20,14 @@
 --      (pg_stat_statements, when installed).
 --   3. api_refresh_state.work must be fresh, as before.
 --
+-- A database that has never recorded a work refresh has nothing for that
+-- window to observe. Fresh installs hit this change before sync-state has
+-- run, so api_refresh_state.work is absent, api_work and view.work_live are
+-- empty, and neither writer has been called. Refusing there blocks every
+-- later change in the plan. That case deploys with a NOTICE. Still refused:
+-- work rows exist with no refresh row, either writer has already been
+-- called, or a recorded refresh is older than 5 minutes.
+--
 -- No refresh is run here: sync-state is the single caller of
 -- api_work_refresh() (every block, ~5 s) and the function is not designed
 -- for concurrent callers. The view swap is atomic and api_work is already
@@ -38,12 +46,41 @@ BEGIN;
     BEGIN
         SELECT refreshed_at INTO v_refreshed_at
           FROM structs.api_refresh_state WHERE model = 'work';
-        IF v_refreshed_at IS NULL OR v_refreshed_at < NOW() - INTERVAL '5 minutes' THEN
-            RAISE EXCEPTION 'view.work re-point refused: api_refresh_state.work is % (last %); api_work is not being refreshed',
-                COALESCE((NOW() - v_refreshed_at)::text, 'absent'), v_refreshed_at;
-        END IF;
 
         v_has_pss := EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements');
+
+        IF v_refreshed_at IS NULL THEN
+            IF EXISTS (SELECT 1 FROM structs.api_work)
+               OR EXISTS (SELECT 1 FROM view.work_live) THEN
+                RAISE EXCEPTION 'view.work re-point refused: api_refresh_state.work is absent but work rows exist; api_work is not being refreshed';
+            END IF;
+
+            SELECT COALESCE(SUM(calls), 0) INTO v_fn_before
+              FROM pg_stat_user_functions
+             WHERE schemaname = 'structs' AND funcname = 'api_work_refresh';
+            IF v_fn_before > 0 THEN
+                RAISE EXCEPTION 'view.work re-point refused: api_refresh_state.work is absent but structs.api_work_refresh() has been called % time(s) since this server started',
+                    v_fn_before;
+            END IF;
+
+            IF v_has_pss THEN
+                SELECT COALESCE(SUM(calls), 0) INTO v_dirty_before
+                  FROM pg_stat_statements
+                 WHERE query LIKE 'INSERT INTO structs.api_work%FROM view.work w%';
+                IF v_dirty_before > 0 THEN
+                    RAISE EXCEPTION 'view.work re-point refused: api_refresh_state.work is absent but the retired INSERT INTO structs.api_work ... FROM view.work has been called % time(s) since this server started',
+                        v_dirty_before;
+                END IF;
+            END IF;
+
+            RAISE NOTICE 'view.work re-point: api_refresh_state.work is absent, api_work and view.work_live are empty, and no writer has been recorded; nothing to protect on a fresh database';
+            RETURN;
+        END IF;
+
+        IF v_refreshed_at < NOW() - INTERVAL '5 minutes' THEN
+            RAISE EXCEPTION 'view.work re-point refused: api_refresh_state.work is % (last %); api_work is not being refreshed',
+                (NOW() - v_refreshed_at)::text, v_refreshed_at;
+        END IF;
 
         SELECT COALESCE(SUM(calls), 0) INTO v_fn_before
           FROM pg_stat_user_functions

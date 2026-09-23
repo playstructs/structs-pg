@@ -1,4 +1,11 @@
 -- Revert structs-pg:trigger-grass-player-20260525-drop-meta-notify from pg
+--
+-- This change only dropped the orphan function. DROP TABLE player_meta
+-- CASCADE in table-player-20260525-add-username-pfp already removed the
+-- trigger, and that change is still deployed when this one reverts, so
+-- structs.player_meta does not exist yet. Recreating the trigger here
+-- aborts a full rollback. The trigger is restored when that earlier
+-- change reverts and the table exists again.
 
 BEGIN;
 
@@ -24,8 +31,5 @@ BEGIN;
     END
     $BODY$
     LANGUAGE plpgsql VOLATILE SECURITY DEFINER COST 100;
-
-    CREATE TRIGGER PLAYER_META_NOTIFY AFTER INSERT OR UPDATE ON structs.player_meta
-        FOR EACH ROW EXECUTE PROCEDURE structs.PLAYER_META_NOTIFY();
 
 COMMIT;
