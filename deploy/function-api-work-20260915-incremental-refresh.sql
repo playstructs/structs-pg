@@ -479,7 +479,11 @@ BEGIN;
 
     ------------------------------------------------------------------------
     -- 5. hourly resync with logging; one full pass now so the queue and the
-    --    table start from a known-consistent state
+    --    table start from a known-consistent state.
+    --
+    -- A fresh database has no api_refresh_state.work row yet (sync-state has
+    -- not run). Height 0 is the chain height before the first block; the
+    -- pass records that row so the hourly job has a height to read.
     ------------------------------------------------------------------------
 
     SELECT cron.schedule(
@@ -489,8 +493,8 @@ BEGIN;
     );
 
     SELECT * FROM structs.api_work_refresh_full(
-        (SELECT source_height FROM structs.api_refresh_state WHERE model = 'work'),
-        (SELECT source_time   FROM structs.api_refresh_state WHERE model = 'work'),
+        COALESCE((SELECT source_height FROM structs.api_refresh_state WHERE model = 'work'), 0),
+        COALESCE((SELECT source_time   FROM structs.api_refresh_state WHERE model = 'work'), NOW()),
         FALSE
     );
 
