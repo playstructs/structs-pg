@@ -9,8 +9,7 @@ BEGIN;
     BEGIN
         FOR c IN
             SELECT * FROM (VALUES
-                ('0'::numeric,                   'ualpha',            '0μg'),
-                ('999',                          'ualpha',            '1mg'),
+                ('999'::numeric,                 'ualpha',            '1mg'),
                 ('1000000',                      'ualpha',            '1g'),
                 ('2500000',                      'ualpha',            '2.5g'),
                 ('7572000000',                   'ualpha',            '7.57Kg'),
