@@ -251,3 +251,5 @@ function-unit-display-format-20260930-fix-ladders [function-unit-display-format]
 function-unit-display-format-20260930-zero-display-unit [function-unit-display-format-20260930-fix-ladders] 2026-09-30T16:25:00Z Abstrct <josh@slow.ninja> # UNIT_DISPLAY_FORMAT: exact zero renders in the display unit (0g, 0W, 0<token>)
 table-mini-game-progress-20261016 [table-player] 2026-10-16T19:17:00Z Abstrct <josh@slow.ninja> # Current mini-game score per player, interface, and game
 role-structs-webapp-20261016-mini-game-progress [role-structs-webapp table-mini-game-progress-20261016] 2026-10-16T19:18:00Z Abstrct <josh@slow.ninja> # Grant the webapp DML on mini_game_progress
+table-onboarding-20261019 [schema-structs] 2026-10-19T20:25:00Z Abstrct <josh@slow.ninja> # Insert-only onboarding session and progress, with the tutorial-4 step catalog
+role-structs-webapp-20261019-onboarding [role-structs-webapp table-onboarding-20261019] 2026-10-19T20:26:00Z Abstrct <josh@slow.ninja> # Grant the webapp SELECT and INSERT on onboarding telemetry
