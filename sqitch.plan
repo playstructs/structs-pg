@@ -266,4 +266,6 @@ table-defusion-20261029-receipts [table-defusion function-api-inventory-20261029
 function-api-readiness-20261029 [table-defusion-20261029-receipts] 2026-10-29T15:10:00Z Abstrct <josh@slow.ninja> # Exact indexed protocol and requested-model readiness
 table-vault-20261029-account-origin [function-api-readiness-20261029] 2026-10-29T15:11:00Z Abstrct <josh@slow.ninja> # Preserve created/adopted account evidence for scoped spendable reads
 role-structs-webapp-20261029-funds [table-vault-20261029-account-origin] 2026-10-29T15:12:00Z Abstrct <josh@slow.ninja> # Scoped reads required by player and transfer-search funds adapters
-table-ledger-20261029-denomination-identity [table-ledger-20260914-source-event-identity role-structs-webapp-20261029-funds] 2026-10-29T15:13:00Z Abstrct <josh@slow.ninja> # Explicit paired writer switch; denomination is part of ledger identity
+table-native-staking-20261029-positions [role-structs-webapp-20261029-funds] 2026-10-29T15:13:00Z Abstrct <josh@slow.ninja> # Per-validator native totals from complete address snapshots
+function-api-player-reactor-20261029 [table-native-staking-20261029-positions] 2026-10-29T15:14:00Z Abstrct <josh@slow.ninja> # Scoped native balances and exact applied power for existing reactor controls
+table-ledger-20261029-denomination-identity [table-ledger-20260914-source-event-identity function-api-player-reactor-20261029] 2026-10-29T15:15:00Z Abstrct <josh@slow.ninja> # Explicit paired writer switch; denomination is part of ledger identity
