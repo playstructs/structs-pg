@@ -2,6 +2,9 @@
 BEGIN;
 DO $$
 BEGIN
+    IF NOT has_sequence_privilege('structs_indexer','structs.ledger_id_seq','USAGE') THEN
+        RAISE EXCEPTION 'missing indexer ledger sequence access';
+    END IF;
     IF NOT has_table_privilege('structs_indexer','structs.ledger','SELECT')
        OR NOT has_table_privilege('structs_indexer','structs.ledger','INSERT') THEN
         RAISE EXCEPTION 'indexer requires SELECT and INSERT on ledger';

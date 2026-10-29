@@ -20,4 +20,5 @@ ALTER INDEX structs.ledger_source_event_denom_uidx RENAME TO ledger_source_event
 COMMENT ON INDEX structs.ledger_source_event_uidx IS
     'denomination-v1: exact source time/coordinates plus denomination. Semantic legs keep their original event_index encoding.';
 GRANT SELECT, INSERT ON structs.ledger TO structs_indexer;
+GRANT USAGE ON SEQUENCE structs.ledger_id_seq TO structs_indexer;
 COMMIT;
