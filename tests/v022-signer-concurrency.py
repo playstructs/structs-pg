@@ -184,12 +184,30 @@ def main():
         committed = json.loads(observer.query(f"SELECT signer.RECORD_SUBMISSION_RESULT_V022({tx_id},'{token}','{receipt}');"))
         assert committed["state"] == "committed"
         assert observer.query("SELECT status FROM signer.account WHERE id=990940;") == "available"
+
+        # Current guild policy and member standing must be re-read after another
+        # committed session changes them, not frozen into the request's mask.
+        first.query("""
+            UPDATE signer.account SET status='signing' WHERE id IN (990940,990942);
+            INSERT INTO structs.guild(id,owner,join_infusion_minimum_bypass_by_invite)
+                VALUES('0-990945','1-990940','closed');
+            SELECT signer.tx_guild_membership_invite('1-990941','0-990945','1-990940','');
+        """)
+        assert observer.query("SELECT signer.CLAIM_TRANSACTION_V022();") == ""
+        second.query("UPDATE structs.guild SET join_infusion_minimum_bypass_by_invite='member' WHERE id='0-990945';")
+        assert observer.query("SELECT signer.CLAIM_TRANSACTION_V022();") == ""
+        second.query("UPDATE structs.player SET guild_id='0-990945' WHERE id='1-990941';")
+        membership = json.loads(observer.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert membership["transaction"]["command"] == "guild-membership-invite"
+        assert membership["transaction"]["requested_player_id"] == "1-990941"
+        assert membership["account"]["address"] == "queuekeyb"
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
                           "new_accounts_created": 0, "current_grant_rechecked": True,
                           "managed_registration_requests": 1, "concurrent_registration_retry_reused": True,
                           "concurrent_send_permits": 1, "restart_resend_permit": False,
                           "unknown_reserved_key": True, "inclusion_released_key": True,
+                          "membership_policy_rechecked": True,
                           "result": "passed"}))
     finally:
         for session in sessions:
