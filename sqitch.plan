@@ -280,3 +280,4 @@ function-signer-tx-20261030-provider-agreement [table-ledger-20261029-denominati
 function-signer-tx-20261030-wallet [function-signer-tx-20261030-provider-agreement] 2026-10-30T05:32:00Z Abstrct <josh@slow.ninja> # Vault-default wallet, exact reactor CLI and paid guild creation wrappers
 function-signer-tx-20261030-rank [function-signer-tx-20261030-wallet] 2026-10-30T05:33:00Z Abstrct <josh@slow.ninja> # Exact uint64 rank arguments, explicit acting player and independent administration checks
 function-signer-tx-20261030-permission-mutation [function-signer-tx-20261030-rank] 2026-10-30T05:34:00Z Abstrct <josh@slow.ninja> # Recheck live permission replacements and primary safety with explicit actor and subject
+function-signer-tx-20261030-registration [function-signer-tx-20261030-permission-mutation] 2026-10-30T05:35:00Z Abstrct <josh@slow.ninja> # Bound registration proof context, managed request identity and current address-management authority

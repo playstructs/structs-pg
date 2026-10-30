@@ -5,6 +5,7 @@ Requires only Python and Docker. Never targets the running guild database.
 """
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import select
 import subprocess
@@ -120,9 +121,39 @@ def main():
         first.query("UPDATE structs.permission SET val=80 WHERE id='8-queuekeya@0';")
         changed = json.loads(observer.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
         assert changed["account"]["address"] == "queuekeya", changed
+
+        # Two account-agent retries must serialize on their managed account and
+        # reuse the original proof/request. No second submission is enqueued.
+        address = "structs1" + "q" * 38
+        context = json.dumps({"chain_id": "structstestnet-111", "protocol": "v0.22.0",
+                              "source_height": "3353000", "player_id": "1-990940", "address": address,
+                              "proof_nonce": "0", "registered_player_id": "", "timeout_height": "0"})
+        first.query("INSERT INTO signer.account(id,role_id,status) VALUES(990947,990940,'generating');")
+        registration = f"""SELECT signer.UPDATE_PENDING_ACCOUNT(990947,'1-990940','{address}',
+            '02' || repeat('ab',32),repeat('cd',64),16,'{context}'::jsonb);"""
+        original = json.loads(first.query("BEGIN; " + registration))
+        second_pid = int(second.query("SELECT pg_backend_pid();"))
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            retry = pool.submit(second.query, "BEGIN; " + registration + " COMMIT;")
+            try:
+                for attempt in range(100):
+                    if observer.query(f"SELECT cardinality(pg_blocking_pids({second_pid}))>0;") == "t":
+                        break
+                    if retry.done():
+                        raise AssertionError("managed retry did not wait for the original account claim")
+                    time.sleep(0.05)
+                else:
+                    raise AssertionError("managed retry did not reach its account lock")
+            finally:
+                first.query("COMMIT;")
+            repeated = json.loads(retry.result(timeout=10))
+        assert original["id"] == repeated["id"]
+        assert observer.query(f"SELECT count(*) FROM signer.tx_registration_proof WHERE address='{address}';") == "1"
+        assert observer.query("SELECT status FROM signer.account WHERE id=990947;") == "pending"
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
                           "new_accounts_created": 0, "current_grant_rechecked": True,
+                          "managed_registration_requests": 1, "concurrent_registration_retry_reused": True,
                           "result": "passed"}))
     finally:
         for session in sessions:
