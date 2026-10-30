@@ -286,7 +286,36 @@ def main():
             finally:
                 first.query("COMMIT;")
             assert json.loads(retry.result(timeout=10))["status"] == "available"
+        # Queue growth is separate from claims. Two managers racing for the
+        # last configured slot serialize on the role and create just one key.
+        pool_size = int(observer.query("SELECT count(*) FROM signer.account WHERE role_id=990940;"))
+        request_id = str(uuid.uuid4())
+        provision = f"SELECT signer.REQUEST_ACCOUNT_V022(990940,16,{pool_size + 1},'{request_id}','queue');"
+        requested = json.loads(first.query("BEGIN; " + provision))
+        other_request = f"SELECT signer.REQUEST_ACCOUNT_V022(990940,16,{pool_size + 1},'{uuid.uuid4()}','queue');"
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            retry = pool.submit(second.query, "BEGIN; " + other_request + " COMMIT;")
+            try:
+                for attempt in range(100):
+                    if observer.query(f"SELECT cardinality(pg_blocking_pids({second_pid}))>0;") == "t":
+                        break
+                    if retry.done():
+                        raise AssertionError("pool request did not serialize on the role")
+                    time.sleep(0.05)
+                else:
+                    raise AssertionError("pool request did not reach its role lock")
+            finally:
+                first.query("COMMIT;")
+            assert retry.result(timeout=10) == ""
+        assert json.loads(observer.query(provision))["id"] == requested["id"]
+        assert observer.query("SELECT count(*) FROM signer.account WHERE role_id=990940;") == str(pool_size + 1)
+        generated = json.loads(first.query("BEGIN; SELECT signer.CLAIM_ACCOUNT_V022();"))
+        assert generated["id"] == requested["id"] and generated["permissions"] == "16"
+        assert second.query("SELECT signer.CLAIM_ACCOUNT_V022();") == ""
+        first.query("COMMIT;")
+        assert observer.query("SELECT signer.CLAIM_ACCOUNT_V022();") == ""
         history_query = """SELECT jsonb_build_object(
+            'requests',(SELECT jsonb_agg(to_jsonb(q) ORDER BY account_id) FROM signer.account_request q),
             'account',(SELECT to_jsonb(a) FROM signer.account a WHERE id=990947),
             'history',(SELECT jsonb_agg(to_jsonb(h) ORDER BY tx_id) FROM signer.account_registration h WHERE account_id=990947),
             'proofs',(SELECT jsonb_agg(to_jsonb(p) ORDER BY tx_id) FROM signer.tx_registration_proof p
@@ -296,10 +325,13 @@ def main():
         history = observer.query(history_query)
         refused = subprocess.run(docker + ["sqitch", "revert", "--to", "function-signer-tx-20261030-gameplay", "-y", "db:pg:structs"],
                                  capture_output=True, text=True, timeout=60)
+        assert refused.returncode and "key provisioning requests exist" in refused.stdout + refused.stderr
+        # New provisioning history stops Sqitch first. Exercise the older
+        # source and registration guards independently, retaining all evidence.
+        refused = subprocess.run(docker + ["psql", "-X", "-v", "ON_ERROR_STOP=1", "-d", "structs", "-f",
+                                 "/migration/revert/table-sync-state-20261030-economy-contract.sql"],
+                                 capture_output=True, text=True, timeout=60)
         assert refused.returncode and "cannot discard recorded economy source coverage" in refused.stdout + refused.stderr
-        # The newer source-coverage guard stops Sqitch before it reaches the
-        # managed-account revert. Exercise that older guard independently too;
-        # both must retain their evidence, without clearing either fixture.
         refused = subprocess.run(docker + ["psql", "-X", "-v", "ON_ERROR_STOP=1", "-d", "structs", "-f",
                                  "/migration/revert/function-signer-account-20261030-registration-lifecycle.sql"],
                                  capture_output=True, text=True, timeout=60)
@@ -307,10 +339,12 @@ def main():
         assert observer.query(history_query) == history
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
-                          "new_accounts_created": 0, "current_grant_rechecked": True,
+                          "claim_side_effect_accounts": 0, "current_grant_rechecked": True,
                           "initial_registration_requests": 1, "concurrent_registration_retry_reused": True,
                           "managed_registration_attempts": 2, "concurrent_renewal_reused": True,
                           "concurrent_activation_idempotent": True,
+                          "concurrent_pool_last_slot": 1, "requested_pool_accounts": 1, "provision_retry_reused": True,
+                          "concurrent_generation_claim": 1, "explicit_grant_preserved": True,
                           "populated_registration_rollback_preserved": True,
                           "concurrent_send_permits": 1, "restart_resend_permit": False,
                           "unknown_reserved_key": True, "inclusion_released_key": True,
