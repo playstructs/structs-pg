@@ -45,3 +45,24 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+### Exact work values in v0.22
+
+`table-work-20261030-uint64` preserves unsigned chain values through struct/planet
+attributes, the three work difficulties in `struct_type`, and the two work
+projection fields. These use unscaled `NUMERIC` with exact uint64 checks; view
+status flags use integer `div()` rather than rounding numeric division. Existing
+view owners, grants, options and comments, and work dirty-trigger states survive
+the type change. Unknown dependent views block deployment transactionally.
+
+Apply this tail with the matching sync-state writer; the legacy SQL cache writer
+still has signed integer parsing and is not a full-range fallback. The normal
+compatible automatic migration target is unchanged. This DDL takes table locks
+and may rewrite attribute/projection data, so include it in the coordinated
+pause and measure it on the representative restore before activation. Reversal
+refuses values outside the previous integer range instead of truncating them.
+
+On the labelled disposable database, run `tests/v022-work-uint64.sql` with psql
+and `python3 tests/work_uint64_lifecycle.py`. The latter tests transactional
+revert/deploy metadata preservation and refused reversals without retaining
+fixtures. Writer and API exact-value integration tests live in their respective
+repositories.
