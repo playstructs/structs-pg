@@ -201,13 +201,26 @@ def main():
         assert membership["transaction"]["command"] == "guild-membership-invite"
         assert membership["transaction"]["requested_player_id"] == "1-990941"
         assert membership["account"]["address"] == "queuekeyb"
+        observer.query("SELECT signer.ABORT_UNSENT_TRANSACTION_V022(" + str(membership["transaction"]["id"]) +
+                       ",'" + membership["transaction"]["claim_token"] + "'::uuid,'membership fixture completed');")
+        first.query("""
+            INSERT INTO structs.allocation(id,source_id,controller,allocation_type)
+                VALUES('6-990945','1-990940','1-990941','dynamic');
+            SELECT signer.tx_allocation_update('1-990941','6-990945',1);
+        """)
+        assert observer.query("SELECT signer.CLAIM_TRANSACTION_V022();") == ""
+        second.query("UPDATE structs.allocation SET source_id='1-990941' WHERE id='6-990945';")
+        energy = json.loads(observer.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert energy["transaction"]["command"] == "allocation-update"
+        assert energy["transaction"]["requested_player_id"] == "1-990941"
+        assert energy["account"]["address"] == "queuekeyb"
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
                           "new_accounts_created": 0, "current_grant_rechecked": True,
                           "managed_registration_requests": 1, "concurrent_registration_retry_reused": True,
                           "concurrent_send_permits": 1, "restart_resend_permit": False,
                           "unknown_reserved_key": True, "inclusion_released_key": True,
-                          "membership_policy_rechecked": True,
+                          "membership_policy_rechecked": True, "energy_source_rechecked": True,
                           "result": "passed"}))
     finally:
         for session in sessions:

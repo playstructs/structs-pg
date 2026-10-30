@@ -285,3 +285,4 @@ table-signer-tx-20261030-submission [function-signer-tx-20261030-registration] 2
 function-signer-tx-20261030-guild-bank [table-signer-tx-20261030-submission] 2026-10-30T05:37:00Z Abstrct <josh@slow.ninja> # Exact guild-bank denominations, immutable acting identity and independent treasury/mint authority
 table-signer-tx-20261030-membership-revoke-type [function-signer-tx-20261030-guild-bank] 2026-10-30T05:38:00Z Abstrct <josh@slow.ninja> # Register the existing invitation revocation command before wrapper activation
 function-signer-tx-20261030-membership [table-signer-tx-20261030-membership-revoke-type] 2026-10-30T05:39:00Z Abstrct <josh@slow.ninja> # Membership actor and consent selection, exact CLI and conditional migration/connection authority
+function-signer-tx-20261030-energy [function-signer-tx-20261030-membership] 2026-10-30T05:40:00Z Abstrct <josh@slow.ninja> # Explicit energy actors, canonical owner/CLI arguments and live alternative authority
