@@ -150,10 +150,46 @@ def main():
         assert original["id"] == repeated["id"]
         assert observer.query(f"SELECT count(*) FROM signer.tx_registration_proof WHERE address='{address}';") == "1"
         assert observer.query("SELECT status FROM signer.account WHERE id=990947;") == "pending"
+
+        # A committed send marker grants one transport attempt, even when two
+        # recovering workers reach it together. No wall-clock lease unlocks it.
+        tx_id = changed["transaction"]["id"]
+        token = changed["transaction"]["claim_token"]
+        saved = json.loads(first.query(f"""SELECT signer.SAVE_SIGNED_TRANSACTION_V022(
+            {tx_id},'{token}','concurrent-signed'::bytea,18446744073709551615,9007199254740993,3353000,0);"""))
+        assert saved["account_number"] == "18446744073709551615"
+        start_send = f"SELECT signer.BEGIN_SUBMISSION_V022({tx_id},'{token}');"
+        assert first.query("BEGIN; " + start_send) == "t"
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            retry = pool.submit(second.query, "BEGIN; " + start_send + " COMMIT;")
+            try:
+                for attempt in range(100):
+                    if observer.query(f"SELECT cardinality(pg_blocking_pids({second_pid}))>0;") == "t":
+                        break
+                    if retry.done():
+                        raise AssertionError("second send attempt did not wait for the original marker")
+                    time.sleep(0.05)
+                else:
+                    raise AssertionError("second send attempt did not reach its transaction lock")
+            finally:
+                first.query("COMMIT;")
+            assert retry.result(timeout=10) == "f"
+        # A new observer after the committed marker must reconcile, not send.
+        assert observer.query(start_send) == "f"
+        unknown = json.loads(observer.query(f"SELECT signer.MARK_SUBMISSION_UNKNOWN_V022({tx_id},'{token}','worker restarted');"))
+        assert unknown["state"] == "unknown"
+        assert observer.query("SELECT status FROM signer.account WHERE id=990940;") == "signing"
+        receipt = json.dumps({"stage": "deliver_tx", "hash": saved["tx_hash"], "code": "0",
+                              "codespace": "", "log": "", "height": "3353001", "index": "0", "block_hash": "A" * 64})
+        committed = json.loads(observer.query(f"SELECT signer.RECORD_SUBMISSION_RESULT_V022({tx_id},'{token}','{receipt}');"))
+        assert committed["state"] == "committed"
+        assert observer.query("SELECT status FROM signer.account WHERE id=990940;") == "available"
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
                           "new_accounts_created": 0, "current_grant_rechecked": True,
                           "managed_registration_requests": 1, "concurrent_registration_retry_reused": True,
+                          "concurrent_send_permits": 1, "restart_resend_permit": False,
+                          "unknown_reserved_key": True, "inclusion_released_key": True,
                           "result": "passed"}))
     finally:
         for session in sessions:
