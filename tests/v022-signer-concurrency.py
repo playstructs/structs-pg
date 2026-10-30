@@ -266,6 +266,7 @@ def main():
             UPDATE sync_state.sync_cursor SET last_height=3353001,tip_height=3353001;
             UPDATE structs.current_block SET height=3353001,tip_height=3353001;
             UPDATE structs.api_refresh_state SET source_height=3353001;
+            UPDATE sync_state.economy_contract SET last_height=3353001;
             INSERT INTO structs.player_address(address,player_id,status) VALUES('{address}','1-990940','approved');
             INSERT INTO structs.permission(id,val) VALUES('8-{address}@0',16);
         """)
@@ -294,6 +295,13 @@ def main():
             'aborts',(SELECT jsonb_agg(to_jsonb(a) ORDER BY tx_id) FROM signer.tx_unsent_abort a));"""
         history = observer.query(history_query)
         refused = subprocess.run(docker + ["sqitch", "revert", "--to", "function-signer-tx-20261030-gameplay", "-y", "db:pg:structs"],
+                                 capture_output=True, text=True, timeout=60)
+        assert refused.returncode and "cannot discard recorded economy source coverage" in refused.stdout + refused.stderr
+        # The newer source-coverage guard stops Sqitch before it reaches the
+        # managed-account revert. Exercise that older guard independently too;
+        # both must retain their evidence, without clearing either fixture.
+        refused = subprocess.run(docker + ["psql", "-X", "-v", "ON_ERROR_STOP=1", "-d", "structs", "-f",
+                                 "/migration/revert/function-signer-account-20261030-registration-lifecycle.sql"],
                                  capture_output=True, text=True, timeout=60)
         assert refused.returncode and "managed registration or unsigned abort history exists" in refused.stdout + refused.stderr
         assert observer.query(history_query) == history

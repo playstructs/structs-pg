@@ -115,10 +115,15 @@ def main():
             SELECT signer.BEGIN_SUBMISSION_V022(id,claim_token) FROM signer.tx;
             SELECT signer.MARK_SUBMISSION_UNKNOWN_V022(id,claim_token,'restored uncertain send') FROM signer.tx;""")
         snapshot = """SELECT jsonb_build_object('request',(SELECT to_jsonb(t) FROM signer.tx t),
+            'source_coverage',(SELECT to_jsonb(e) FROM sync_state.economy_contract e),
             'submission',(SELECT signer.SUBMISSION_V022(tx_id) FROM signer.tx_submission),
             'account',(SELECT to_jsonb(a) FROM signer.account a WHERE id=990940));"""
         before = json.loads(sql(current, snapshot))
         refused = sqitch(current, "revert", "--to", "function-signer-tx-20261030-registration", "-y", check=False)
+        assert refused.returncode and "cannot discard recorded economy source coverage" in refused.stdout + refused.stderr
+        refused = subprocess.run(command(current) + ["psql", "-X", "-v", "ON_ERROR_STOP=1", "-d", "structs", "-f",
+                                 "/migration/revert/table-signer-tx-20261030-submission.sql"],
+                                 capture_output=True, text=True, timeout=60)
         assert refused.returncode and "signed history exists" in refused.stdout + refused.stderr
         assert json.loads(sql(current, snapshot)) == before
         recovered = restore(current)

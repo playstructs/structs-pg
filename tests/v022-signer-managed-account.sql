@@ -133,6 +133,7 @@ BEGIN
     UPDATE sync_state.sync_cursor SET last_height=3353003,tip_height=3353003;
     UPDATE structs.current_block SET height=3353003,tip_height=3353003;
     UPDATE structs.api_refresh_state SET source_height=3353003;
+    UPDATE sync_state.economy_contract SET last_height=3353003;
     UPDATE structs.player_address SET player_id='1-990941' WHERE player_address.address=address;
     PERFORM pg_temp.managed_refuses(activation);
     UPDATE structs.player_address SET player_id='1-990940',status='revoked' WHERE player_address.address=address;

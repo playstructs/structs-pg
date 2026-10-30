@@ -9,6 +9,10 @@ INSERT INTO sync_state.sync_cursor(chain_id,last_height,last_block_time,tip_heig
 VALUES('structstestnet-111',3353000,'2026-10-30T00:00:00Z',3353000,'current');
 INSERT INTO structs.current_block(chain,height,tip_height,status)
 VALUES('structstestnet-111',3353000,3353000,'current');
+UPDATE sync_state.sync_cursor SET last_block_hash=repeat('A',64);
+DELETE FROM sync_state.economy_contract;
+INSERT INTO sync_state.economy_contract(chain_id,contract,activation_height,last_height,last_block_hash)
+VALUES('structstestnet-111','events-v022-1',3353000,3353000,repeat('A',64));
 INSERT INTO structs.api_refresh_state(model,source_height,source_time,inventory_authority)
 VALUES('inventory',3353000,'2026-10-30T00:00:00Z','current-claims-v1');
 INSERT INTO structs.guild(id,owner) VALUES('0-990940','1-990941');

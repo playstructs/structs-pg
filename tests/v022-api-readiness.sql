@@ -4,6 +4,7 @@ BEGIN;
 DELETE FROM structs.current_block;
 DELETE FROM sync_state.sync_cursor;
 DELETE FROM structs.api_refresh_state;
+DELETE FROM sync_state.economy_contract;
 DO $$
 DECLARE r RECORD;
 BEGIN
@@ -53,6 +54,22 @@ BEGIN
     END IF;
 END $$;
 UPDATE structs.api_refresh_state SET inventory_authority='current-claims-v1';
+DO $$
+BEGIN
+    IF (SELECT data_ready OR transaction_ready FROM structs.api_readiness(ARRAY['inventory'])) THEN
+        RAISE EXCEPTION 'projection rebuild claimed readiness without upgraded source coverage';
+    END IF;
+END $$;
+UPDATE sync_state.sync_cursor SET last_block_hash=repeat('A',64);
+INSERT INTO sync_state.economy_contract(chain_id,contract,activation_height,last_height,last_block_hash)
+VALUES('structstestnet-111','events-v022-1',3353000,3353000,repeat('B',64));
+DO $$
+BEGIN
+    IF (SELECT data_ready FROM structs.api_readiness()) THEN
+        RAISE EXCEPTION 'source coverage for a different block hash was accepted';
+    END IF;
+END $$;
+UPDATE sync_state.economy_contract SET last_block_hash=repeat('A',64);
 INSERT INTO structs.api_refresh_state(model,source_height,source_time)
 VALUES('work',3352999,'2026-10-29T12:00:00Z');
 DO $$
@@ -65,6 +82,14 @@ BEGIN
     SELECT * INTO r FROM structs.api_readiness(ARRAY['inventory','work']);
     IF r.data_ready OR r.height<>'3352999' THEN RAISE EXCEPTION 'mixed models stamped at newer height'; END IF;
 END $$;
+UPDATE sync_state.economy_contract SET last_height=3353001;
+DO $$
+BEGIN
+    IF (SELECT data_ready FROM structs.api_readiness()) THEN
+        RAISE EXCEPTION 'source coverage at another height was accepted';
+    END IF;
+END $$;
+UPDATE sync_state.economy_contract SET last_height=3353000;
 UPDATE structs.api_refresh_state SET source_height=3353000 WHERE model='work';
 DO $$
 BEGIN
