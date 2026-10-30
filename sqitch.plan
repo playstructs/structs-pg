@@ -299,3 +299,4 @@ function-signer-proxy-20261030 [function-signer-key-pool-20261030] 2026-10-30T20
 function-signer-role-key-20261030 [function-signer-proxy-20261030] 2026-10-30T21:00:00Z Abstrct <josh@slow.ninja> # Recover explicitly requested onboarding role keys and retain every proxy attempt
 role-structs-tsa-20261030 [function-signer-role-key-20261030] 2026-10-30T22:00:00Z Abstrct <josh@slow.ninja> # Dedicated TSA login with guarded worker APIs and read-only projections
 function-signer-operator-20261030 [role-structs-tsa-20261030] 2026-10-30T23:00:00Z Abstrct <josh@slow.ninja> # Explicit idempotent operator role creation, independent of key pool scaling
+table-player-address-20261030-activation-instance [function-signer-operator-20261030 table-player-address-pending-20261030-proof-context] 2026-10-30T23:10:00Z Abstrct <josh@slow.ninja> # Bind pending device consent to one issued activation instance and clean it with code expiry
