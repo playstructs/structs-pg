@@ -63,7 +63,9 @@ def main():
                     "--label", "structs.task=v022-integration", "-v", f"{root}:/migration:ro",
                     "--entrypoint", "/usr/bin/pg_ctlcluster", image,
                     "--foreground", "18", "main", "start"], check=True, capture_output=True, timeout=30)
-    docker = ["docker", "exec", "--user", "structs", "-e", "PGHOST=/var/run/postgresql", "-w", "/migration", container]
+    docker = ["docker", "exec", "--user", "structs", "-e", "PGHOST=/var/run/postgresql",
+              "-e", "PGOPTIONS=-c structs.ledger_writer_contract=denomination-v1 -c structs.signer_contract=v022-1",
+              "-w", "/migration", container]
     sessions = []
     try:
         for attempt in range(30):
@@ -73,8 +75,7 @@ def main():
         else:
             raise RuntimeError("disposable PostgreSQL did not become ready")
         print("Deploying the actual Sqitch chain into a fresh isolated container.", flush=True)
-        result = subprocess.run(docker + ["sqitch", "deploy", "--verify", "--to",
-                                "table-signer-tx-20261030-authority-contract", "db:pg:structs"],
+        result = subprocess.run(docker + ["sqitch", "deploy", "--verify", "db:pg:structs"],
                                 capture_output=True, text=True, timeout=240)
         if result.returncode:
             raise RuntimeError(result.stdout + result.stderr)
@@ -103,9 +104,26 @@ def main():
         assert observer.query("SELECT signer.CLAIM_TRANSACTION_V022();") == ""
         assert observer.query(f"SELECT status FROM signer.tx WHERE id={ids[1]};") == "pending"
         assert observer.query("SELECT count(*) FROM signer.account;") == "3"
+        # The extended rule must also re-read a committed target-grant change
+        # made by another connection before the claim statement starts.
+        first.query("""
+            DELETE FROM signer.tx;
+            UPDATE signer.account SET status='available';
+            UPDATE structs.permission SET val=16 WHERE id='8-queuekeya@0';
+            INSERT INTO structs.player_address(address,player_id,status)
+                VALUES('concurrencytarget','1-990940','approved');
+            INSERT INTO structs.permission(id,val) VALUES('8-concurrencytarget@0',16);
+            SELECT signer.tx_permission_set_on_address('1-990940','concurrencytarget',16);
+        """)
+        second.query("UPDATE structs.permission SET val=80 WHERE id='8-concurrencytarget@0';")
+        assert observer.query("SELECT signer.CLAIM_TRANSACTION_V022();") == ""
+        first.query("UPDATE structs.permission SET val=80 WHERE id='8-queuekeya@0';")
+        changed = json.loads(observer.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert changed["account"]["address"] == "queuekeya", changed
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
-                          "new_accounts_created": 0, "result": "passed"}))
+                          "new_accounts_created": 0, "current_grant_rechecked": True,
+                          "result": "passed"}))
     finally:
         for session in sessions:
             session.close()
