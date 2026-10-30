@@ -1,0 +1,12 @@
+-- Revert structs-pg:function-signer-role-key-20261030 from pg
+BEGIN;
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM signer.role_key_request) THEN
+    RAISE EXCEPTION 'preserve role key recovery history before reverting'; END IF; END $$;
+DROP FUNCTION signer.ACTIVATE_ROLE_KEY_V022(INTEGER,UUID,VARCHAR,BIGINT,BIGINT);
+DROP FUNCTION signer.BIND_ROLE_KEY_V022(INTEGER,UUID,VARCHAR,VARCHAR,VARCHAR);
+DROP FUNCTION signer.PREPARE_ROLE_KEY_V022(INTEGER,INTEGER);
+DROP FUNCTION signer.ROLE_KEY_REQUEST_V022(INTEGER);
+DROP TABLE signer.role_proxy_attempt;
+DROP TABLE signer.role_key_request;
+DROP FUNCTION signer.ROLE_KEY_IDENTITY_V022();
+COMMIT;

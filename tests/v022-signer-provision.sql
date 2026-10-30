@@ -16,7 +16,7 @@ DECLARE request JSONB; repeated JSONB; claimed JSONB; registration JSONB; contex
     account_id INTEGER; tx_id INTEGER; claim JSONB; value TEXT;
     address TEXT := 'structs1' || repeat('q',38);
 BEGIN
-    FOREACH value IN ARRAY ARRAY['NULL','0','-1','1.5','18446744073709551616'] LOOP
+    FOREACH value IN ARRAY ARRAY['NULL','0','-1','1.5','33554432','18446744073709551616'] LOOP
         PERFORM pg_temp.provision_refuses(format('SELECT signer.REQUEST_ACCOUNT_V022(990940,%s,3,gen_random_uuid(),''queue'')',value),'22023');
     END LOOP;
     PERFORM pg_temp.provision_refuses('SELECT signer.REQUEST_ACCOUNT_V022(990940,16,NULL,gen_random_uuid(),''queue'')','22023');
@@ -74,8 +74,8 @@ BEGIN
         RAISE EXCEPTION 'provisioning changed an existing grant';
     END IF;
 
-    request := signer.REQUEST_ACCOUNT_V022(990941,18446744073709551615,2,gen_random_uuid(),'manual');
-    IF request->>'permissions'<>'18446744073709551615' THEN RAISE EXCEPTION 'uint64 mask lost precision'; END IF;
+    request := signer.REQUEST_ACCOUNT_V022(990941,33554431,2,gen_random_uuid(),'manual');
+    IF request->>'permissions'<>'33554431' THEN RAISE EXCEPTION 'defined mask lost precision'; END IF;
     UPDATE sync_state.sync_cursor SET status='syncing';
     IF signer.CLAIM_ACCOUNT_V022() IS NOT NULL OR signer.REQUEST_ACCOUNT_V022(990941,16,3,gen_random_uuid(),'queue') IS NOT NULL THEN
         RAISE EXCEPTION 'unready state allowed new generation';
