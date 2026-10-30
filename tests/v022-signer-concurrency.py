@@ -227,10 +227,83 @@ def main():
         cosmetic = json.loads(observer.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
         assert cosmetic["transaction"]["command"] == "player-update-name"
         assert cosmetic["account"]["address"] == "queuekeyb"
+
+        # Two recovering account agents renewing the same definitively aborted
+        # registration must create one successor, retaining both identities.
+        first.query("UPDATE signer.account SET status='available' WHERE id=990942;")
+        managed = json.loads(first.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert managed["transaction"]["id"] == original["id"], managed
+        first.query("SELECT signer.ABORT_UNSENT_TRANSACTION_V022(" + str(original["id"]) +
+                    ",'" + managed["transaction"]["claim_token"] + "','registration nonce refreshed');")
+        renewal = f"""SELECT signer.RENEW_ACCOUNT_REGISTRATION_V022(990947,{original['id']},
+            repeat('ef',64),'{context}'::jsonb);"""
+        renewed = json.loads(first.query("BEGIN; " + renewal))
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            retry = pool.submit(second.query, "BEGIN; " + renewal + " COMMIT;")
+            try:
+                for attempt in range(100):
+                    if observer.query(f"SELECT cardinality(pg_blocking_pids({second_pid}))>0;") == "t":
+                        break
+                    if retry.done():
+                        raise AssertionError("registration renewal did not serialize on its account")
+                    time.sleep(0.05)
+                else:
+                    raise AssertionError("registration renewal did not reach its account lock")
+            finally:
+                first.query("COMMIT;")
+            assert json.loads(retry.result(timeout=10))["id"] == renewed["id"]
+        assert observer.query("SELECT count(*) FROM signer.account_registration WHERE account_id=990947;") == "2"
+        managed = json.loads(first.query("SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert managed["transaction"]["id"] == renewed["id"], managed
+        managed_token = managed["transaction"]["claim_token"]
+        saved = json.loads(first.query(f"""SELECT signer.SAVE_SIGNED_TRANSACTION_V022(
+            {renewed['id']},'{managed_token}','managed-concurrent'::bytea,0,0,3353000,0);"""))
+        first.query(f"SELECT signer.BEGIN_SUBMISSION_V022({renewed['id']},'{managed_token}');")
+        receipt = json.dumps({"stage": "deliver_tx", "hash": saved["tx_hash"], "code": "0",
+                              "codespace": "", "log": "", "height": "3353001", "index": "1", "block_hash": "A" * 64})
+        first.query(f"SELECT signer.RECORD_SUBMISSION_RESULT_V022({renewed['id']},'{managed_token}','{receipt}');")
+        first.query(f"""
+            UPDATE sync_state.sync_cursor SET last_height=3353001,tip_height=3353001;
+            UPDATE structs.current_block SET height=3353001,tip_height=3353001;
+            UPDATE structs.api_refresh_state SET source_height=3353001;
+            INSERT INTO structs.player_address(address,player_id,status) VALUES('{address}','1-990940','approved');
+            INSERT INTO structs.permission(id,val) VALUES('8-{address}@0',16);
+        """)
+        activate = f"SELECT signer.ACTIVATE_ACCOUNT_V022(990947,{renewed['id']});"
+        assert json.loads(first.query("BEGIN; " + activate))["status"] == "available"
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            retry = pool.submit(second.query, "BEGIN; " + activate + " COMMIT;")
+            try:
+                for attempt in range(100):
+                    if observer.query(f"SELECT cardinality(pg_blocking_pids({second_pid}))>0;") == "t":
+                        break
+                    if retry.done():
+                        raise AssertionError("registration activation did not serialize on its account")
+                    time.sleep(0.05)
+                else:
+                    raise AssertionError("registration activation did not reach its account lock")
+            finally:
+                first.query("COMMIT;")
+            assert json.loads(retry.result(timeout=10))["status"] == "available"
+        history_query = """SELECT jsonb_build_object(
+            'account',(SELECT to_jsonb(a) FROM signer.account a WHERE id=990947),
+            'history',(SELECT jsonb_agg(to_jsonb(h) ORDER BY tx_id) FROM signer.account_registration h WHERE account_id=990947),
+            'proofs',(SELECT jsonb_agg(to_jsonb(p) ORDER BY tx_id) FROM signer.tx_registration_proof p
+                WHERE tx_id IN (SELECT tx_id FROM signer.account_registration WHERE account_id=990947)),
+            'submissions',(SELECT jsonb_agg(to_jsonb(s) ORDER BY tx_id) FROM signer.tx_submission s),
+            'aborts',(SELECT jsonb_agg(to_jsonb(a) ORDER BY tx_id) FROM signer.tx_unsent_abort a));"""
+        history = observer.query(history_query)
+        refused = subprocess.run(docker + ["sqitch", "revert", "--to", "function-signer-tx-20261030-gameplay", "-y", "db:pg:structs"],
+                                 capture_output=True, text=True, timeout=60)
+        assert refused.returncode and "managed registration or unsigned abort history exists" in refused.stdout + refused.stderr
+        assert observer.query(history_query) == history
         print(json.dumps({"concurrent_claims": 2, "different_accounts": True,
                           "busy_request_stays_pending": True, "duplicate_claim": False,
                           "new_accounts_created": 0, "current_grant_rechecked": True,
-                          "managed_registration_requests": 1, "concurrent_registration_retry_reused": True,
+                          "initial_registration_requests": 1, "concurrent_registration_retry_reused": True,
+                          "managed_registration_attempts": 2, "concurrent_renewal_reused": True,
+                          "concurrent_activation_idempotent": True,
+                          "populated_registration_rollback_preserved": True,
                           "concurrent_send_permits": 1, "restart_resend_permit": False,
                           "unknown_reserved_key": True, "inclusion_released_key": True,
                           "membership_policy_rechecked": True, "energy_source_rechecked": True, "moderation_guild_rechecked": True,

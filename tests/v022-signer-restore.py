@@ -126,10 +126,56 @@ def main():
         assert sql(recovered, "SELECT signer.BEGIN_SUBMISSION_V022(tx_id,claim_token) FROM signer.tx_submission;") == "f"
         assert sql(recovered, "SELECT signer.CLAIM_TRANSACTION_V022();") == ""
         sqitch(recovered, "verify", "--from", "table-signer-tx-20261030-submission")
+
+        # Restore a managed key with both an unsigned aborted attempt and an
+        # uncertain signed successor. Backup recovery may neither renew it nor
+        # activate it until that same signed identity is confirmed and indexed.
+        sqitch(recovered, "deploy", "--verify")
+        address = "structs1" + "p" * 38
+        context = json.dumps({"chain_id": "structstestnet-111", "protocol": "v0.22.0", "source_height": "3353000",
+                              "player_id": "1-990940", "address": address, "proof_nonce": "0",
+                              "registered_player_id": "", "timeout_height": "0"})
+        sql(recovered, "INSERT INTO signer.account(id,role_id,status) VALUES(990950,990940,'generating');")
+        managed = json.loads(sql(recovered, f"""SELECT signer.UPDATE_PENDING_ACCOUNT(990950,'1-990940','{address}',
+            '02' || repeat('ab',32),repeat('cd',64),16,'{context}');"""))
+        claim = json.loads(sql(recovered, "SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert claim["transaction"]["id"] == managed["id"]
+        sql(recovered, f"SELECT signer.ABORT_UNSENT_TRANSACTION_V022({managed['id']},'{claim['transaction']['claim_token']}','restore nonce refresh');")
+        renewed = json.loads(sql(recovered, f"SELECT signer.RENEW_ACCOUNT_REGISTRATION_V022(990950,{managed['id']},repeat('ef',64),'{context}');"))
+        claim = json.loads(sql(recovered, "SELECT signer.CLAIM_TRANSACTION_V022();"))
+        assert claim["transaction"]["id"] == renewed["id"]
+        token = claim["transaction"]["claim_token"]
+        saved = json.loads(sql(recovered, f"SELECT signer.SAVE_SIGNED_TRANSACTION_V022({renewed['id']},'{token}','managed-restore'::bytea,0,0,3353000,0);"))
+        sql(recovered, f"SELECT signer.BEGIN_SUBMISSION_V022({renewed['id']},'{token}'); SELECT signer.MARK_SUBMISSION_UNKNOWN_V022({renewed['id']},'{token}','restore interrupted send');")
+        managed_snapshot = """SELECT jsonb_build_object(
+            'accounts',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM signer.account a),
+            'requests',(SELECT jsonb_agg(to_jsonb(t) ORDER BY id) FROM signer.tx t),
+            'history',(SELECT jsonb_agg(to_jsonb(h) ORDER BY tx_id) FROM signer.account_registration h),
+            'proofs',(SELECT jsonb_agg(to_jsonb(p) ORDER BY tx_id) FROM signer.tx_registration_proof p),
+            'submissions',(SELECT jsonb_agg(to_jsonb(s) ORDER BY tx_id) FROM signer.tx_submission s),
+            'aborts',(SELECT jsonb_agg(to_jsonb(a) ORDER BY tx_id) FROM signer.tx_unsent_abort a));"""
+        expected = json.loads(sql(recovered, managed_snapshot))
+        managed_recovered = restore(recovered)
+        assert json.loads(sql(managed_recovered, managed_snapshot)) == expected
+        assert sql(managed_recovered, f"SELECT signer.BEGIN_SUBMISSION_V022({renewed['id']},'{token}');") == "f"
+        denied = run(command(managed_recovered) + ["psql", "-XqAt", "-v", "ON_ERROR_STOP=1", "-d", "structs", "-c",
+                     f"SELECT signer.RENEW_ACCOUNT_REGISTRATION_V022(990950,{renewed['id']},repeat('ef',64),'{context}');"], check=False)
+        assert denied.returncode and "outcome is uncertain" in denied.stderr
+        assert json.loads(sql(managed_recovered, managed_snapshot)) == expected
+        receipt = json.dumps({"stage": "deliver_tx", "hash": saved["tx_hash"], "code": "0", "codespace": "", "log": "",
+                              "height": "3353000", "index": "0", "block_hash": "D" * 64})
+        sql(managed_recovered, f"SELECT signer.RECORD_SUBMISSION_RESULT_V022({renewed['id']},'{token}','{receipt}');")
+        sql(managed_recovered, f"""INSERT INTO structs.player_address(address,player_id,status) VALUES('{address}','1-990940','approved');
+            INSERT INTO structs.permission(id,val) VALUES('8-{address}@0',16);""")
+        active = json.loads(sql(managed_recovered, f"SELECT signer.ACTIVATE_ACCOUNT_V022(990950,{renewed['id']});"))
+        assert active["status"] == "available" and active["registration_tx_id"] == renewed["id"]
+        sqitch(managed_recovered, "verify", "--from", "function-signer-account-20261030-registration-lifecycle")
         print(json.dumps({"activation_gate": True, "empty_revert_redeploy": True, "owner_acl_preserved": True,
                           "populated_revert_refused": True, "signed_history_restored": True,
                           "exact_uint64_preserved": True, "unknown_key_reserved": True,
-                          "restored_resend_permit": False, "result": "passed"}))
+                          "restored_resend_permit": False, "managed_attempts_and_aborts_restored": True,
+                          "managed_unknown_renewal_refused": True, "managed_confirmed_activation": True,
+                          "result": "passed"}))
     finally:
         for container in containers:
             run(["docker", "rm", "-f", "-v", container])

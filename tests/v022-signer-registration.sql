@@ -8,6 +8,7 @@ RETURNS JSONB LANGUAGE sql IMMUTABLE AS $$
     SELECT jsonb_build_object('chain_id','structstestnet-111','protocol','v0.22.0','source_height','3353000',
         'player_id',_player,'address',_address,'proof_nonce',_nonce,'registered_player_id','','timeout_height','0');
 $$;
+SAVEPOINT registration_cases;
 DO $$
 DECLARE
     address_a TEXT := 'structs1' || repeat('q',38);
@@ -126,10 +127,13 @@ BEGIN
     IF retried->>'id'<>managed->>'id' OR (SELECT count(*) FROM signer.tx)<>before_count+1 THEN
         RAISE EXCEPTION 'managed restart generated a replacement transaction';
     END IF;
-    UPDATE signer.account SET status='available' WHERE id=990943;
+    BEGIN
+        UPDATE signer.account SET status='available' WHERE id=990943;
+        RAISE EXCEPTION 'managed account activated without a confirmed submission';
+    EXCEPTION WHEN object_not_in_prerequisite_state THEN NULL; END;
     PERFORM signer.UPDATE_PENDING_ACCOUNT(990943,'1-990940',address_b,pubkey,signature,16,context);
-    IF (SELECT status FROM signer.account WHERE id=990943)<>'available' THEN
-        RAISE EXCEPTION 'managed restart regressed an active account to pending';
+    IF (SELECT status FROM signer.account WHERE id=990943)<>'pending' THEN
+        RAISE EXCEPTION 'managed restart skipped registration confirmation';
     END IF;
     BEGIN
         PERFORM signer.UPDATE_PENDING_ACCOUNT(990943,'1-990940',address_b,pubkey,signature,32,context);
@@ -205,8 +209,7 @@ END $$;
 
 -- The worker can prepare and claim with explicit table/function grants, without
 -- granting it superuser or permitting the proof-less legacy helper to write.
-UPDATE signer.account SET registration_tx_id=NULL WHERE registration_tx_id IS NOT NULL;
-DELETE FROM signer.tx;
+ROLLBACK TO SAVEPOINT registration_cases;
 INSERT INTO signer.account(id,role_id,status) VALUES(990946,990940,'generating');
 CREATE ROLE v022_registration_caller NOLOGIN NOSUPERUSER;
 GRANT USAGE ON SCHEMA signer,structs TO v022_registration_caller;
