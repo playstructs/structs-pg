@@ -57,12 +57,12 @@ BEGIN;
                 generated_count;
         END IF;
 
-        IF (
-            SELECT format_type(atttypid, atttypmod)
-              FROM pg_attribute
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_attribute
              WHERE attrelid = 'structs.api_inventory'::regclass
-               AND attname = 'owner_type'
-        ) <> 'structs.object_type' THEN
+               AND attname = 'owner_type' AND NOT attisdropped
+               AND atttypid = 'structs.object_type'::regtype
+        ) THEN
             RAISE EXCEPTION 'structs.api_inventory.owner_type has unexpected type';
         END IF;
     END

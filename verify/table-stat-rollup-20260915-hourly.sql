@@ -13,6 +13,9 @@ BEGIN;
         v_missing   TEXT;
         v_snapshot  NUMERIC;
         v_grid      NUMERIC;
+        v_grid_count BIGINT;
+        v_metric RECORD;
+        v_has_samples BOOLEAN;
         v_bucket    TIMESTAMPTZ := date_trunc('hour', now()) + INTERVAL '100 years'; -- never collides
     BEGIN
         SELECT count(*) INTO v_metrics FROM structs.stat_rollup_metric;
@@ -30,10 +33,16 @@ BEGIN;
         END IF;
 
         -- every metric whose sample table has data has backfilled history
-        SELECT string_agg(m.metric, ', ') INTO v_missing
-          FROM structs.stat_rollup_metric m
-         WHERE NOT EXISTS (SELECT 1 FROM structs.stat_rollup r WHERE r.metric = m.metric AND r.source = 'backfill')
-           AND m.metric IN ('ore', 'struct_health', 'struct_status', 'structs_load');
+        FOR v_metric IN SELECT m.metric,m.stat_table FROM structs.stat_rollup_metric m
+            WHERE NOT EXISTS (SELECT 1 FROM structs.stat_rollup r
+                WHERE r.metric=m.metric AND r.source='backfill')
+        LOOP
+            EXECUTE format('SELECT EXISTS (SELECT 1 FROM %s WHERE time < date_trunc(''hour'',now()) + INTERVAL ''1 hour'')',
+                v_metric.stat_table::regclass) INTO v_has_samples;
+            IF v_has_samples THEN
+                v_missing := concat_ws(', ',v_missing,v_metric.metric);
+            END IF;
+        END LOOP;
         IF v_missing IS NOT NULL THEN
             RAISE EXCEPTION 'no backfilled stat_rollup rows for: %', v_missing;
         END IF;
@@ -44,11 +53,11 @@ BEGIN;
           FROM structs.stat_rollup r
          WHERE r.metric = 'ore' AND r.object_type = 'planet' AND r.bucket = v_bucket;
 
-        SELECT COALESCE(sum(g.val), 0) INTO v_grid
+        SELECT COALESCE(sum(g.val), 0),count(*) INTO v_grid,v_grid_count
           FROM structs.grid g
          WHERE g.attribute_type = 'ore' AND g.object_type = 'planet';
 
-        IF v_snapshot IS DISTINCT FROM v_grid THEN
+        IF (v_grid_count>0 AND v_snapshot IS NULL) OR COALESCE(v_snapshot,0) IS DISTINCT FROM v_grid THEN
             RAISE EXCEPTION 'stat_rollup_snapshot ore/planet = %, grid says %', v_snapshot, v_grid;
         END IF;
     END

@@ -23,8 +23,8 @@ BEGIN;
             RAISE EXCEPTION 'expected structs.planet.name to have no column default';
         END IF;
 
-        IF to_regprocedure('structs.generate_planet_name()') IS NULL THEN
-            RAISE EXCEPTION 'expected structs.generate_planet_name() to exist';
+        IF to_regprocedure('structs.generate_planet_name(integer)') IS NULL THEN
+            RAISE EXCEPTION 'expected structs.generate_planet_name(integer) to exist';
         END IF;
     END
     $$;

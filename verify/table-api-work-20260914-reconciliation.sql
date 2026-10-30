@@ -4,6 +4,9 @@
 -- the reconciler must report nothing.
 
 BEGIN;
+-- These calls are rolled-back verification fixtures. Function statistics do
+-- not roll back and are used by the work-view migration to observe real writers.
+SET LOCAL track_functions = 'none';
 
     SELECT checked_at, category, object_id, target_id, state, api_row, live_row, source_height
       FROM structs.api_work_drift WHERE FALSE;

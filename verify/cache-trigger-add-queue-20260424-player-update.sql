@@ -2,5 +2,5 @@
 
 BEGIN;
 
--
+SELECT 1 / (to_regprocedure('cache.handle_event_player(jsonb)') IS NOT NULL)::int;
 ROLLBACK;
