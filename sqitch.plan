@@ -307,3 +307,4 @@ table-work-20261030-uint64 [role-structs-webapp-20261030-work function-api-work-
 role-structs-webapp-20261030-gameplay-reads [table-work-20261030-uint64] 2026-10-30T23:55:00Z Abstrct <josh@slow.ninja> # Explicit read-only grants for existing gameplay, catalog and statistics APIs
 function-signer-key-pool-20261103-capacity [role-structs-webapp-20261030-gameplay-reads] 2026-11-03T18:00:00Z Abstrct <josh@slow.ninja> # Bound automatic growth by copied permission capacity instead of unrelated legacy keys
 function-signer-key-pool-20261103-priority [function-signer-key-pool-20261103-capacity] 2026-11-03T19:00:00Z Abstrct <josh@slow.ninja> # Claim audited pool registrations before ordinary eligible pending work
+function-signer-20261103-observation-window [function-signer-key-pool-20261103-priority] 2026-11-03T20:00:00Z Abstrct <josh@slow.ninja> # Tolerate bounded index advancement while retaining current signing authority checks
