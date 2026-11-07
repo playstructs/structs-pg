@@ -309,3 +309,4 @@ function-signer-key-pool-20261103-capacity [role-structs-webapp-20261030-gamepla
 function-signer-key-pool-20261103-priority [function-signer-key-pool-20261103-capacity] 2026-11-03T19:00:00Z Abstrct <josh@slow.ninja> # Claim audited pool registrations before ordinary eligible pending work
 function-signer-20261103-observation-window [function-signer-key-pool-20261103-priority] 2026-11-03T20:00:00Z Abstrct <josh@slow.ninja> # Tolerate bounded index advancement while retaining current signing authority checks
 table-onboarding-20261104-replay-catalog [table-onboarding-20261019] 2026-11-04T18:00:00Z Abstrct <josh@slow.ninja> # tutorial-4-replay step catalog; player_id rules on onboarding comments
+function-planet-activity-20261106-batched-ingestion [table-planet-activity-player-20260915-attribution trigger-grass-20261029-v022-ownership] 2026-11-07T02:00:00Z Abstrct <josh@slow.ninja> # Direct single-owner activity attribution with general multi-player fallback
