@@ -131,3 +131,10 @@ historical results. Use an explicit ID when an exclusion should survive renames.
 Null usernames do not match. Invalid or empty regexes are rejected on insertion.
 Manage rules by SQL; the webapp receives SELECT only. Reverting this migration
 removes all regex rules, so export them first if needed.
+
+### v0.23.0 planet sectors
+
+`planet-sector-20261110` adds the chain's sector field to `structs.planet` and
+`view.planet`. Deploy it before the matching sync-state writer and before the
+chain's sector backfill. See [the sector indexing contract](docs/v0.23.0-planet-sector.md)
+for legacy replay, deployment order, and rollback behavior.
