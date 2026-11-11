@@ -84,7 +84,8 @@ New/later source facts cannot be inserted through record functions behind the
 cursor. Identical raid source replay is idempotent; conflicting facts/hash/time/
 message identity fail. Re-ingesting the current block with a different hash fails.
 
-Finalization requires complete ingestion through the end height and known sectors.
+In the default `planet_sectors` mode, finalization requires complete ingestion
+through the end height and known sectors.
 Sector 0 is retained explicitly and prevents an official final. A planet changing
 sector inside a contest is rejected rather than silently moving history. Register
 official contests after sector assignment; do not infer legacy sectors from the
@@ -182,3 +183,10 @@ projection, real indexer permissions, protected revert, transfers, inclusive ran
 rebuild/rewind, frozen finals, rollback, invalid attribution and chart refresh.
 `internal/sync/influence_integration_test.go` separately exercises the full game
 schema through the real block/router/buffer path in streaming and bulk modes.
+
+## Single-area competitions
+
+The follow-up `influence-single-sector-20261111` migration adds an explicit
+`single_sector` mode for all-planets competitions and a ranked standings view.
+See [single-sector setup and winner semantics](influence-single-sector-20261111.md).
+Default contests retain the geographic behavior described above.

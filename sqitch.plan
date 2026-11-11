@@ -317,3 +317,4 @@ table-onboarding-20261110-username-exclusion [table-onboarding-20261110-telemetr
 planet-sector-20261110 [table-planet-20260525-add-name view-player-planet-struct-20260914-join-lookups] 2026-11-10T20:00:00Z Abstrct <josh@slow.ninja> # Store on-chain planet sectors and expose them through the existing planet view
 influence-schema-20261111 [planet-sector-20261110 schema-sync-state-20261029-event-phase role-structs-webapp-20261030-gameplay-reads] 2026-11-11T20:00:00Z Abstrct <josh@slow.ninja> # Planet-unique influence facts, generations, projections and height-based score history
 influence-projector-20261111 [influence-schema-20261111] 2026-11-11T20:01:00Z Abstrct <josh@slow.ninja> # Atomic influence coverage, transfers, claims, contest rebuild and recovery
+influence-single-sector-20261111 [influence-projector-20261111] 2026-11-11T21:30:00Z Abstrct <josh@slow.ninja> # Explicit all-planets scoring mode and final winner standings

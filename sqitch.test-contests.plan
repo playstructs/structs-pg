@@ -2,3 +2,4 @@
 %project=structs-pg-test-contests
 
 influence-test-contest-20261111 [structs-pg:influence-projector-20261111] 2026-11-11T20:50:00Z Abstrct <josh@slow.ninja> # Optional structstestnet-111 rehearsal through Monday November 16 afternoon
+influence-test-contest-single-sector-20261111 [influence-test-contest-20261111 structs-pg:influence-single-sector-20261111] 2026-11-11T21:31:00Z Abstrct <josh@slow.ninja> # Run the rehearsal as one all-planets scoring area

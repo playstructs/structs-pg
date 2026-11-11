@@ -69,7 +69,8 @@ CREATE TABLE sync_state.sync_cursor(chain_id text PRIMARY KEY,last_height bigint
                 (path/op).mkdir()
                 for change in ['influence-schema-20261111', 'influence-projector-20261111', CHANGE]:
                     shutil.copyfile(ROOT/op/(change+'.sql'), path/op/(change+'.sql'))
-            shutil.copyfile(ROOT/'sqitch.test-contests.plan', path/'sqitch.test-contests.plan')
+            # Test the original seed independently of later optional conversions.
+            (path/'sqitch.test-contests.plan').write_text((ROOT/'sqitch.test-contests.plan').read_text().split('influence-test-contest-single-sector-20261111')[0])
             (path/'sqitch.conf').write_text('[core]\nengine = pg\n')
             # A focused main-project plan uses the real migration scripts on
             # minimal entity tables. Cross-project dependencies are real Sqitch
