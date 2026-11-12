@@ -1,7 +1,7 @@
 BEGIN;
 SELECT structs.influence_lock();
 DO $$ BEGIN IF EXISTS(SELECT 1 FROM structs.influence_grass_frame) THEN
- RAISE EXCEPTION 'influence grass outbox is populated; preserve delivery/replay data before rollback'; END IF; END $$;
+ RAISE EXCEPTION 'influence grass outbox is populated; preserve pending delivery data before rollback'; END IF; END $$;
 DROP TRIGGER influence_grass_published ON structs.influence_published_build;
 DROP FUNCTION structs.influence_grass_published();
 DROP FUNCTION structs.influence_project_raid(bigint,bigint,jsonb),structs.influence_project_member(bigint,text,text,jsonb);

@@ -16,7 +16,7 @@ the contest's configured weights; no scoring rules change in this migration.
   player and all covered planets, including changes that leave guild totals equal.
 - `influence_grass_frame`: durable complete JSON envelopes with monotonic frame
   IDs. The existing influence writer lock serializes allocation and commit order.
-  Indexes support ordered drain, scope replay, contest replacement and block
+  Indexes support ordered drain, scope predecessor lookup, contest replacement and block
   idempotency. No projection FK: rewind must not remove transport history.
 - `influence_grass_delivery`: one acknowledged cursor per NATS destination.
 
@@ -95,31 +95,48 @@ one scope. Duplicate/older frame IDs are ignored. A new build requires a replace
 frame; late old-build frames must not overwrite it. No cross-subscription part
 barrier exists: a scoreboard subscriber never waits for player messages.
 
-## Relay, replay and client
+## Relay and API recovery
 
-The updated structs-grass relay drains committed rows, publishes bounded complete
-parts, confirms a NATS flush, then advances its destination checkpoint. A retry
-may duplicate frames; it never skips an oversized influence payload. NOTIFY on
-`influence_grass` only wakes the relay. Startup and idle polling recover missed
-notifications. The existing generic grass/stub behavior is unchanged for other
-categories; influence never uses stubs.
+The structs-grass relay drains committed rows, publishes bounded complete parts,
+confirms a NATS flush, then advances its destination checkpoint. It never skips
+an oversized influence payload. NOTIFY on `influence_grass` only wakes the relay;
+startup and idle polling recover missed notifications. Other grass categories
+retain their existing behavior. Influence never uses stubs.
 
-Core NATS does not persist offline delivery. The relay therefore serves bounded
-replay directly from the retained SQL outbox **over grass**, not an HTTP API.
-See `structs-grass/README.md` for the wire protocol. No JetStream configuration is
-required. The delivery cursor is not a client acknowledgment and does not control
-replay retention. There is intentionally no pruning policy yet: retain frames
-until a separately designed snapshot-aware retention migration exists.
+Clients have subscription-only NATS access. There are no replay request subjects,
+reply inboxes, or `influence_replay_end` packets. The relay only publishes and
+needs no client-request subscription. Core NATS does not deliver offline messages;
+the HTTP API handles initial loading and resynchronization after disconnects,
+sequence gaps, or incomplete/corrupt multipart updates. Healthy updates make no
+additional HTTP requests. No JetStream configuration is needed.
 
-`structs-webapp/src/js/framework/InfluenceStream.js` provides an opt-in exact-scope
-subscriber, multipart assembler and state store. It subscribes before replaying,
-recovers on reconnect/gaps/incomplete multipart messages, verifies SHA-256,
-ignores duplicates, and updates scores, roster and sparse history without an HTTP
-client. Subscribe to the contest descriptor alongside the score/player/planet scopes a
-view needs so readiness and finality are shared without resending every player; it adds no influence UI or
-blanket subscription to every player's events. Its default assembly ceiling is
-64 MiB per subscriber, configurable on `InfluenceAssembler`. Normal history is
-segmented; a current guild replacement contains its full roster.
+The outbox protects relay delivery, not offline client recovery. There is no
+retention job yet. Preserve pending frames for every active destination; a future
+cleanup policy may remove acknowledged rows without affecting API recovery.
+
+`structs-webapp/src/js/framework/InfluenceStream.js` is an opt-in exact-scope
+subscriber, multipart assembler and state store. Its required `loadSnapshot`
+callback reads the relevant API data during bootstrap/recovery. The subscriber
+flushes its subscription before loading, buffers live updates until loading
+finishes, ignores old-build/covered-height frames, then resumes normal updates.
+It verifies digests and handles duplicate and missing frames without ever calling
+NATS publish/request. `onSnapshot` receives the newly loaded scope state;
+`onUpdate` receives complete healthy event updates.
+
+The loader returns `{build_id, height, context, data, players?, history?}`. Build
+and height come from API metadata. Adapt `data` to the selected event scope, e.g.
+`{standings: response.data}` for scores. Supply roster rows when the view maintains
+a guild roster. Optional `history` is the API's opening/sample history object;
+it is retained separately as `historyBase`, with later grass changes in the
+`history` map. All API responses used in one snapshot must have matching build
+and height, and a history range must end at that height. Retry inconsistent reads.
+A current-state-only view can omit history; it does not claim a complete graph.
+
+Subscribe to the contest descriptor alongside the score/player/planet scopes a
+view needs so readiness and finality are shared without resending every player.
+This helper adds no influence UI or blanket all-player subscription. Its default
+assembly ceiling is 64 MiB per subscriber. Replacement history is segmented;
+a current guild replacement contains its full roster.
 
 ## Rollout and operation
 
@@ -133,16 +150,14 @@ segmented; a current guild replacement contains its full roster.
    the updated docker-structs-grass wrapper. Influence is enabled by default.
    Use a stable, unique `INFLUENCE_DESTINATION` per NATS destination and one active
    relay for each destination. The SQL session lock prevents competing drains.
-4. Allow the relay to subscribe to `structs.influence.replay.>` and publish scoped
-   influence subjects and reply inboxes. Clients need subscriptions to their
-   selected scopes and `_INBOX.>`, and publish permission on the corresponding
-   replay request subjects. Treat these scores as the same public gameplay data
-   exposed by grass; do not reuse this path for private account data. Require NATS
+4. Allow the relay to publish `structs.influence.>` and clients to subscribe to
+   their selected influence scopes. Clients require no NATS publish permissions.
+   Treat these as public gameplay scores, not private account data. Require NATS
    `max_payload >= 8192`; no broker storage setting is needed.
 
 The existing `structs_indexer` connection has the required grants. No extra
 contest settings or point values are manually configured for event delivery.
-Migration rollback refuses to erase a populated outbox. Preserve replay data and
+Migration rollback refuses to erase a populated outbox. Preserve pending delivery data and
 coordinate writer/relay rollback before an operator explicitly clears it.
 
 Monitor outbox max ID minus destination cursor, relay retry logs, oldest pending
@@ -160,7 +175,7 @@ python3 tests/test_influence_integration.py --image structs/structs-pg:latest
 It exercises deploy/verify/revert, populated-schema backfill, real capture and
 projection, indexer grants, rollback, same-guild holder changes, guildless/multiple
 moves, finalization, rebuild/rewind replacement, bounded player fanout, oversized
-multipart replay, relay restart and missed-NOTIFY recovery. Full-schema block
+multipart delivery to a publish-denied client, relay restart and missed-NOTIFY recovery. Full-schema block
 integration additionally covers the real router in streaming and deferred modes.
 Run `go test ./...` in each Go package and
 `node tools/api/influence-stream.test.mjs` in structs-webapp for client semantics.

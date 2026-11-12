@@ -18,7 +18,7 @@ CREATE TABLE influence_grass_dirty (
  kind text NOT NULL CHECK(kind IN ('player','planet')), entity text NOT NULL,
  opening_guild text, PRIMARY KEY(build_id,kind,entity)
 );
--- Intentionally no FK to projections: delivery/replay must survive a rewind.
+-- Intentionally no FK to projections: pending delivery must survive a rewind.
 -- The single influence writer lock serializes IDs with commit order.
 CREATE TABLE influence_grass_frame (
  frame_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -27,13 +27,12 @@ CREATE TABLE influence_grass_frame (
  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 CREATE INDEX influence_grass_frame_subject ON influence_grass_frame(subject,frame_id);
-CREATE INDEX influence_grass_frame_replacement ON influence_grass_frame(subject,frame_id DESC) WHERE payload->>'mode'='replace';
 CREATE INDEX influence_grass_frame_contest ON influence_grass_frame(contest_id,frame_id);
 CREATE INDEX influence_grass_frame_build_height ON influence_grass_frame(build_id,height);
 CREATE TABLE influence_grass_delivery (
  destination text PRIMARY KEY, last_frame_id bigint NOT NULL DEFAULT 0 CHECK(last_frame_id>=0)
 );
-COMMENT ON TABLE influence_grass_frame IS 'Durable full influence envelopes, retained for grass replay. Never prune until a snapshot-aware retention policy exists.';
+COMMENT ON TABLE influence_grass_frame IS 'Durable full influence envelopes for relay retries. Preserve pending frames; no automatic retention job is configured.';
 
 CREATE FUNCTION influence_grass_sectors(b bigint) RETURNS smallint[]
 LANGUAGE sql STABLE SET search_path=structs,pg_temp AS $$
@@ -308,7 +307,7 @@ END $$;
 CREATE TRIGGER influence_grass_published AFTER INSERT OR UPDATE ON influence_published_build
  FOR EACH ROW EXECUTE FUNCTION influence_grass_published();
 
--- Establish a replay baseline without rebuilding or changing contest scores.
+-- Publish an initial baseline without rebuilding or changing contest scores.
 DO $$ DECLARE b record; BEGIN FOR b IN SELECT build_id FROM influence_published_build ORDER BY contest_id LOOP
  PERFORM influence_grass_emit(b.build_id,true); END LOOP; END $$;
 DO $$ DECLARE f record; BEGIN
