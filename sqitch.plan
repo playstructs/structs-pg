@@ -319,3 +319,4 @@ influence-schema-20261111 [planet-sector-20261110 schema-sync-state-20261029-eve
 influence-projector-20261111 [influence-schema-20261111] 2026-11-11T20:01:00Z Abstrct <josh@slow.ninja> # Atomic influence coverage, transfers, claims, contest rebuild and recovery
 influence-single-sector-20261111 [influence-projector-20261111] 2026-11-11T21:30:00Z Abstrct <josh@slow.ninja> # Explicit all-planets scoring mode and final winner standings
 influence-grass-20261111 [influence-single-sector-20261111] 2026-11-11T23:00:00Z Abstrct <josh@slow.ninja> # Atomic data-bearing influence events, personal history and durable grass delivery outbox
+influence-player-history-read-20261111 [influence-grass-20261111] 2026-11-11T23:30:00Z Abstrct <josh@slow.ninja> # Let the webapp read maintained personal influence history
