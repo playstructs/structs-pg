@@ -138,3 +138,35 @@ removes all regex rules, so export them first if needed.
 `view.planet`. Deploy it before the matching sync-state writer and before the
 chain's sector backfill. See [the sector indexing contract](docs/v0.23.0-planet-sector.md)
 for legacy replay, deployment order, and rollback behavior.
+
+## v0.23.0 connection capacity maximum
+
+Deploy `grid-connection-capacity-maximum-20261114` before testnet height
+3,621,500, together with the updated `docker-structs-pg` sync-state writer.
+The existing `planet-sector-20261110` migration covers the other new v0.23.0
+field; it is an explicit prerequisite of this migration.
+
+Grid attribute 15 (`15-4-<substation index>`) is `connectionCapacityMaximum`.
+Its existing `NUMERIC` value is an exact uint64 in chain power units. Zero means
+unlimited; an empty event value deletes the record. The migration updates the
+legacy SQL event handler and GRASS notification formatter, repairs old labels
+without changing values, and adds a targeted uint64 constraint. The Go writer
+also repairs labels when replaying an unchanged value. No cap history table or
+new grid column is needed. GRASS keeps raw `value_p`/`value_old_p` and formats
+`value`/`value_old` using exact integer division by 1,000.
+
+The old writer maps attribute 15 to NULL, which fails the deployed NOT NULL
+constraint. Stop the old writer, deploy/verify the schema, then start the new
+writer. Keep all existing grid constraints. Reverting refuses while any cap
+records exist; it never deletes chain data to make rollback succeed.
+
+Focused disposable PostgreSQL verification (does not touch an existing cluster):
+
+```sh
+PG_BIN=/path/to/postgresql/bin python3 tests/v023_grid_cap_lifecycle.py
+```
+
+The lifecycle test covers repair, uint64 limits, zero, deletion, idempotent replay,
+invalid values, rollback refusal, and revert/redeploy. `tests/v023-grid-cap.sql`
+can also run against an isolated migrated database. Full-stack TimescaleDB and
+container verification remain separate from this focused fixture.
