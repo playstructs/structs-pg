@@ -170,3 +170,7 @@ The lifecycle test covers repair, uint64 limits, zero, deletion, idempotent repl
 invalid values, rollback refusal, and revert/redeploy. `tests/v023-grid-cap.sql`
 can also run against an isolated migrated database. Full-stack TimescaleDB and
 container verification remain separate from this focused fixture.
+
+Deploy `grid-cap-handler-permissions-20261114` as well. The legacy SQL compatibility
+handler is owner-only; PUBLIC and the webapp must not be able to mutate indexed
+state through its SECURITY DEFINER privileges. Revert retains this restriction.

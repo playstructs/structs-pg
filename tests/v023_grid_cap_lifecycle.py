@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory(prefix='structs-v023-') as tmp:
         def script(direction):
             return (root / direction / (change + '.sql')).read_text()
 
-        sql('''CREATE SCHEMA structs; CREATE SCHEMA cache;
+        sql('''CREATE SCHEMA structs; CREATE SCHEMA cache; CREATE ROLE structs_webapp; GRANT USAGE ON SCHEMA cache TO structs_webapp;
 CREATE TABLE structs.player_object(object_id text, player_id text);
 CREATE TABLE structs.planet(id text, owner text);
 ''' + (root / 'deploy/table-grid.sql').read_text() + '''
@@ -41,6 +41,8 @@ VALUES('15-4-999824','wrong','substation','4-999824',9007199254740993);
 ''' + (root / 'deploy/function-unit-display-format.sql').read_text()
             + (root / 'deploy/trigger-grass-grid.sql').read_text())
         sql(script('deploy'))
+        sql((root / 'deploy/grid-cap-handler-permissions-20261114.sql').read_text())
+        sql((root / 'verify/grid-cap-handler-permissions-20261114.sql').read_text())
         sql(script('verify'))
         sql("""DO $$ BEGIN
 IF NOT EXISTS(SELECT 1 FROM structs.grid WHERE id='15-4-999824'
@@ -55,8 +57,11 @@ RAISE EXCEPTION 'backfill lost value'; END IF; END $$;""")
         sql("DELETE FROM structs.grid WHERE id='15-4-999824';")
         sql(script('revert'))
         sql(script('deploy'))
+        sql((root / 'deploy/grid-cap-handler-permissions-20261114.sql').read_text())
+        sql((root / 'verify/grid-cap-handler-permissions-20261114.sql').read_text())
         sql(script('verify'))
-        print('PASS: deploy, label repair, exact uint64, zero/delete, replay, invalid-value refusal, guarded revert and redeploy')
+        sql("SET ROLE structs_webapp; SELECT cache.handle_event_grid('{\"attributeId\":\"15-4-999824\",\"value\":\"1\"}');", 'permission denied for function handle_event_grid')
+        print('PASS: restricted execution, deploy, label repair, exact uint64, zero/delete, replay, invalid-value refusal, guarded revert and redeploy')
     finally:
         subprocess.run([str(bin_dir / 'pg_ctl'), '-D', str(data), '-m', 'fast', 'stop'],
                        check=True, stdout=subprocess.DEVNULL)
