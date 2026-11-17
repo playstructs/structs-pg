@@ -176,3 +176,12 @@ container verification remain separate from this focused fixture.
 Deploy `grid-cap-handler-permissions-20261114` as well. The legacy SQL compatibility
 handler is owner-only; PUBLIC and the webapp must not be able to mutate indexed
 state through its SECURITY DEFINER privileges. Revert retains this restriction.
+
+### TimescaleDB policy job recovery
+
+Deploy `timescaledb-jobs-20261117-portal-workaround` to run activity refresh,
+compression, and job-history retention policies through pg_cron while the
+PostgreSQL 18.7 portal-runner incompatibility is unresolved. See
+[deployment, verification, and rollback instructions](docs/timescaledb-jobs.md).
+The migration discovers job IDs, adopts matching incident workarounds, and
+preserves original scheduling state for rollback.
