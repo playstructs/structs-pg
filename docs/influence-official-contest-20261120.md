@@ -83,6 +83,8 @@ chain stores the definition without publishing results for this testnet.
 
 Truncating the raw influence hypertable alone leaves old materialized rows.
 The migration clears those chunks using Timescale's public `drop_chunks` API.
+It resolves the extension schema from `pg_extension`; the API may live in
+`structs` (production) or `public`, and is not hard-coded to either namespace.
 The aggregate's identity, definition, grants, indexes and any operator-added
 policies remain intact. Cleared coverage markers keep API history on the exact
 raw path until the new official data has been refreshed and marked available.
@@ -98,11 +100,17 @@ once; later `sqitch deploy` calls do not erase official scores.
 
 ```sh
 python3 tests/test_influence_official_contest.py --image structs/structs-pg:latest
+python3 tests/test_influence_official_contest.py --image structs/structs-pg:latest --timescale-schema public
 ```
 
 The runner uses an isolated PostgreSQL/Timescale container and real Sqitch,
 including populated rehearsal history/aggregates and preservation of canonical
 history. It never connects to a guild database.
+
+If deployment of commit `861902a` failed with `public.drop_chunks ... does not
+exist`, the migration transaction rolled back and Sqitch did not record it as
+deployed. Publish this correction and retry normal `sqitch deploy --verify`.
+No manual deletion, reseeding, revert or Sqitch registry repair is needed.
 
 ```sql
 SELECT c.*, b.build_id, b.projected_height, b.state

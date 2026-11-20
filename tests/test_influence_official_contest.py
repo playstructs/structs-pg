@@ -23,6 +23,8 @@ BASE = ['influence-schema-20261111', 'influence-projector-20261111',
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--image', required=True)
+    parser.add_argument('--timescale-schema', choices=['structs', 'public'], default='structs',
+                        help='Default matches the production extension installation')
     parser.add_argument('--stream-fixture', help='Optional JSON export for testing an existing client store')
     args = parser.parse_args()
     name = 'influence-official-reset-' + uuid.uuid4().hex[:10]
@@ -53,7 +55,12 @@ def main():
         database = 'postgres'
         sql('CREATE DATABASE ' + case)
         database = case
-        sql('''CREATE EXTENSION timescaledb; CREATE SCHEMA structs; CREATE SCHEMA sync_state;
+        sql(f'CREATE SCHEMA structs; CREATE EXTENSION timescaledb WITH SCHEMA {args.timescale_schema};')
+        sql(f'ALTER DATABASE {case} SET search_path=structs,public;')
+        assert sql("SELECT n.nspname FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname='timescaledb';") == args.timescale_schema
+        if args.timescale_schema == 'structs':
+            assert sql("SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE p.proname='drop_chunks' AND n.nspname='public';") == '0'
+        sql('''CREATE SCHEMA sync_state;
 GRANT USAGE ON SCHEMA structs TO structs_indexer,structs_webapp;
 CREATE TABLE structs.player(id text PRIMARY KEY,guild_id text);
 CREATE TABLE structs.current_block(chain text PRIMARY KEY,height bigint);
@@ -289,7 +296,7 @@ SELECT alter_job(add_continuous_aggregate_policy('structs.influence_score_change
         assert fingerprint() == original
         assert published() == '0'
         sqitch('verify')
-        print('PASS late/finished deployment replay, inadequate coverage and unrelated chain preservation', flush=True)
+        print(f'PASS late/finished deployment replay, inadequate coverage and unrelated chain preservation (Timescale schema: {args.timescale_schema})', flush=True)
     finally:
         subprocess.run(['docker', 'rm', '-f', name], check=False, capture_output=True)
 

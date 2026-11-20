@@ -54,8 +54,15 @@ TRUNCATE TABLE
 -- TRUNCATE of a Timescale source does not immediately clear its materialized
 -- aggregate. Purge all materialized chunks through the supported public API,
 -- retaining the view identity, grants, indexes and any operator-added policies.
-SELECT public.drop_chunks('structs.influence_score_change_1000',
- older_than=>9223372036854775807::bigint);
+DO $$
+DECLARE extension_schema name;
+BEGIN
+ SELECT n.nspname INTO STRICT extension_schema
+ FROM pg_catalog.pg_extension e JOIN pg_catalog.pg_namespace n ON n.oid=e.extnamespace
+ WHERE e.extname='timescaledb';
+ EXECUTE format('SELECT %I.drop_chunks($1::regclass, older_than=>$2::bigint)',extension_schema)
+ USING 'structs.influence_score_change_1000',9223372036854775807::bigint;
+END $$;
 
 ALTER SEQUENCE structs.influence_rule_set_rule_id_seq RESTART WITH 1;
 INSERT INTO structs.influence_rule_set(win_points,claim_points,policy)
