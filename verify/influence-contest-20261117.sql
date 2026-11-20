@@ -2,6 +2,16 @@
 BEGIN;
 DO $$
 BEGIN
+ -- Superseded by the explicit official-contest reset. Keep full-plan verify
+ -- useful after the rehearsal definition and its initializer are removed.
+ IF to_regprocedure('structs.influence_official_contest_initialize()') IS NOT NULL THEN
+  IF NOT EXISTS(SELECT 1 FROM structs.influence_contest WHERE contest_id=1
+   AND chain_id='structstestnet-111' AND start_height=3743186 AND end_height=3957791
+   AND scoring_mode='planet_sectors' AND rule_id=1) THEN
+   RAISE EXCEPTION 'official contest did not replace the rehearsal';
+  END IF;
+  RETURN;
+ END IF;
  IF NOT EXISTS(SELECT 1 FROM structs.influence_contest c JOIN structs.influence_rule_set r USING(rule_id)
   WHERE c.contest_id=2 AND c.chain_id='structstestnet-111' AND c.start_height=3633541
   AND c.end_height=3649817 AND c.rule_id=1 AND c.scoring_mode='planet_sectors'

@@ -1,5 +1,7 @@
 # November 17–18 three-sector contest
 
+This rehearsal is superseded and removed by [the official contest reset](influence-official-contest-20261120.md).
+
 `influence-contest-20261117` is in the **normal `sqitch.plan`**. Every guild
 deploying this schema receives the same immutable contest ID **2**, even if it
 never installed the optional contest 1 rehearsal. No optional plan, local insert,

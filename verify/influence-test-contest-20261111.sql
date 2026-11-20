@@ -3,6 +3,14 @@ BEGIN;
 DO $$
 DECLARE first_height bigint; cid bigint; n bigint;
 BEGIN
+ IF to_regprocedure('structs.influence_official_contest_initialize()') IS NOT NULL THEN
+  IF NOT EXISTS(SELECT 1 FROM structs.influence_contest WHERE contest_id=1
+   AND chain_id='structstestnet-111' AND start_height=3743186 AND end_height=3957791
+   AND scoring_mode='planet_sectors' AND rule_id=1) THEN
+   RAISE EXCEPTION 'official contest did not replace the rehearsal';
+  END IF;
+  RETURN;
+ END IF;
  SELECT greatest(3545535::bigint,coverage_start) INTO STRICT first_height
  FROM structs.influence_source_cursor WHERE chain_id='structstestnet-111';
  SELECT count(*),min(contest_id) INTO n,cid FROM structs.influence_contest

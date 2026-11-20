@@ -11,7 +11,7 @@ In the distant future the species of the galaxy are embroiled in a race for Alph
 ## Get started
 **structs-pg** uses [Sqitch](https://sqitch.org/) to orchestrate the deployment of the Structs postgres database, including verification and revert capabilities. 
 
-The normal migration plan includes [the November 17–18 three-sector influence contest](docs/influence-contest-20261117.md), with shared contest ID 2 and fixed inclusive block heights across guilds.
+The normal migration plan includes [the official three-sector influence contest and rehearsal reset](docs/influence-official-contest-20261120.md): contest 1, inclusive blocks 3,743,186–3,957,791. Old contest test data is cleared; canonical chain history is preserved.
 
 ### Install Sqitch
 Sqitch [Install Options](https://sqitch.org/download/)
