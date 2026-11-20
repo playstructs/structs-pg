@@ -1,6 +1,10 @@
 # November 17–18 three-sector contest
 
 This rehearsal is superseded and removed by [the official contest reset](influence-official-contest-20261120.md).
+Its deploy script is now a read-only compatibility step: new upgrades do not
+reserve contest ID 2, create test data or install its initializer. Existing data
+is left intact until the official reset. The historical notes below describe the
+original November 17 release; they are not current deployment instructions.
 
 `influence-contest-20261117` is in the **normal `sqitch.plan`**. Every guild
 deploying this schema receives the same immutable contest ID **2**, even if it

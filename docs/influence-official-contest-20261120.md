@@ -68,7 +68,11 @@ serialized with influence ingestion. A 10-second lock timeout makes a busy
 deployment fail cleanly for retry. The API context table is locked first to
 drain in-flight snapshots before its projections are replaced.
 
-The old November 17 bootstrap trigger is removed, so it cannot recreate a test
+The expired November 17 seed now deploys as a read-only compatibility step.
+This lets lagging guilds with different test IDs/rules reach the official reset
+instead of failing while trying to register an obsolete contest. Already
+applied copies remain recorded in Sqitch; no registry edits are needed. The
+reset removes the old bootstrap trigger if present, so it cannot recreate a test
 contest. The replacement deferred trigger initializes official contest 1 after
 the writer's complete first block/baseline, including on fresh installs. It is
 owner-only and requires no sync-state or Grass binary change. With existing
@@ -90,8 +94,8 @@ policies remain intact. Cleared coverage markers keep API history on the exact
 raw path until the new official data has been refreshed and marked available.
 
 The earlier rehearsal verification scripts recognize this explicit replacement,
-so full-plan verification still works. Previously deployed migration bodies and
-Sqitch registry entries are retained. Reverting is intentionally refused: deleted
+so full-plan verification still works. Sqitch plan identities and existing
+registry entries are retained. Reverting is intentionally refused: deleted
 test data cannot be restored by a schema rollback. Use a forward migration for
 any subsequent correction. The normal Sqitch registry ensures the reset runs
 once; later `sqitch deploy` calls do not erase official scores.
@@ -111,6 +115,12 @@ If deployment of commit `861902a` failed with `public.drop_chunks ... does not
 exist`, the migration transaction rolled back and Sqitch did not record it as
 deployed. Publish this correction and retry normal `sqitch deploy --verify`.
 No manual deletion, reseeding, revert or Sqitch registry repair is needed.
+
+If deployment stopped earlier at `influence-contest-20261117` with `contest ID 2
+is already used by a different contest`, it never reached the official reset.
+Publish the retired-seed correction and retry normal deployment. Do not delete
+contest 2 manually: the official reset clears all test state and emits the
+appropriate Grass replacements in one transaction.
 
 ```sql
 SELECT c.*, b.build_id, b.projected_height, b.state

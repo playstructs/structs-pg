@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the shared contest migration with real Sqitch/PG/Timescale, isolated."""
+"""Exercise the historical rehearsal fixture; current upgrade paths are tested in test_influence_official_contest.py."""
 import argparse
 import json
 from pathlib import Path
@@ -104,6 +104,8 @@ INSERT INTO structs.player VALUES('a','G1'),('b','G2'),('c','G3');''')
                 (path / op).mkdir()
                 for change in [*BASE, CHANGE]:
                     shutil.copyfile(ROOT / op / (change + '.sql'), path / op / (change + '.sql'))
+            shutil.copyfile(ROOT / 'tests/fixtures/influence-contest-20261117-original.sql',
+                            path / 'deploy' / (CHANGE + '.sql'))
             (path / 'sqitch.conf').write_text('[core]\nengine = pg\n')
             lines = ['%syntax-version=1.0.0', '%project=structs-pg', '']
             for i, change in enumerate(BASE):

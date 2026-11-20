@@ -141,7 +141,13 @@ INSERT INTO structs.player VALUES('a','G1'),('b','G2'),('c','G3');''')
         fresh('populated')
         block(OLD_START-1, bootstrap=True)
         assert sql(f"SELECT structs.influence_create_contest('{CHAIN}',{OLD_START-1},{OLD_START+2},1,'single_sector');") == '1'
+        # Simulate a guild that really applied the original seed, including its
+        # initializer and registry entry; later/fresh cases use the retired seed.
+        run('docker', 'cp', str(ROOT / 'tests/fixtures/influence-contest-20261117-original.sql'),
+            name + ':/opt/influence-test/deploy/' + REHEARSAL + '.sql')
         sqitch(to=REHEARSAL)
+        run('docker', 'cp', str(ROOT / 'deploy' / (REHEARSAL + '.sql')),
+            name + ':/opt/influence-test/deploy/' + REHEARSAL + '.sql')
         block(OLD_START, raid=True)
         block(OLD_START+1, guild='G3')
         block(OLD_START+2, raid=True, sector=127, planet='q')
@@ -232,7 +238,7 @@ SELECT alter_job(add_continuous_aggregate_policy('structs.influence_score_change
         sqitch()
         assert scores() == before_redeploy  # Repeat deployment must not reset official gameplay.
         # Direct script rerun must roll back rather than reset scored official data.
-        sql((ROOT/'deploy'/(CHANGE+'.sql')).read_text(), fail='does not exist')
+        sql((ROOT/'deploy'/(CHANGE+'.sql')).read_text(), fail='already exists')
         assert scores() == before_redeploy
         jump_empty(END-1)
         block(END, guild='G1')
@@ -245,6 +251,41 @@ SELECT alter_job(add_continuous_aggregate_policy('structs.influence_score_change
         sqitch('revert', fail='cannot restore deleted test data', to=REHEARSAL)
         assert sql("SELECT nextval('structs.influence_contest_contest_id_seq');") == '2'
         print('PASS populated reset, rollback, canonical history, cache removal, Grass generations and official gameplay', flush=True)
+
+        # Regression: a lagging guild has scored local test contests, including
+        # a different ID 2 and the old fixed window under another ID. Upgrading
+        # must reach the official reset without manually deleting any rows.
+        fresh('conflicting_rehearsals')
+        block(OLD_START-1, bootstrap=True)
+        for lo, hi, mode in [(OLD_START-1,OLD_START+5,'single_sector'),
+                             (OLD_START,OLD_START+10,'single_sector'),
+                             (OLD_START,3649817,'planet_sectors')]:
+            sql(f"SELECT structs.influence_create_contest('{CHAIN}',{lo},{hi},1,'{mode}');")
+        block(OLD_START, raid=True)
+        assert sql("SELECT count(*) FROM sqitch.changes WHERE project='structs-pg' AND change='influence-contest-20261117';") == '0'
+        original = fingerprint()
+        def contest_state():
+            return sql("""SELECT jsonb_build_object(
+ 'contests',(SELECT jsonb_agg(to_jsonb(c) ORDER BY contest_id) FROM structs.influence_contest c),
+ 'builds',(SELECT jsonb_agg(to_jsonb(b) ORDER BY build_id) FROM structs.influence_projection_build b),
+ 'scores',(SELECT jsonb_agg(to_jsonb(s) ORDER BY build_id,guild,sector) FROM structs.influence_guild_sector s),
+ 'frames',(SELECT md5(string_agg(payload::text,'' ORDER BY frame_id)) FROM structs.influence_grass_frame),
+ 'sequence',(SELECT jsonb_build_object('last_value',last_value,'is_called',is_called) FROM structs.influence_contest_contest_id_seq));""")
+        before = contest_state()
+        sqitch(to=REHEARSAL)
+        assert contest_state() == before  # Compatibility step is read-only.
+        assert fingerprint() == original
+        assert sql("SELECT count(*) FROM pg_trigger WHERE tgname='influence_contest_20261117_initialize';") == '0'
+        sqitch()
+        assert fingerprint() == original
+        assert sql('SELECT string_agg(contest_id::text,\',\') FROM structs.influence_contest;') == '1'
+        assert sql('SELECT start_height FROM structs.influence_contest WHERE contest_id=1;') == str(START)
+        assert scores() == ''
+        assert sql('SELECT count(*) FROM structs.influence_score_change;') == '0'
+        assert sql('SELECT count(*) FROM structs.influence_player_score_change;') == '0'
+        assert sql("SELECT count(*) FROM structs.influence_grass_frame WHERE contest_id<>1 AND payload->'context'->>'status'<>'removed';") == '0'
+        sqitch('verify')
+        print('PASS upgrade past occupied test ID 2 and duplicate rehearsal window without changing chain history', flush=True)
 
         fresh('before_writer')
         sqitch()

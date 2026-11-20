@@ -35,8 +35,9 @@ BEGIN
  VALUES(nextval('structs.influence_projection_build_build_id_seq'));
 END $$;
 
-DROP TRIGGER influence_contest_20261117_initialize ON structs.influence_source_cursor;
-DROP FUNCTION structs.influence_contest_20261117_initialize();
+-- New upgrades skip the retired seed; older installations may have its hook.
+DROP TRIGGER IF EXISTS influence_contest_20261117_initialize ON structs.influence_source_cursor;
+DROP FUNCTION IF EXISTS structs.influence_contest_20261117_initialize();
 
 -- Explicit list: no CASCADE into canonical raid/membership/cursor tables.
 -- Keep relay delivery cursors as well: their publishers hold a cursor in memory.
